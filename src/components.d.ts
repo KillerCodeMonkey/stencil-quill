@@ -12,12 +12,23 @@ import '@stencil/core';
 export namespace Components {
 
   interface QuillComponent {
-    'first': string;
-    'last': string;
+    'content': string;
   }
   interface QuillComponentAttributes extends StencilHTMLAttributes {
-    'first'?: string;
-    'last'?: string;
+    'content'?: string;
+    'onOnContentChanged'?: (event: CustomEvent<{
+      editor: any
+      delta: any
+      oldDelta: any
+      source: string
+    }>) => void;
+    'onOnInitialised'?: (event: CustomEvent<any>) => void;
+    'onOnSelectionChanged'?: (event: CustomEvent<{
+      editor: any
+      range: any
+      oldRange: any
+      source: string
+    }>) => void;
   }
 }
 

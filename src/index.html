@@ -4,12 +4,35 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
   <title>Stencil Component Starter</title>
-  <script src="/build/mycomponent.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.bubble.css">
+  <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css">
+
+  <script src="/build/quill-component.js"></script>
 </head>
 <body>
 
-  <quill-component first="Stencil" last="'Don't call me a framework' JS"></quill-component>
+  <quill-component content="test"></quill-component>
+  <script>
+    document.querySelector('quill-component').addEventListener('onInitialised', (event) => {
+      console.log('onInitialised', event.detail)
+    });
 
+    document.querySelector('quill-component').addEventListener('onContentChanged', (event, ) => {
+      console.log('onContentChanged', event.detail)
+    });
+
+    document.querySelector('quill-component').addEventListener('onSelectionChanged', (event) => {
+      console.log('onSelectionChanged', event.detail)
+    });
+  </script>
 </body>
 </html>
