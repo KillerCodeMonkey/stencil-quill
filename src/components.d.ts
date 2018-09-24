@@ -12,10 +12,22 @@ import '@stencil/core';
 export namespace Components {
 
   interface QuillComponent {
+    'bounds': HTMLElement | string;
     'content': string;
+    'formats': string[];
+    'modules': { [index: string]: Object };
+    'placeholder': string;
+    'readOnly': boolean;
+    'scrollingContainer': HTMLElement | string;
+    'strict': boolean;
+    'styles': any;
+    'theme': string;
   }
   interface QuillComponentAttributes extends StencilHTMLAttributes {
+    'bounds'?: HTMLElement | string;
     'content'?: string;
+    'formats'?: string[];
+    'modules'?: { [index: string]: Object };
     'onOnContentChanged'?: (event: CustomEvent<{
       editor: any
       delta: any
@@ -29,6 +41,12 @@ export namespace Components {
       oldRange: any
       source: string
     }>) => void;
+    'placeholder'?: string;
+    'readOnly'?: boolean;
+    'scrollingContainer'?: HTMLElement | string;
+    'strict'?: boolean;
+    'styles'?: any;
+    'theme'?: string;
   }
 }
 
