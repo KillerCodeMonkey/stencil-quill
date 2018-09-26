@@ -14,6 +14,7 @@ export namespace Components {
   interface QuillComponent {
     'bounds': HTMLElement | string;
     'content': string;
+    'format': 'object' | 'html' | 'text' | 'json';
     'formats': string[];
     'modules': { [index: string]: Object };
     'placeholder': string;
@@ -26,10 +27,14 @@ export namespace Components {
   interface QuillComponentAttributes extends StencilHTMLAttributes {
     'bounds'?: HTMLElement | string;
     'content'?: string;
+    'format'?: 'object' | 'html' | 'text' | 'json';
     'formats'?: string[];
     'modules'?: { [index: string]: Object };
     'onOnContentChanged'?: (event: CustomEvent<{
       editor: any
+      content: any
+      text: string
+      html: string
       delta: any
       oldDelta: any
       source: string

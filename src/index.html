@@ -48,7 +48,8 @@
   <h3>Default Editor</h3>
   <button id="readOnly">Set Readonly</button>
   <button id="placeholder">Set Placeholder</button>
-  <quill-component id="quill-component" content="test"></quill-component>
+  <button id="text">Set Text</button>
+  <quill-component id="quill-component" format="html" content="test"></quill-component>
 
   <h3>Custom HTML Toolbar</h3>
   <quill-component content="test">
@@ -88,6 +89,11 @@
     const placeholderButton = document.getElementById('placeholder')
     placeholderButton.onclick = () => {
       quillComponent.placeholder = quillComponent.placeholder + '!'
+    }
+
+    const textButton = document.getElementById('text')
+    textButton.onclick = () => {
+      quillComponent.content = 'test!!!'
     }
 
     quillComponent.addEventListener('onInitialised', (event) => {

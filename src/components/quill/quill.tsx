@@ -12,6 +12,9 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   @Event() onInitialised: EventEmitter<any>;
   @Event() onContentChanged: EventEmitter<{
     editor: any
+    content: any
+    text: string
+    html: string
     delta: any
     oldDelta: any
     source: string
@@ -25,8 +28,11 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
 
   @Element() wrapperElement: HTMLElement;
 
+  @Prop() format: 'object' | 'html' | 'text' | 'json' = 'html';
   @Prop() bounds: HTMLElement | string;
-  @Prop() content: string;
+  @Prop({
+    reflectToAttr: true
+  }) content: string;
   @Prop() formats: string[];
   @Prop() modules: { [index: string]: Object };
   @Prop() placeholder: string = 'Insert text here ...';
@@ -68,6 +74,25 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   selectionChangeEvent: any;
   textChangeEvent: any;
 
+  setEditorContent(value: any) {
+    if (this.format === 'object') {
+      this.quillEditor.setContents(value, 'silent');
+    } else if (this.format === 'html') {
+      const contents = this.quillEditor.clipboard.convert(value);
+      this.quillEditor.setContents(contents, 'silent');
+    } else if (this.format === 'text') {
+      this.quillEditor.setText(value);
+    } else if (this.format === 'json') {
+      try {
+        this.quillEditor.setContents(JSON.parse(value), 'silent');
+      } catch (e) {
+        this.quillEditor.setText(value, 'silent');
+      }
+    } else {
+      this.quillEditor.setText(value, 'silent');
+    }
+  }
+
   componentDidLoad() {
     let modules: any = this.modules || this.defaultModules;
 
@@ -96,7 +121,8 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
     });
 
     if (this.content) {
-      this.quillEditor.setText(this.content, 'silent');
+      this.setEditorContent(this.content);
+
       this.quillEditor['history'].clear();
     }
 
@@ -117,11 +143,22 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
     this.textChangeEvent = this.quillEditor.on(
       'text-change',
       (delta: any, oldDelta: any, source: string) => {
+        const text = this.quillEditor.getText();
+        const content = this.quillEditor.getContents();
+
+        let html: string | null = this.editorElement.children[0].innerHTML;
+        if (html === '<p><br></p>' || html === '<div><br><div>') {
+          html = null;
+        }
+
         this.onContentChanged.emit({
           editor: this.quillEditor,
+          content,
           delta,
+          html,
           oldDelta,
-          source
+          source,
+          text
         });
       }
     );
@@ -134,6 +171,17 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
     if (this.textChangeEvent) {
       this.textChangeEvent.removeListener('text-change');
     }
+  }
+
+  @Watch('content')
+  updateContent(newValue: any, oldValue: any): void {
+    if (typeof newValue === 'string' && newValue === oldValue) {
+      return null
+    } else if (JSON.stringify(newValue) === JSON.stringify(oldValue)) {
+      return null
+    }
+
+    this.setEditorContent(newValue)
   }
 
   @Watch('readOnly')
