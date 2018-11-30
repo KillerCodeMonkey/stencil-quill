@@ -1,6 +1,6 @@
 {
   "name": "stencil-quill",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "Stencil component for quill editor",
   "module": "dist/esm/index.js",
   "main": "dist/index.js",
@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "build": "stencil build",
+    "build:deploy": "stencil build && cp ./src/index.html ./dist && gh-pages -d ./dist",
     "start": "stencil build --dev --watch --serve",
     "test": "jest",
     "test.watch": "jest --watch"
@@ -29,9 +30,10 @@
     "quill": "^1.3.6"
   },
   "devDependencies": {
-    "@stencil/core": "^0.13.2",
+    "@stencil/core": "^0.16.0",
     "@types/jest": "^23.3.2",
     "@types/quill": "^1.3.10",
+    "gh-pages": "2.0.1",
     "jest": "^23.6.0",
     "quill": "^1.3.6"
   },
@@ -39,7 +41,7 @@
     "type": "git",
     "url": "git+https://github.com/KillerCodeMonkey/stencil-quill.git"
   },
-  "author": "Ionic Team",
+  "author": "Bengt Weiße",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/KillerCodeMonkey/stencil-quill"

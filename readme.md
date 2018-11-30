@@ -6,12 +6,33 @@ Stencil component for rich text editor Quill
 
 <img src="https://cloud.githubusercontent.com/assets/2264672/20601381/a51753d4-b258-11e6-92c2-1d79efa5bede.png" width="200px">
 
+## Donate/Support
+
+If you like my work, feel free to support it. Donations to the project are always welcomed :)
+
+PayPal: [PayPal.Me/bengtler](PayPal.Me/bengtler)
+
+BTC Wallet Address:
+`3QVyr2tpRLBCw1kBQ59sTDraV6DTswq8Li`
+
+ETH Wallet Address:
+`0x394d44f3b6e3a4f7b4d44991e7654b0cab4af68f`
+
+LTC Wallet Address:
+`MFif769WSZ1g7ReAzzDE7TJVqtkFpmoTyT`
+
+XRP Wallet Address:
+`rXieaAC3nevTKgVu2SYoShjTCS2Tfczqx?dt=159046833`
+
+## Examples
+
+- [Live Demo](https://killercodemonkey.github.io/stencil-quill)
+
 ## Installation
 - `npm install stencil-quill`
 - load `node_modules/stencil-quill/dist/quill-component.js` in your index.html or add it to your build process or project
 - use `<quill-component></quill-component>` in your templates to add a default quill editor
 - do not forget to install `quill` and include it + theme css in your buildprocess, module or `index.html`!
-
 
 ## Config
 - content - the base content of the editor
@@ -45,7 +66,7 @@ Stencil component for rich text editor Quill
 };
 ```
 - theme - bubble/snow, default is `snow`
-- style - set a style object, e.g. `[style]="{height: '250px'}"`
+- styles - set a styles object, e.g. `styles="{height: '250px'}"`
 - placeholder - placeholder text, default is `Insert text here ...`
 - bounds - boundary of the editor, default `document.body`, pass 'self' to attach the editor element
 - strict - default: true, sets editor in strict mode

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
-  <title>Stencil Component Starter</title>
+  <title>Stencil Quill</title>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
@@ -43,16 +43,18 @@
     /* We do not set Aref Ruqaa since it is the default font */
   </style>
   <script src="/build/quill-component.js"></script>
+  <script src="/stencil-quill/quill-component.js"></script>
 </head>
 <body>
   <h3>Default Editor</h3>
   <button id="readOnly">Set Readonly</button>
   <button id="placeholder">Set Placeholder</button>
   <button id="text">Set Text</button>
-  <quill-component id="quill-component" format="html" content="test"></quill-component>
+  <button id="backgroundColor">Toggle BackgroundColor</button>
+  <quill-component id="quill-component" styles="{ backgroundColor: 'blue' }" format="object" content="{ ops: [{insert: 'hallo' }] }"></quill-component>
 
   <h3>Custom HTML Toolbar</h3>
-  <quill-component content="test">
+  <quill-component content="test" format="html">
     <div slot="quill-toolbar">
       <span class="ql-formats">
         <select class="ql-font">
@@ -93,7 +95,12 @@
 
     const textButton = document.getElementById('text')
     textButton.onclick = () => {
-      quillComponent.content = 'test!!!'
+      quillComponent.content = { ops: [{ insert: 'test!!!\n' }]}
+    }
+
+    const backgroundColorButton = document.getElementById('backgroundColor')
+    backgroundColorButton.onclick = () => {
+      quillComponent.styles = !quillComponent.styles.backgroundColor ? { backgroundColor: 'grey' } : {}
     }
 
     quillComponent.addEventListener('onInitialised', (event) => {

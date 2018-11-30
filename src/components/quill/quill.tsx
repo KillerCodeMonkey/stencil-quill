@@ -30,9 +30,7 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
 
   @Prop() format: 'object' | 'html' | 'text' | 'json' = 'html';
   @Prop() bounds: HTMLElement | string;
-  @Prop({
-    reflectToAttr: true
-  }) content: string;
+  @Prop() content: string;
   @Prop() formats: string[];
   @Prop() modules: { [index: string]: Object };
   @Prop() placeholder: string = 'Insert text here ...';
@@ -90,6 +88,32 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
       }
     } else {
       this.quillEditor.setText(value, 'silent');
+    }
+  }
+
+  getEditorContent() {
+    const text = this.quillEditor.getText();
+    const content = this.quillEditor.getContents();
+
+    let html: string | null = this.editorElement.children[0].innerHTML;
+    if (html === '<p><br></p>' || html === '<div><br><div>') {
+      html = '';
+    }
+
+    if (this.format === 'object') {
+      return content;
+    } else if (this.format === 'html') {
+      return html;
+    } else if (this.format === 'text') {
+      this.quillEditor.getText();
+    } else if (this.format === 'json') {
+      try {
+        return JSON.stringify(content);
+      } catch (e) {
+        return text;
+      }
+    } else {
+      return text;
     }
   }
 
@@ -174,11 +198,23 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   }
 
   @Watch('content')
-  updateContent(newValue: any, oldValue: any): void {
-    if (typeof newValue === 'string' && newValue === oldValue) {
+  updateContent(newValue: any): void {
+    const editorContents = this.getEditorContent();
+
+    if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
       return null
-    } else if (JSON.stringify(newValue) === JSON.stringify(oldValue)) {
-      return null
+    } else {
+      let changed = false
+      try {
+        const newContentString = JSON.stringify(newValue)
+        changed = JSON.stringify(editorContents) !== newContentString;
+      } catch {
+        return null
+      }
+
+      if (!changed) {
+        return null
+      }
     }
 
     this.setEditorContent(newValue)
@@ -201,6 +237,25 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
     }
     if (newValue !== oldValue) {
       this.quillEditor.root.dataset.placeholder = newValue;
+    }
+  }
+
+  @Watch('styles')
+  updateStyle(newValue: object, oldValue: object): void {
+    console.log(newValue, oldValue)
+    if (!this.quillEditor) {
+      return;
+    }
+
+    if (oldValue) {
+      Object.keys(oldValue).forEach((key: string) => {
+        this.editorElement.style[key] = '';
+      });
+    }
+    if (newValue) {
+      Object.keys(newValue).forEach((key: string) => {
+        this.editorElement.style[key] = newValue[key];
+      });
     }
   }
 
