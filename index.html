@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
+  <title>Stencil Quill</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+  <link href="https://fonts.googleapis.com/css?family=Aref+Ruqaa|Mirza|Roboto" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.bubble.css">
+  <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css">
+
+  <style>
+    /* Set default font-family */
+    [quill-element] {
+      font-family: "Roboto";
+    }
+
+    /* Set dropdown font-families */
+    [quill-toolbar] .ql-font span[data-label="Aref Ruqaa"]::before {
+      font-family: "Aref Ruqaa";
+    }
+    [quill-toolbar] .ql-font span[data-label="Mirza"]::before {
+      font-family: "Mirza";
+    }
+    [quill-toolbar] .ql-font span[data-label="Roboto"]::before {
+      font-family: "Roboto";
+    }
+
+    /* Set content font-families */
+    .ql-font-mirza {
+      font-family: "Mirza";
+    }
+    .ql-font-aref {
+      font-family: "Aref Ruqaa";
+    }
+    /* We do not set Aref Ruqaa since it is the default font */
+  </style>
+  <script src="/build/quill-component.js"></script>
+  <script src="/stencil-quill/quill-component.js"></script>
+</head>
+<body>
+  <h3>Default Editor</h3>
+  <button id="readOnly">Set Readonly</button>
+  <button id="placeholder">Set Placeholder</button>
+  <button id="text">Set Text</button>
+  <button id="backgroundColor">Toggle BackgroundColor</button>
+  <quill-component id="quill-component" styles="{ backgroundColor: 'blue' }" format="object" content="{ ops: [{insert: 'hallo' }] }"></quill-component>
+
+  <h3>Custom HTML Toolbar</h3>
+  <quill-component content="test" format="html">
+    <div slot="quill-toolbar">
+      <span class="ql-formats">
+        <select class="ql-font">
+          <option value="aref">Aref Ruqaa</option>
+          <option value="mirza">Mirza</option>
+          <option selected>Roboto</option>
+        </select>
+        <select class="ql-align" title="Aligment">
+          <option selected></option>
+          <option value="center"></option>
+          <option value="right"></option>
+          <option value="justify"></option>
+        </select>
+        <select class="ql-align" title="Aligment2">
+          <option selected></option>
+          <option value="center"></option>
+          <option value="right"></option>
+          <option value="justify"></option>
+        </select>
+      </span>
+      <span class="ql-formats">
+        <div id="counter"></div>
+      </span>
+    </div>
+  </quill-component>
+  <script>
+    const quillComponent = document.getElementById('quill-component')
+
+    const readOnlyButton = document.getElementById('readOnly')
+    readOnlyButton.onclick = () => {
+      quillComponent.readOnly = !quillComponent.readOnly
+    }
+
+    const placeholderButton = document.getElementById('placeholder')
+    placeholderButton.onclick = () => {
+      quillComponent.placeholder = quillComponent.placeholder + '!'
+    }
+
+    const textButton = document.getElementById('text')
+    textButton.onclick = () => {
+      quillComponent.content = { ops: [{ insert: 'test!!!\n' }]}
+    }
+
+    const backgroundColorButton = document.getElementById('backgroundColor')
+    backgroundColorButton.onclick = () => {
+      quillComponent.styles = !quillComponent.styles.backgroundColor ? { backgroundColor: 'grey' } : {}
+    }
+
+    quillComponent.addEventListener('onInitialised', (event) => {
+      console.log('onInitialised', event.detail)
+    });
+
+    quillComponent.addEventListener('onContentChanged', (event) => {
+      console.log('onContentChanged', event.detail)
+    });
+
+    quillComponent.addEventListener('onSelectionChanged', (event) => {
+      console.log('onSelectionChanged', event.detail)
+    });
+  </script>
+</body>
+</html>

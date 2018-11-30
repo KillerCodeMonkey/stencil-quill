@@ -1,0 +1,100 @@
+{
+  "components": [
+    {
+      "tag": "quill-component",
+      "dependencies": [],
+      "componentClass": "QuillComponent",
+      "componentPath": "components/quill/quill.js",
+      "styles": {},
+      "props": [
+        {
+          "name": "bounds",
+          "type": "String",
+          "attr": "bounds"
+        },
+        {
+          "name": "content",
+          "type": "String",
+          "attr": "content",
+          "watch": [
+            "updateContent"
+          ]
+        },
+        {
+          "name": "format",
+          "type": "String",
+          "attr": "format"
+        },
+        {
+          "name": "formats",
+          "attr": "formats"
+        },
+        {
+          "name": "modules",
+          "attr": "modules"
+        },
+        {
+          "name": "placeholder",
+          "type": "String",
+          "attr": "placeholder",
+          "watch": [
+            "updatePlaceholder"
+          ]
+        },
+        {
+          "name": "readOnly",
+          "type": "Boolean",
+          "attr": "read-only",
+          "watch": [
+            "updateReadOnly"
+          ]
+        },
+        {
+          "name": "scrollingContainer",
+          "type": "String",
+          "attr": "scrolling-container"
+        },
+        {
+          "name": "strict",
+          "type": "Boolean",
+          "attr": "strict"
+        },
+        {
+          "name": "styles",
+          "type": "Any",
+          "attr": "styles",
+          "watch": [
+            "updateStyle"
+          ]
+        },
+        {
+          "name": "theme",
+          "type": "String",
+          "attr": "theme"
+        }
+      ],
+      "hostElement": {
+        "name": "wrapperElement"
+      },
+      "events": [
+        {
+          "event": "onContentChanged"
+        },
+        {
+          "event": "onInitialised"
+        },
+        {
+          "event": "onSelectionChanged"
+        }
+      ],
+      "scoped": true
+    }
+  ],
+  "collections": [],
+  "compiler": {
+    "name": "@stencil/core",
+    "version": "0.16.0",
+    "typescriptVersion": "3.1.6"
+  },
+  "bundles": []
+}
