@@ -104,7 +104,7 @@ XRP Wallet Address:
 ```
 editor
 ```
-- onContentChanged - text is updated
+- onContentChanged - text is updated by 'user'
 ```
 {
   editor: editorInstance,
