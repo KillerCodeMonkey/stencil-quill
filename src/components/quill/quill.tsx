@@ -167,6 +167,10 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
     this.textChangeEvent = this.quillEditor.on(
       'text-change',
       (delta: any, oldDelta: any, source: string) => {
+        // only go for real user interactions
+        if (source !== 'user') {
+          return null;
+        }
         const text = this.quillEditor.getText();
         const content = this.quillEditor.getContents();
 
