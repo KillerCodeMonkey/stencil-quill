@@ -113,6 +113,9 @@ export class QuillComponent {
             });
         });
         this.textChangeEvent = this.quillEditor.on('text-change', (delta, oldDelta, source) => {
+            if (source !== 'user') {
+                return null;
+            }
             const text = this.quillEditor.getText();
             const content = this.quillEditor.getContents();
             let html = this.editorElement.children[0].innerHTML;
