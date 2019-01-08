@@ -98,6 +98,7 @@ XRP Wallet Address:
   </div>
 </quill-component>
 ```
+- customToolbarPosition - if you are working with a custom toolbar you can switch the position :). - default: `top`, possible values `top`, `bottom`
 
 [Full Quill Toolbar HTML](https://github.com/quilljs/quill/blob/f75ff2973f068c3db44f949915eb8a74faf162a8/docs/_includes/full-toolbar.html)
 
@@ -133,7 +134,7 @@ editor
 ### Script tag
 
 - [Publish to NPM](https://docs.npmjs.com/getting-started/publishing-npm-packages)
-- Put a script tag similar to this `<script src='https://unpkg.com/stencil-quill@0.0.2/dist/quill-component.js'></script>` in the head of your index.html
+- Put a script tag similar to this `<script src='https://unpkg.com/stencil-quill@latest/dist/quill-component.js'></script>` in the head of your index.html
 - Then you can use the element anywhere in your template, JSX, html etc
 
 ### Node Modules

@@ -39,6 +39,7 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   @Prop() strict: boolean = true;
   @Prop() styles: any = {};
   @Prop() theme: string;
+  @Prop() customToolbarPosition: 'top' | 'bottom' = 'top';
 
   quillEditor: any;
   editorElement: HTMLDivElement;
@@ -260,9 +261,13 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   }
 
   render() {
-    return ([
-      <slot name="quill-toolbar" />,
-      <div quill-element ref={(el: HTMLDivElement) => this.editorElement = el}></div>
-    ]);
+    const editor = <div quill-element ref={(el: HTMLDivElement) => this.editorElement = el}></div>
+    const elements = [<slot name="quill-toolbar" />]
+    if (this.customToolbarPosition === 'bottom') {
+      elements.unshift(editor)
+    } else {
+      elements.push(editor)
+    }
+    return (elements);
   }
 }
