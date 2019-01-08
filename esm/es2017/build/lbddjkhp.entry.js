@@ -3,7 +3,7 @@ import { h } from '../quill-component.core.js';
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 function unwrapExports (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x.default : x;
 }
 
 function createCommonjsModule(fn, module) {
@@ -11353,6 +11353,7 @@ class QuillComponent {
         this.placeholder = 'Insert text here ...';
         this.strict = true;
         this.styles = {};
+        this.customToolbarPosition = 'top';
         this.defaultModules = {
             toolbar: [
                 ['bold', 'italic', 'underline', 'strike'],
@@ -11461,9 +11462,6 @@ class QuillComponent {
             });
         });
         this.textChangeEvent = this.quillEditor.on('text-change', (delta, oldDelta, source) => {
-            if (source !== 'user') {
-                return null;
-            }
             const text = this.quillEditor.getText();
             const content = this.quillEditor.getContents();
             let html = this.editorElement.children[0].innerHTML;
@@ -11542,10 +11540,15 @@ class QuillComponent {
         }
     }
     render() {
-        return ([
-            h("slot", { name: "quill-toolbar" }),
-            h("div", { "quill-element": true, ref: (el) => this.editorElement = el })
-        ]);
+        const editor = h("div", { "quill-element": true, ref: (el) => this.editorElement = el });
+        const elements = [h("slot", { name: "quill-toolbar" })];
+        if (this.customToolbarPosition === 'bottom') {
+            elements.unshift(editor);
+        }
+        else {
+            elements.push(editor);
+        }
+        return (elements);
     }
     static get is() { return "quill-component"; }
     static get encapsulation() { return "scoped"; }
@@ -11558,6 +11561,10 @@ class QuillComponent {
             "type": String,
             "attr": "content",
             "watchCallbacks": ["updateContent"]
+        },
+        "customToolbarPosition": {
+            "type": String,
+            "attr": "custom-toolbar-position"
         },
         "format": {
             "type": String,

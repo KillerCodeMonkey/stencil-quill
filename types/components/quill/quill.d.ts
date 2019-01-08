@@ -31,6 +31,7 @@ export declare class QuillComponent implements ComponentDidLoad, ComponentDidUnl
     strict: boolean;
     styles: any;
     theme: string;
+    customToolbarPosition: 'top' | 'bottom';
     quillEditor: any;
     editorElement: HTMLDivElement;
     private defaultModules;

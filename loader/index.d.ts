@@ -1,1 +1,1 @@
-export declare function defineCustomElements(win: any): Promise<void>;
+export declare function defineCustomElements(win: any, opts?: any): Promise<void>;

@@ -5,6 +5,7 @@ export class QuillComponent {
         this.placeholder = 'Insert text here ...';
         this.strict = true;
         this.styles = {};
+        this.customToolbarPosition = 'top';
         this.defaultModules = {
             toolbar: [
                 ['bold', 'italic', 'underline', 'strike'],
@@ -113,9 +114,6 @@ export class QuillComponent {
             });
         });
         this.textChangeEvent = this.quillEditor.on('text-change', (delta, oldDelta, source) => {
-            if (source !== 'user') {
-                return null;
-            }
             const text = this.quillEditor.getText();
             const content = this.quillEditor.getContents();
             let html = this.editorElement.children[0].innerHTML;
@@ -194,10 +192,15 @@ export class QuillComponent {
         }
     }
     render() {
-        return ([
-            h("slot", { name: "quill-toolbar" }),
-            h("div", { "quill-element": true, ref: (el) => this.editorElement = el })
-        ]);
+        const editor = h("div", { "quill-element": true, ref: (el) => this.editorElement = el });
+        const elements = [h("slot", { name: "quill-toolbar" })];
+        if (this.customToolbarPosition === 'bottom') {
+            elements.unshift(editor);
+        }
+        else {
+            elements.push(editor);
+        }
+        return (elements);
     }
     static get is() { return "quill-component"; }
     static get encapsulation() { return "scoped"; }
@@ -210,6 +213,10 @@ export class QuillComponent {
             "type": String,
             "attr": "content",
             "watchCallbacks": ["updateContent"]
+        },
+        "customToolbarPosition": {
+            "type": String,
+            "attr": "custom-toolbar-position"
         },
         "format": {
             "type": String,
