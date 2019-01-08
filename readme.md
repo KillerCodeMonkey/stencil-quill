@@ -99,6 +99,8 @@ XRP Wallet Address:
 </quill-component>
 ```
 
+[Full Quill Toolbar HTML](https://github.com/quilljs/quill/blob/f75ff2973f068c3db44f949915eb8a74faf162a8/docs/_includes/full-toolbar.html)
+
 ## Outputs
 - onEditorCreated - editor instance
 ```
