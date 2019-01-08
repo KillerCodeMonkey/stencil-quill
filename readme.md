@@ -8,7 +8,7 @@ Native web component for the [Quill Rich Text Editor](https://quilljs.com/)
 
 If you like my work, feel free to support it. Donations to the project are always welcomed :)
 
-PayPal: [PayPal.Me/bengtler](PayPal.Me/bengtler)
+PayPal: [PayPal.Me/bengtler](https://paypal.me/bengtler)
 
 BTC Wallet Address:
 `3QVyr2tpRLBCw1kBQ59sTDraV6DTswq8Li`
