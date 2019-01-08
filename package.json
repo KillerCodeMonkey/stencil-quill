@@ -1,6 +1,6 @@
 {
   "name": "stencil-quill",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Native web component for quill editor",
   "module": "dist/esm/index.js",
   "main": "dist/index.js",
@@ -32,8 +32,8 @@
     "quill": "^1.3.6"
   },
   "devDependencies": {
-    "@stencil/core": "^0.16.0",
-    "@types/jest": "^23.3.2",
+    "@stencil/core": "^0.16.2",
+    "@types/jest": "^23.3.12",
     "@types/quill": "^1.3.10",
     "gh-pages": "2.0.1",
     "jest": "^23.6.0",
