@@ -4,6 +4,5 @@
   "module": "./index.js",
   "jsnext:main": "./index.es2017.js",
   "es2015": "./index.es2017.js",
-  "es2017": "./index.es2017.js",
-  "sideEffects": false
+  "es2017": "./index.es2017.js"
 }

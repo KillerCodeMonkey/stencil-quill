@@ -20,6 +20,11 @@
           "required": false
         },
         {
+          "label": "debug",
+          "description": "",
+          "required": false
+        },
+        {
           "label": "format",
           "description": "",
           "required": false

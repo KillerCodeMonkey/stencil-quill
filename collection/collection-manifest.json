@@ -26,6 +26,11 @@
           "attr": "custom-toolbar-position"
         },
         {
+          "name": "debug",
+          "type": "String",
+          "attr": "debug"
+        },
+        {
           "name": "format",
           "type": "String",
           "attr": "format"
@@ -98,8 +103,8 @@
   "collections": [],
   "compiler": {
     "name": "@stencil/core",
-    "version": "0.16.2",
-    "typescriptVersion": "3.2.2"
+    "version": "0.18.0",
+    "typescriptVersion": "3.3.3"
   },
   "bundles": []
 }

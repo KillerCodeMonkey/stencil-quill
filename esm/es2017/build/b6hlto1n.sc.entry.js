@@ -11350,6 +11350,7 @@ var Quill = unwrapExports(quill);
 class QuillComponent {
     constructor() {
         this.format = 'html';
+        this.debug = 'warn';
         this.placeholder = 'Insert text here ...';
         this.strict = true;
         this.styles = {};
@@ -11378,25 +11379,25 @@ class QuillComponent {
     }
     setEditorContent(value) {
         if (this.format === 'object') {
-            this.quillEditor.setContents(value, 'silent');
+            this.quillEditor.setContents(value, 'api');
         }
         else if (this.format === 'html') {
             const contents = this.quillEditor.clipboard.convert(value);
-            this.quillEditor.setContents(contents, 'silent');
+            this.quillEditor.setContents(contents, 'api');
         }
         else if (this.format === 'text') {
             this.quillEditor.setText(value);
         }
         else if (this.format === 'json') {
             try {
-                this.quillEditor.setContents(JSON.parse(value), 'silent');
+                this.quillEditor.setContents(JSON.parse(value), 'api');
             }
             catch (e) {
-                this.quillEditor.setText(value, 'silent');
+                this.quillEditor.setText(value, 'api');
             }
         }
         else {
-            this.quillEditor.setText(value, 'silent');
+            this.quillEditor.setText(value, 'api');
         }
     }
     getEditorContent() {
@@ -11439,6 +11440,7 @@ class QuillComponent {
             });
         }
         this.quillEditor = new Quill(this.editorElement, {
+            debug: this.debug,
             modules: modules,
             placeholder: this.placeholder,
             readOnly: this.readOnly || false,
@@ -11464,7 +11466,7 @@ class QuillComponent {
         this.textChangeEvent = this.quillEditor.on('text-change', (delta, oldDelta, source) => {
             const text = this.quillEditor.getText();
             const content = this.quillEditor.getContents();
-            let html = this.editorElement.children[0].innerHTML;
+            let html = this.editorElement.querySelector('.ql-editor').innerHTML;
             if (html === '<p><br></p>' || html === '<div><br><div>') {
                 html = null;
             }
@@ -11565,6 +11567,10 @@ class QuillComponent {
         "customToolbarPosition": {
             "type": String,
             "attr": "custom-toolbar-position"
+        },
+        "debug": {
+            "type": String,
+            "attr": "debug"
         },
         "format": {
             "type": String,

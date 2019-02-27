@@ -16,6 +16,7 @@ export namespace Components {
     'bounds': HTMLElement | string;
     'content': string;
     'customToolbarPosition': 'top' | 'bottom';
+    'debug': string;
     'format': 'object' | 'html' | 'text' | 'json';
     'formats': string[];
     'modules': { [index: string]: Object };
@@ -30,6 +31,7 @@ export namespace Components {
     'bounds'?: HTMLElement | string;
     'content'?: string;
     'customToolbarPosition'?: 'top' | 'bottom';
+    'debug'?: string;
     'format'?: 'object' | 'html' | 'text' | 'json';
     'formats'?: string[];
     'modules'?: { [index: string]: Object };

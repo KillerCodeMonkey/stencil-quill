@@ -21,6 +21,7 @@ export declare class QuillComponent implements ComponentDidLoad, ComponentDidUnl
     format: 'object' | 'html' | 'text' | 'json';
     bounds: HTMLElement | string;
     content: string;
+    debug: string;
     formats: string[];
     modules: {
         [index: string]: Object;
