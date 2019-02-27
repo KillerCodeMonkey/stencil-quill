@@ -31,6 +31,7 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   @Prop() format: 'object' | 'html' | 'text' | 'json' = 'html';
   @Prop() bounds: HTMLElement | string;
   @Prop() content: string;
+  @Prop() debug: string = 'warn';
   @Prop() formats: string[];
   @Prop() modules: { [index: string]: Object };
   @Prop() placeholder: string = 'Insert text here ...';
@@ -75,20 +76,20 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
 
   setEditorContent(value: any) {
     if (this.format === 'object') {
-      this.quillEditor.setContents(value, 'silent');
+      this.quillEditor.setContents(value, 'api');
     } else if (this.format === 'html') {
       const contents = this.quillEditor.clipboard.convert(value);
-      this.quillEditor.setContents(contents, 'silent');
+      this.quillEditor.setContents(contents, 'api');
     } else if (this.format === 'text') {
       this.quillEditor.setText(value);
     } else if (this.format === 'json') {
       try {
-        this.quillEditor.setContents(JSON.parse(value), 'silent');
+        this.quillEditor.setContents(JSON.parse(value), 'api');
       } catch (e) {
-        this.quillEditor.setText(value, 'silent');
+        this.quillEditor.setText(value, 'api');
       }
     } else {
-      this.quillEditor.setText(value, 'silent');
+      this.quillEditor.setText(value, 'api');
     }
   }
 
@@ -135,6 +136,7 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
     }
 
     this.quillEditor = new Quill(this.editorElement, {
+      debug: this.debug,
       modules: modules,
       placeholder: this.placeholder,
       readOnly: this.readOnly || false,
@@ -171,7 +173,7 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
         const text = this.quillEditor.getText();
         const content = this.quillEditor.getContents();
 
-        let html: string | null = this.editorElement.children[0].innerHTML;
+        let html: string | null = this.editorElement.querySelector('.ql-editor').innerHTML;
         if (html === '<p><br></p>' || html === '<div><br><div>') {
           html = null;
         }

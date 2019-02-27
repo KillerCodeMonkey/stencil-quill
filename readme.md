@@ -99,6 +99,7 @@ XRP Wallet Address:
 </quill-component>
 ```
 - customToolbarPosition - if you are working with a custom toolbar you can switch the position :). - default: `top`, possible values `top`, `bottom`
+- debug - set log level `warn`, `error`, `log` or `false` to deactivate logging, default: `warn`
 
 [Full Quill Toolbar HTML](https://github.com/quilljs/quill/blob/f75ff2973f068c3db44f949915eb8a74faf162a8/docs/_includes/full-toolbar.html)
 
