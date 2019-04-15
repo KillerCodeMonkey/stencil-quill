@@ -53,8 +53,8 @@
   <button id="backgroundColor">Toggle BackgroundColor</button>
   <quill-component id="quill-component" styles="{ backgroundColor: 'blue' }" format="object" content="{ ops: [{insert: 'hallo' }] }"></quill-component>
 
-  <h3>Custom HTML Toolbar</h3>
-  <quill-component custom-toolbar-position="bottom" content="test" format="html">
+  <h3>Custom HTML Toolbar + PreserveWhitespace</h3>
+  <quill-component custom-toolbar-position="bottom" preserve-whitespace="true" content="test" format="html">
     <div slot="quill-toolbar">
       <span class="ql-formats">
         <select class="ql-font">
@@ -113,6 +113,14 @@
 
     quillComponent.addEventListener('onSelectionChanged', (event) => {
       console.log('onSelectionChanged', event.detail)
+    });
+
+    quillComponent.addEventListener('onFocus', (event) => {
+      console.log('onFocus', event.detail)
+    });
+
+    quillComponent.addEventListener('onBlur', (event) => {
+      console.log('onFocus', event.detail)
     });
   </script>
 </body>

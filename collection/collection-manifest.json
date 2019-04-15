@@ -52,6 +52,11 @@
           ]
         },
         {
+          "name": "preserveWhitespace",
+          "type": "Boolean",
+          "attr": "preserve-whitespace"
+        },
+        {
           "name": "readOnly",
           "type": "Boolean",
           "attr": "read-only",
@@ -88,7 +93,13 @@
       },
       "events": [
         {
+          "event": "onBlur"
+        },
+        {
           "event": "onContentChanged"
+        },
+        {
+          "event": "onFocus"
         },
         {
           "event": "onInitialised"
@@ -103,7 +114,7 @@
   "collections": [],
   "compiler": {
     "name": "@stencil/core",
-    "version": "0.18.0",
+    "version": "0.18.1",
     "typescriptVersion": "3.3.3"
   },
   "bundles": []

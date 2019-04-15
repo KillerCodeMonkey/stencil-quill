@@ -7,6 +7,7 @@ export class QuillComponent {
         this.strict = true;
         this.styles = {};
         this.customToolbarPosition = 'top';
+        this.preserveWhitespace = false;
         this.defaultModules = {
             toolbar: [
                 ['bold', 'italic', 'underline', 'strike'],
@@ -108,11 +109,23 @@ export class QuillComponent {
         }
         this.onInitialised.emit(this.quillEditor);
         this.selectionChangeEvent = this.quillEditor.on('selection-change', (range, oldRange, source) => {
+            if (range === null) {
+                this.onBlur.emit({
+                    editor: this.quillEditor,
+                    source
+                });
+            }
+            else if (oldRange === null) {
+                this.onFocus.emit({
+                    editor: this.quillEditor,
+                    source
+                });
+            }
             this.onSelectionChanged.emit({
                 editor: this.quillEditor,
-                range: range,
-                oldRange: oldRange,
-                source: source
+                range,
+                oldRange,
+                source
             });
         });
         this.textChangeEvent = this.quillEditor.on('text-change', (delta, oldDelta, source) => {
@@ -194,7 +207,7 @@ export class QuillComponent {
         }
     }
     render() {
-        const editor = h("div", { "quill-element": true, ref: (el) => this.editorElement = el });
+        const editor = this.preserveWhitespace ? h("pre", { "quill-element": true, ref: (el) => this.editorElement = el }) : h("div", { "quill-element": true, ref: (el) => this.editorElement = el });
         const elements = [h("slot", { name: "quill-toolbar" })];
         if (this.customToolbarPosition === 'bottom') {
             elements.unshift(editor);
@@ -241,6 +254,10 @@ export class QuillComponent {
             "attr": "placeholder",
             "watchCallbacks": ["updatePlaceholder"]
         },
+        "preserveWhitespace": {
+            "type": Boolean,
+            "attr": "preserve-whitespace"
+        },
         "readOnly": {
             "type": Boolean,
             "attr": "read-only",
@@ -282,6 +299,18 @@ export class QuillComponent {
         }, {
             "name": "onSelectionChanged",
             "method": "onSelectionChanged",
+            "bubbles": true,
+            "cancelable": true,
+            "composed": true
+        }, {
+            "name": "onFocus",
+            "method": "onFocus",
+            "bubbles": true,
+            "cancelable": true,
+            "composed": true
+        }, {
+            "name": "onBlur",
+            "method": "onBlur",
             "bubbles": true,
             "cancelable": true,
             "composed": true

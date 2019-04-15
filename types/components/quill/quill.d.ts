@@ -17,6 +17,14 @@ export declare class QuillComponent implements ComponentDidLoad, ComponentDidUnl
         oldRange: any;
         source: string;
     }>;
+    onFocus: EventEmitter<{
+        editor: any;
+        source: string;
+    }>;
+    onBlur: EventEmitter<{
+        editor: any;
+        source: string;
+    }>;
     wrapperElement: HTMLElement;
     format: 'object' | 'html' | 'text' | 'json';
     bounds: HTMLElement | string;
@@ -33,8 +41,9 @@ export declare class QuillComponent implements ComponentDidLoad, ComponentDidUnl
     styles: any;
     theme: string;
     customToolbarPosition: 'top' | 'bottom';
+    preserveWhitespace: boolean;
     quillEditor: any;
-    editorElement: HTMLDivElement;
+    editorElement: HTMLDivElement | HTMLPreElement;
     private defaultModules;
     selectionChangeEvent: any;
     textChangeEvent: any;

@@ -21,6 +21,7 @@ export namespace Components {
     'formats': string[];
     'modules': { [index: string]: Object };
     'placeholder': string;
+    'preserveWhitespace': boolean;
     'readOnly': boolean;
     'scrollingContainer': HTMLElement | string;
     'strict': boolean;
@@ -35,6 +36,10 @@ export namespace Components {
     'format'?: 'object' | 'html' | 'text' | 'json';
     'formats'?: string[];
     'modules'?: { [index: string]: Object };
+    'onOnBlur'?: (event: CustomEvent<{
+      editor: any
+      source: string
+    }>) => void;
     'onOnContentChanged'?: (event: CustomEvent<{
       editor: any
       content: any
@@ -42,6 +47,10 @@ export namespace Components {
       html: string
       delta: any
       oldDelta: any
+      source: string
+    }>) => void;
+    'onOnFocus'?: (event: CustomEvent<{
+      editor: any
       source: string
     }>) => void;
     'onOnInitialised'?: (event: CustomEvent<any>) => void;
@@ -52,6 +61,7 @@ export namespace Components {
       source: string
     }>) => void;
     'placeholder'?: string;
+    'preserveWhitespace'?: boolean;
     'readOnly'?: boolean;
     'scrollingContainer'?: HTMLElement | string;
     'strict'?: boolean;

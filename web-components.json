@@ -35,6 +35,11 @@
           "required": false
         },
         {
+          "label": "preserve-whitespace",
+          "description": "",
+          "required": false
+        },
+        {
           "label": "read-only",
           "description": "",
           "required": false
