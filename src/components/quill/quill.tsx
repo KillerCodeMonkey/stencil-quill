@@ -25,6 +25,14 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
     oldRange: any
     source: string
   }>;
+  @Event() onFocus: EventEmitter<{
+    editor: any
+    source: string
+  }>;
+  @Event() onBlur: EventEmitter<{
+    editor: any
+    source: string
+  }>;
 
   @Element() wrapperElement: HTMLElement;
 
@@ -41,9 +49,10 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   @Prop() styles: any = {};
   @Prop() theme: string;
   @Prop() customToolbarPosition: 'top' | 'bottom' = 'top';
+  @Prop() preserveWhitespace: boolean = false;
 
   quillEditor: any;
-  editorElement: HTMLDivElement;
+  editorElement: HTMLDivElement | HTMLPreElement;
   private defaultModules = {
     toolbar: [
       ['bold', 'italic', 'underline', 'strike'], // toggled buttons
@@ -158,11 +167,23 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
     this.selectionChangeEvent = this.quillEditor.on(
       'selection-change',
       (range: any, oldRange: any, source: string) => {
+        if (range === null) {
+          this.onBlur.emit({
+            editor: this.quillEditor,
+            source
+          })
+        } else if (oldRange === null) {
+          this.onFocus.emit({
+            editor: this.quillEditor,
+            source
+          })
+        }
+
         this.onSelectionChanged.emit({
           editor: this.quillEditor,
-          range: range,
-          oldRange: oldRange,
-          source: source
+          range,
+          oldRange,
+          source
         });
       }
     );
@@ -263,7 +284,7 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   }
 
   render() {
-    const editor = <div quill-element ref={(el: HTMLDivElement) => this.editorElement = el}></div>
+    const editor = this.preserveWhitespace ? <pre quill-element ref={(el: HTMLPreElement) => this.editorElement = el}></pre> : <div quill-element ref={(el: HTMLDivElement) => this.editorElement = el}></div>
     const elements = [<slot name="quill-toolbar" />]
     if (this.customToolbarPosition === 'bottom') {
       elements.unshift(editor)
