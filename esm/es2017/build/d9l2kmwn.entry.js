@@ -11437,7 +11437,7 @@ class QuillComponent {
         }
         if (this.styles) {
             Object.keys(this.styles).forEach((key) => {
-                this.editorElement.style[key] = this.styles[key];
+                this.editorElement.style.setProperty(key, this.styles[key]);
             });
         }
         this.quillEditor = new Quill(this.editorElement, {
