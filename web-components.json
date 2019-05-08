@@ -30,6 +30,11 @@
           "required": false
         },
         {
+          "label": "modules",
+          "description": "",
+          "required": false
+        },
+        {
           "label": "placeholder",
           "description": "",
           "required": false

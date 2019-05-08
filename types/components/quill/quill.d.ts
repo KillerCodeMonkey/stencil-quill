@@ -31,14 +31,12 @@ export declare class QuillComponent implements ComponentDidLoad, ComponentDidUnl
     content: string;
     debug: string;
     formats: string[];
-    modules: {
-        [index: string]: Object;
-    };
+    modules: string;
     placeholder: string;
     readOnly: boolean;
     scrollingContainer: HTMLElement | string;
     strict: boolean;
-    styles: any;
+    styles: string;
     theme: string;
     customToolbarPosition: 'top' | 'bottom';
     preserveWhitespace: boolean;
@@ -54,6 +52,6 @@ export declare class QuillComponent implements ComponentDidLoad, ComponentDidUnl
     updateContent(newValue: any): void;
     updateReadOnly(newValue: boolean, oldValue: boolean): void;
     updatePlaceholder(newValue: string, oldValue: string): void;
-    updateStyle(newValue: object, oldValue: object): void;
+    updateStyle(newValue: string, oldValue: string): void;
     render(): JSX.Element[];
 }

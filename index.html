@@ -9,6 +9,18 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js"></script>
   <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script>
+    // Quill custom word count component
+    Quill.register('modules/counter', function(quill, options) {
+      var container = document.querySelector('#counter');
+      quill.on('text-change', function() {
+        var text = quill.getText();
+        // There are a couple issues with counting words
+        // this way but we'll fix these later
+        container.innerText = text.split(/\s+/).length;
+      });
+    });
+  </script>
 
   <link href="https://fonts.googleapis.com/css?family=Aref+Ruqaa|Mirza|Roboto" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css">
@@ -51,10 +63,10 @@
   <button id="placeholder">Set Placeholder</button>
   <button id="text">Set Text</button>
   <button id="backgroundColor">Toggle BackgroundColor</button>
-  <quill-component id="quill-component" styles="{}" format="json" content=""></quill-component>
+  <quill-component id="quill-component" styles='{"background-color": "red"}' format="json" content=""></quill-component>
 
   <h3>Custom HTML Toolbar + PreserveWhitespace</h3>
-  <quill-component custom-toolbar-position="bottom" preserve-whitespace="true" content="test" format="html">
+  <quill-component modules='{ "counter": true }' custom-toolbar-position="bottom" preserve-whitespace="true" content="test" format="html">
     <div slot="quill-toolbar">
       <span class="ql-formats">
         <select class="ql-font">
@@ -100,7 +112,7 @@
 
     const backgroundColorButton = document.getElementById('backgroundColor')
     backgroundColorButton.onclick = () => {
-      quillComponent.styles = !quillComponent.styles['background-color'] ? { 'background-color': 'grey' } : {}
+      quillComponent.styles = !JSON.parse(quillComponent.styles)['background-color'] ? JSON.stringify({ 'background-color': 'grey' }) : '{}'
     }
 
     quillComponent.addEventListener('onInitialised', (event) => {

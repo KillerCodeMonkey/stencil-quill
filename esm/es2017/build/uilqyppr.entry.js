@@ -1,4 +1,6 @@
-export class QuillComponent {
+import { h } from '../quill-component.core.js';
+
+class QuillComponent {
     constructor() {
         this.format = 'html';
         this.debug = 'warn';
@@ -311,3 +313,5 @@ export class QuillComponent {
             "composed": true
         }]; }
 }
+
+export { QuillComponent };

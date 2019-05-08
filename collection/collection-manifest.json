@@ -41,6 +41,7 @@
         },
         {
           "name": "modules",
+          "type": "String",
           "attr": "modules"
         },
         {
@@ -76,7 +77,7 @@
         },
         {
           "name": "styles",
-          "type": "Any",
+          "type": "String",
           "attr": "styles",
           "watch": [
             "updateStyle"
