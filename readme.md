@@ -32,7 +32,7 @@ XRP Wallet Address:
 - `npm install stencil-quill`
 - load `node_modules/stencil-quill/dist/quill-component.js` in your index.html or add it to your build process or project
 - use `<quill-component></quill-component>` in your templates to add a default quill editor
-- do not forget to install `quill` and include it + theme css in your buildprocess, module or `index.html`!
+- do not forget to install `quill` and include it + theme css in your buildprocess, module or `index.html`! (the component is using the global Quill object)
 
 ## Config
 - content - the base content of the editor passed as string or JSON string
