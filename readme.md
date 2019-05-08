@@ -38,7 +38,7 @@ XRP Wallet Address:
 - content - the base content of the editor
 - readOnly (true | false) if user can edit content
 - formats - array of allowed formats/groupings
-- format - model format - default: `html`, values: `html | object | text | json`, sets the model value type - html = html string, object = quill operation object, json = quill operation json, text = plain text
+- format - model format - default: `html`, values: `html | text | json`, sets the model value type - html = html string, json = quill operations as json string, text = plain text
 - modules - configure/disable quill modules, e.g toolbar or add custom toolbar via html element default is
 ```
 {

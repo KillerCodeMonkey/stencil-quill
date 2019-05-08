@@ -36,7 +36,7 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
 
   @Element() wrapperElement: HTMLElement;
 
-  @Prop() format: 'object' | 'html' | 'text' | 'json' = 'html';
+  @Prop() format: 'html' | 'text' | 'json' = 'html';
   @Prop() bounds: HTMLElement | string;
   @Prop() content: string;
   @Prop() debug: string = 'warn';
@@ -84,9 +84,7 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   textChangeEvent: any;
 
   setEditorContent(value: any) {
-    if (this.format === 'object') {
-      this.quillEditor.setContents(value, 'api');
-    } else if (this.format === 'html') {
+    if (this.format === 'html') {
       const contents = this.quillEditor.clipboard.convert(value);
       this.quillEditor.setContents(contents, 'api');
     } else if (this.format === 'text') {
@@ -111,9 +109,7 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
       html = '';
     }
 
-    if (this.format === 'object') {
-      return content;
-    } else if (this.format === 'html') {
+    if (this.format === 'html') {
       return html;
     } else if (this.format === 'text') {
       this.quillEditor.getText();
