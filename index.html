@@ -51,7 +51,7 @@
   <button id="placeholder">Set Placeholder</button>
   <button id="text">Set Text</button>
   <button id="backgroundColor">Toggle BackgroundColor</button>
-  <quill-component id="quill-component" styles="{ backgroundColor: 'blue' }" format="object" content="{ ops: [{insert: 'hallo' }] }"></quill-component>
+  <quill-component id="quill-component" format="object" content="{ ops: [{insert: 'hallo' }] }"></quill-component>
 
   <h3>Custom HTML Toolbar + PreserveWhitespace</h3>
   <quill-component custom-toolbar-position="bottom" preserve-whitespace="true" content="test" format="html">
@@ -100,7 +100,7 @@
 
     const backgroundColorButton = document.getElementById('backgroundColor')
     backgroundColorButton.onclick = () => {
-      quillComponent.styles = !quillComponent.styles.backgroundColor ? { backgroundColor: 'grey' } : {}
+      quillComponent.styles = !quillComponent.styles['background-color'] ? { 'background-color': 'grey' } : {}
     }
 
     quillComponent.addEventListener('onInitialised', (event) => {

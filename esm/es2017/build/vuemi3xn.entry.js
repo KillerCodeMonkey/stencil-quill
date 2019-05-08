@@ -11435,11 +11435,6 @@ class QuillComponent {
         if (toolbarElem) {
             modules['toolbar'] = toolbarElem;
         }
-        if (this.styles) {
-            Object.keys(this.styles).forEach((key) => {
-                this.editorElement.style.setProperty(key, this.styles[key]);
-            });
-        }
         this.quillEditor = new Quill(this.editorElement, {
             debug: this.debug,
             modules: modules,
@@ -11451,6 +11446,11 @@ class QuillComponent {
             strict: this.strict,
             scrollingContainer: this.scrollingContainer
         });
+        if (this.styles) {
+            Object.keys(this.styles).forEach((key) => {
+                this.editorElement.style.setProperty(key, this.styles[key]);
+            });
+        }
         if (this.content) {
             this.setEditorContent(this.content);
             this.quillEditor['history'].clear();
@@ -11539,18 +11539,17 @@ class QuillComponent {
         }
     }
     updateStyle(newValue, oldValue) {
-        console.log(newValue, oldValue);
-        if (!this.quillEditor) {
+        if (!this.editorElement) {
             return;
         }
         if (oldValue) {
             Object.keys(oldValue).forEach((key) => {
-                this.editorElement.style[key] = '';
+                this.editorElement.style.setProperty(key, '');
             });
         }
         if (newValue) {
             Object.keys(newValue).forEach((key) => {
-                this.editorElement.style[key] = newValue[key];
+                this.editorElement.style.setProperty(key, newValue[key]);
             });
         }
     }
