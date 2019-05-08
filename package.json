@@ -1,6 +1,6 @@
 {
   "name": "stencil-quill",
-  "version": "1.3.2",
+  "version": "2.0.0",
   "description": "Native web component for quill editor",
   "module": "dist/esm/index.js",
   "main": "dist/index.js",
@@ -12,7 +12,6 @@
   "scripts": {
     "build": "stencil build",
     "build:deploy": "stencil build && cp ./src/index.html ./dist && gh-pages -d ./dist",
-    "build:publish": "stencil build && cp ./package.json ./dist && cp ./readme.md ./dist && cp ./LICENSE ./dist",
     "start": "stencil build --dev --watch --serve",
     "test": "jest",
     "test.watch": "jest --watch"
