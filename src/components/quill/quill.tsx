@@ -140,7 +140,7 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
 
     if (this.styles) {
       Object.keys(this.styles).forEach((key: string) => {
-        this.editorElement.style[key] = this.styles[key];
+        this.editorElement.style.setProperty(key, this.styles[key]);
       });
     }
 
