@@ -17,7 +17,7 @@ export namespace Components {
     'content': string;
     'customToolbarPosition': 'top' | 'bottom';
     'debug': string;
-    'format': 'object' | 'html' | 'text' | 'json';
+    'format': 'html' | 'text' | 'json';
     'formats': string[];
     'modules': { [index: string]: Object };
     'placeholder': string;
@@ -33,7 +33,7 @@ export namespace Components {
     'content'?: string;
     'customToolbarPosition'?: 'top' | 'bottom';
     'debug'?: string;
-    'format'?: 'object' | 'html' | 'text' | 'json';
+    'format'?: 'html' | 'text' | 'json';
     'formats'?: string[];
     'modules'?: { [index: string]: Object };
     'onOnBlur'?: (event: CustomEvent<{

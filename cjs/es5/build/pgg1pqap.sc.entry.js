@@ -1492,9 +1492,7 @@ var quill = createCommonjsModule(function (t, e) { var n; "undefined" != typeof 
                 var e = t.quill.getSelection();
                 null != e && t.position(t.quill.getBounds(e));
             } }, 1); }); } }, { key: "cancel", value: function () { this.show(); } }, { key: "position", value: function (t) { var n = r(e.prototype.__proto__ || Object.getPrototypeOf(e.prototype), "position", this).call(this, t), o = this.root.querySelector(".ql-tooltip-arrow"); if (o.style.marginLeft = "", 0 === n)
-                return n; o.style.marginLeft = -1 * n - o.offsetWidth / 2 + "px"; } }]), e; }(); b.TEMPLATE = ['<span class="ql-tooltip-arrow"></span>', '<div class="ql-tooltip-editor">', '<input type="text" data-formula="e=mc^2" data-link="https://quilljs.com" data-video="Embed URL">', '<a class="ql-close"></a>', "</div>"].join(""), e.BubbleTooltip = b, e.default = v; }, function (t, e, n) { t.exports = n(63); }]).default; }, t.exports = n(); }), Quill = unwrapExports(quill), QuillComponent = function () { function t() { this.format = "html", this.debug = "warn", this.placeholder = "Insert text here ...", this.strict = !0, this.styles = {}, this.customToolbarPosition = "top", this.preserveWhitespace = !1, this.defaultModules = { toolbar: [["bold", "italic", "underline", "strike"], ["blockquote", "code-block"], [{ header: 1 }, { header: 2 }], [{ list: "ordered" }, { list: "bullet" }], [{ script: "sub" }, { script: "super" }], [{ indent: "-1" }, { indent: "+1" }], [{ direction: "rtl" }], [{ size: ["small", !1, "large", "huge"] }], [{ header: [1, 2, 3, 4, 5, 6, !1] }], [{ color: [].slice() }, { background: [].slice() }], [{ font: [].slice() }], [{ align: [].slice() }], ["clean"], ["link", "image", "video"]] }; } return t.prototype.setEditorContent = function (t) { if ("object" === this.format)
-    this.quillEditor.setContents(t, "api");
-else if ("html" === this.format) {
+                return n; o.style.marginLeft = -1 * n - o.offsetWidth / 2 + "px"; } }]), e; }(); b.TEMPLATE = ['<span class="ql-tooltip-arrow"></span>', '<div class="ql-tooltip-editor">', '<input type="text" data-formula="e=mc^2" data-link="https://quilljs.com" data-video="Embed URL">', '<a class="ql-close"></a>', "</div>"].join(""), e.BubbleTooltip = b, e.default = v; }, function (t, e, n) { t.exports = n(63); }]).default; }, t.exports = n(); }), Quill = unwrapExports(quill), QuillComponent = function () { function t() { this.format = "html", this.debug = "warn", this.placeholder = "Insert text here ...", this.strict = !0, this.styles = {}, this.customToolbarPosition = "top", this.preserveWhitespace = !1, this.defaultModules = { toolbar: [["bold", "italic", "underline", "strike"], ["blockquote", "code-block"], [{ header: 1 }, { header: 2 }], [{ list: "ordered" }, { list: "bullet" }], [{ script: "sub" }, { script: "super" }], [{ indent: "-1" }, { indent: "+1" }], [{ direction: "rtl" }], [{ size: ["small", !1, "large", "huge"] }], [{ header: [1, 2, 3, 4, 5, 6, !1] }], [{ color: [].slice() }, { background: [].slice() }], [{ font: [].slice() }], [{ align: [].slice() }], ["clean"], ["link", "image", "video"]] }; } return t.prototype.setEditorContent = function (t) { if ("html" === this.format) {
     var e = this.quillEditor.clipboard.convert(t);
     this.quillEditor.setContents(e, "api");
 }
@@ -1508,8 +1506,7 @@ else if ("json" === this.format)
         this.quillEditor.setText(t, "api");
     }
 else
-    this.quillEditor.setText(t, "api"); }, t.prototype.getEditorContent = function () { var t = this.quillEditor.getText(), e = this.quillEditor.getContents(), n = this.editorElement.children[0].innerHTML; if ("<p><br></p>" !== n && "<div><br><div>" !== n || (n = ""), "object" === this.format)
-    return e; if ("html" === this.format)
+    this.quillEditor.setText(t, "api"); }, t.prototype.getEditorContent = function () { var t = this.quillEditor.getText(), e = this.quillEditor.getContents(), n = this.editorElement.children[0].innerHTML; if ("<p><br></p>" !== n && "<div><br><div>" !== n || (n = ""), "html" === this.format)
     return n; if ("text" === this.format)
     this.quillEditor.getText();
 else {

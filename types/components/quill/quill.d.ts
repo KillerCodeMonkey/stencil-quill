@@ -26,7 +26,7 @@ export declare class QuillComponent implements ComponentDidLoad, ComponentDidUnl
         source: string;
     }>;
     wrapperElement: HTMLElement;
-    format: 'object' | 'html' | 'text' | 'json';
+    format: 'html' | 'text' | 'json';
     bounds: HTMLElement | string;
     content: string;
     debug: string;

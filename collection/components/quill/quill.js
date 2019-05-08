@@ -31,10 +31,7 @@ export class QuillComponent {
         };
     }
     setEditorContent(value) {
-        if (this.format === 'object') {
-            this.quillEditor.setContents(value, 'api');
-        }
-        else if (this.format === 'html') {
+        if (this.format === 'html') {
             const contents = this.quillEditor.clipboard.convert(value);
             this.quillEditor.setContents(contents, 'api');
         }
@@ -60,10 +57,7 @@ export class QuillComponent {
         if (html === '<p><br></p>' || html === '<div><br><div>') {
             html = '';
         }
-        if (this.format === 'object') {
-            return content;
-        }
-        else if (this.format === 'html') {
+        if (this.format === 'html') {
             return html;
         }
         else if (this.format === 'text') {

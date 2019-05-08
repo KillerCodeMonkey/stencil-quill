@@ -42,6 +42,7 @@
     }
     /* We do not set Aref Ruqaa since it is the default font */
   </style>
+  <script src="/build/quill-component.js"></script>
   <script src="/stencil-quill/quill-component.js"></script>
 </head>
 <body>
@@ -50,7 +51,7 @@
   <button id="placeholder">Set Placeholder</button>
   <button id="text">Set Text</button>
   <button id="backgroundColor">Toggle BackgroundColor</button>
-  <quill-component id="quill-component" format="object" content="{ ops: [{insert: 'hallo' }] }"></quill-component>
+  <quill-component id="quill-component" styles="{}" format="json" content=""></quill-component>
 
   <h3>Custom HTML Toolbar + PreserveWhitespace</h3>
   <quill-component custom-toolbar-position="bottom" preserve-whitespace="true" content="test" format="html">
@@ -94,7 +95,7 @@
 
     const textButton = document.getElementById('text')
     textButton.onclick = () => {
-      quillComponent.content = { ops: [{ insert: 'test!!!\n' }]}
+      quillComponent.content = JSON.stringify({ ops: [{ insert: 'test!!!\n' }] })
     }
 
     const backgroundColorButton = document.getElementById('backgroundColor')
@@ -104,6 +105,7 @@
 
     quillComponent.addEventListener('onInitialised', (event) => {
       console.log('onInitialised', event.detail)
+      quillComponent.content = JSON.stringify({ ops: [{ insert: 'hallo' }] })
     });
 
     quillComponent.addEventListener('onContentChanged', (event) => {
