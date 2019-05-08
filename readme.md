@@ -35,11 +35,11 @@ XRP Wallet Address:
 - do not forget to install `quill` and include it + theme css in your buildprocess, module or `index.html`!
 
 ## Config
-- content - the base content of the editor
+- content - the base content of the editor passed as string or JSON string
 - readOnly (true | false) if user can edit content
 - formats - array of allowed formats/groupings
 - format - model format - default: `html`, values: `html | text | json`, sets the model value type - html = html string, json = quill operations as json string, text = plain text
-- modules - configure/disable quill modules, e.g toolbar or add custom toolbar via html element default is
+- modules - configure/disable quill modules, passed as JSON-string!, e.g toolbar or add custom toolbar via html element default is
 ```
 {
   toolbar: [

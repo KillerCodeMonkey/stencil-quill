@@ -1,6 +1,6 @@
 import { Component, ComponentDidLoad, ComponentDidUnload, Element, Event, EventEmitter, Prop, Watch } from '@stencil/core';
 
-import Quill from 'quill';
+declare const Quill: any
 
 @Component({
   tag: 'quill-component',
@@ -41,12 +41,12 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   @Prop() content: string;
   @Prop() debug: string = 'warn';
   @Prop() formats: string[];
-  @Prop() modules: { [index: string]: Object };
+  @Prop() modules: string;
   @Prop() placeholder: string = 'Insert text here ...';
   @Prop() readOnly: boolean;
   @Prop() scrollingContainer: HTMLElement | string;
   @Prop() strict: boolean = true;
-  @Prop() styles: any = {};
+  @Prop() styles: string = '{}';
   @Prop() theme: string;
   @Prop() customToolbarPosition: 'top' | 'bottom' = 'top';
   @Prop() preserveWhitespace: boolean = false;
@@ -125,7 +125,7 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   }
 
   componentDidLoad() {
-    let modules: any = this.modules || this.defaultModules;
+    let modules: any = this.modules ? JSON.parse(this.modules) : this.defaultModules;
 
     const toolbarElem = this.wrapperElement.querySelector(
       '[slot="quill-toolbar"]'
@@ -147,8 +147,9 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
     });
 
     if (this.styles) {
-      Object.keys(this.styles).forEach((key: string) => {
-        this.editorElement.style.setProperty(key, this.styles[key]);
+      const styles = JSON.parse(this.styles)
+      Object.keys(styles).forEach((key: string) => {
+        this.editorElement.style.setProperty(key, styles[key]);
       });
     }
 
@@ -261,19 +262,21 @@ export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
   }
 
   @Watch('styles')
-  updateStyle(newValue: object, oldValue: object): void {
+  updateStyle(newValue: string, oldValue: string): void {
     if (!this.editorElement) {
       return;
     }
 
     if (oldValue) {
-      Object.keys(oldValue).forEach((key: string) => {
+      const old = JSON.parse(oldValue)
+      Object.keys(old).forEach((key: string) => {
         this.editorElement.style.setProperty(key, '');
       });
     }
     if (newValue) {
-      Object.keys(newValue).forEach((key: string) => {
-        this.editorElement.style.setProperty(key, newValue[key]);
+      const value = JSON.parse(newValue)
+      Object.keys(value).forEach((key: string) => {
+        this.editorElement.style.setProperty(key, value[key]);
       });
     }
   }

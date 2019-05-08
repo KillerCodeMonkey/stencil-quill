@@ -19,13 +19,13 @@ export namespace Components {
     'debug': string;
     'format': 'html' | 'text' | 'json';
     'formats': string[];
-    'modules': { [index: string]: Object };
+    'modules': string;
     'placeholder': string;
     'preserveWhitespace': boolean;
     'readOnly': boolean;
     'scrollingContainer': HTMLElement | string;
     'strict': boolean;
-    'styles': any;
+    'styles': string;
     'theme': string;
   }
   interface QuillComponentAttributes extends StencilHTMLAttributes {
@@ -35,7 +35,7 @@ export namespace Components {
     'debug'?: string;
     'format'?: 'html' | 'text' | 'json';
     'formats'?: string[];
-    'modules'?: { [index: string]: Object };
+    'modules'?: string;
     'onOnBlur'?: (event: CustomEvent<{
       editor: any
       source: string
@@ -65,7 +65,7 @@ export namespace Components {
     'readOnly'?: boolean;
     'scrollingContainer'?: HTMLElement | string;
     'strict'?: boolean;
-    'styles'?: any;
+    'styles'?: string;
     'theme'?: string;
   }
 }
