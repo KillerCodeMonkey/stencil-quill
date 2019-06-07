@@ -1,4 +1,4 @@
-import { Component, ComponentDidLoad, ComponentDidUnload, Element, Event, EventEmitter, Prop, Watch } from '@stencil/core';
+import { h, Component, ComponentDidLoad, ComponentDidUnload, Element, Event, EventEmitter, Prop, Watch } from '@stencil/core';
 
 declare const Quill: any
 

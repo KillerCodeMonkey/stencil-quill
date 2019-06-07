@@ -5,13 +5,10 @@
  */
 
 
-import '@stencil/core';
-
-
+import { HTMLStencilElement, JSXBase } from '@stencil/core/internal';
 
 
 export namespace Components {
-
   interface QuillComponent {
     'bounds': HTMLElement | string;
     'content': string;
@@ -28,7 +25,23 @@ export namespace Components {
     'styles': string;
     'theme': string;
   }
-  interface QuillComponentAttributes extends StencilHTMLAttributes {
+}
+
+declare global {
+
+
+  interface HTMLQuillComponentElement extends Components.QuillComponent, HTMLStencilElement {}
+  var HTMLQuillComponentElement: {
+    prototype: HTMLQuillComponentElement;
+    new (): HTMLQuillComponentElement;
+  };
+  interface HTMLElementTagNameMap {
+    'quill-component': HTMLQuillComponentElement;
+  }
+}
+
+declare namespace LocalJSX {
+  interface QuillComponent extends JSXBase.HTMLAttributes<HTMLQuillComponentElement> {
     'bounds'?: HTMLElement | string;
     'content'?: string;
     'customToolbarPosition'?: 'top' | 'bottom';
@@ -68,39 +81,19 @@ export namespace Components {
     'styles'?: string;
     'theme'?: string;
   }
+
+  interface IntrinsicElements {
+    'quill-component': QuillComponent;
+  }
 }
 
-declare global {
-  interface StencilElementInterfaces {
-    'QuillComponent': Components.QuillComponent;
-  }
-
-  interface StencilIntrinsicElements {
-    'quill-component': Components.QuillComponentAttributes;
-  }
+export { LocalJSX as JSX };
 
 
-  interface HTMLQuillComponentElement extends Components.QuillComponent, HTMLStencilElement {}
-  var HTMLQuillComponentElement: {
-    prototype: HTMLQuillComponentElement;
-    new (): HTMLQuillComponentElement;
-  };
-
-  interface HTMLElementTagNameMap {
-    'quill-component': HTMLQuillComponentElement
-  }
-
-  interface ElementTagNameMap {
-    'quill-component': HTMLQuillComponentElement;
-  }
-
-
+declare module "@stencil/core" {
   export namespace JSX {
-    export interface Element {}
-    export interface IntrinsicElements extends StencilIntrinsicElements {
-      [tagName: string]: any;
-    }
+    interface IntrinsicElements extends LocalJSX.IntrinsicElements {}
   }
-  export interface HTMLAttributes extends StencilHTMLAttributes {}
-
 }
+
+
