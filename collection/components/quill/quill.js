@@ -1,3 +1,4 @@
+import { h } from '@stencil/core';
 export class QuillComponent {
     constructor() {
         this.format = 'html';
@@ -25,7 +26,7 @@ export class QuillComponent {
                 [{ font: [].slice() }],
                 [{ align: [].slice() }],
                 ['clean'],
-                ['link', 'image', 'video']
+                ['link', 'image', 'video'] // link and image, video
             ]
         };
     }
@@ -215,99 +216,346 @@ export class QuillComponent {
     static get is() { return "quill-component"; }
     static get encapsulation() { return "scoped"; }
     static get properties() { return {
+        "format": {
+            "type": "string",
+            "mutable": false,
+            "complexType": {
+                "original": "'html' | 'text' | 'json'",
+                "resolved": "\"html\" | \"json\" | \"text\"",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "format",
+            "reflect": false,
+            "defaultValue": "'html'"
+        },
         "bounds": {
-            "type": String,
-            "attr": "bounds"
+            "type": "string",
+            "mutable": false,
+            "complexType": {
+                "original": "HTMLElement | string",
+                "resolved": "HTMLElement | string",
+                "references": {
+                    "HTMLElement": {
+                        "location": "global"
+                    }
+                }
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "bounds",
+            "reflect": false
         },
         "content": {
-            "type": String,
-            "attr": "content",
-            "watchCallbacks": ["updateContent"]
-        },
-        "customToolbarPosition": {
-            "type": String,
-            "attr": "custom-toolbar-position"
+            "type": "string",
+            "mutable": false,
+            "complexType": {
+                "original": "string",
+                "resolved": "string",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "content",
+            "reflect": false
         },
         "debug": {
-            "type": String,
-            "attr": "debug"
-        },
-        "format": {
-            "type": String,
-            "attr": "format"
+            "type": "string",
+            "mutable": false,
+            "complexType": {
+                "original": "string",
+                "resolved": "string",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "debug",
+            "reflect": false,
+            "defaultValue": "'warn'"
         },
         "formats": {
-            "type": "Any",
-            "attr": "formats"
+            "type": "unknown",
+            "mutable": false,
+            "complexType": {
+                "original": "string[]",
+                "resolved": "string[]",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            }
         },
         "modules": {
-            "type": String,
-            "attr": "modules"
+            "type": "string",
+            "mutable": false,
+            "complexType": {
+                "original": "string",
+                "resolved": "string",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "modules",
+            "reflect": false
         },
         "placeholder": {
-            "type": String,
-            "attr": "placeholder",
-            "watchCallbacks": ["updatePlaceholder"]
-        },
-        "preserveWhitespace": {
-            "type": Boolean,
-            "attr": "preserve-whitespace"
+            "type": "string",
+            "mutable": false,
+            "complexType": {
+                "original": "string",
+                "resolved": "string",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "placeholder",
+            "reflect": false,
+            "defaultValue": "'Insert text here ...'"
         },
         "readOnly": {
-            "type": Boolean,
-            "attr": "read-only",
-            "watchCallbacks": ["updateReadOnly"]
+            "type": "boolean",
+            "mutable": false,
+            "complexType": {
+                "original": "boolean",
+                "resolved": "boolean",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "read-only",
+            "reflect": false
         },
         "scrollingContainer": {
-            "type": String,
-            "attr": "scrolling-container"
+            "type": "string",
+            "mutable": false,
+            "complexType": {
+                "original": "HTMLElement | string",
+                "resolved": "HTMLElement | string",
+                "references": {
+                    "HTMLElement": {
+                        "location": "global"
+                    }
+                }
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "scrolling-container",
+            "reflect": false
         },
         "strict": {
-            "type": Boolean,
-            "attr": "strict"
+            "type": "boolean",
+            "mutable": false,
+            "complexType": {
+                "original": "boolean",
+                "resolved": "boolean",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "strict",
+            "reflect": false,
+            "defaultValue": "true"
         },
         "styles": {
-            "type": String,
-            "attr": "styles",
-            "watchCallbacks": ["updateStyle"]
+            "type": "string",
+            "mutable": false,
+            "complexType": {
+                "original": "string",
+                "resolved": "string",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "styles",
+            "reflect": false,
+            "defaultValue": "'{}'"
         },
         "theme": {
-            "type": String,
-            "attr": "theme"
+            "type": "string",
+            "mutable": false,
+            "complexType": {
+                "original": "string",
+                "resolved": "string",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "theme",
+            "reflect": false
         },
-        "wrapperElement": {
-            "elementRef": true
+        "customToolbarPosition": {
+            "type": "string",
+            "mutable": false,
+            "complexType": {
+                "original": "'top' |\u00A0'bottom'",
+                "resolved": "\"bottom\" | \"top\"",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "custom-toolbar-position",
+            "reflect": false,
+            "defaultValue": "'top'"
+        },
+        "preserveWhitespace": {
+            "type": "boolean",
+            "mutable": false,
+            "complexType": {
+                "original": "boolean",
+                "resolved": "boolean",
+                "references": {}
+            },
+            "required": false,
+            "optional": false,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "attribute": "preserve-whitespace",
+            "reflect": false,
+            "defaultValue": "false"
         }
     }; }
     static get events() { return [{
-            "name": "onInitialised",
             "method": "onInitialised",
+            "name": "onInitialised",
             "bubbles": true,
             "cancelable": true,
-            "composed": true
+            "composed": true,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "complexType": {
+                "original": "any",
+                "resolved": "any",
+                "references": {}
+            }
         }, {
-            "name": "onContentChanged",
             "method": "onContentChanged",
+            "name": "onContentChanged",
             "bubbles": true,
             "cancelable": true,
-            "composed": true
+            "composed": true,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "complexType": {
+                "original": "{\n    editor: any\n    content: any\n    text: string\n    html: string\n    delta: any\n    oldDelta: any\n    source: string\n  }",
+                "resolved": "{ editor: any; content: any; text: string; html: string; delta: any; oldDelta: any; source: string; }",
+                "references": {}
+            }
         }, {
-            "name": "onSelectionChanged",
             "method": "onSelectionChanged",
+            "name": "onSelectionChanged",
             "bubbles": true,
             "cancelable": true,
-            "composed": true
+            "composed": true,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "complexType": {
+                "original": "{\n    editor: any\n    range: any\n    oldRange: any\n    source: string\n  }",
+                "resolved": "{ editor: any; range: any; oldRange: any; source: string; }",
+                "references": {}
+            }
         }, {
-            "name": "onFocus",
             "method": "onFocus",
+            "name": "onFocus",
             "bubbles": true,
             "cancelable": true,
-            "composed": true
+            "composed": true,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "complexType": {
+                "original": "{\n    editor: any\n    source: string\n  }",
+                "resolved": "{ editor: any; source: string; }",
+                "references": {}
+            }
         }, {
-            "name": "onBlur",
             "method": "onBlur",
+            "name": "onBlur",
             "bubbles": true,
             "cancelable": true,
-            "composed": true
+            "composed": true,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "complexType": {
+                "original": "{\n    editor: any\n    source: string\n  }",
+                "resolved": "{ editor: any; source: string; }",
+                "references": {}
+            }
+        }]; }
+    static get elementRef() { return "wrapperElement"; }
+    static get watchers() { return [{
+            "propName": "content",
+            "methodName": "updateContent"
+        }, {
+            "propName": "readOnly",
+            "methodName": "updateReadOnly"
+        }, {
+            "propName": "placeholder",
+            "methodName": "updatePlaceholder"
+        }, {
+            "propName": "styles",
+            "methodName": "updateStyle"
         }]; }
 }

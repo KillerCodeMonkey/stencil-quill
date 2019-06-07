@@ -1,4 +1,3 @@
-import '../../stencil.core';
 import { ComponentDidLoad, ComponentDidUnload, EventEmitter } from '../../stencil.core';
 export declare class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
     onInitialised: EventEmitter<any>;
@@ -53,5 +52,5 @@ export declare class QuillComponent implements ComponentDidLoad, ComponentDidUnl
     updateReadOnly(newValue: boolean, oldValue: boolean): void;
     updatePlaceholder(newValue: string, oldValue: string): void;
     updateStyle(newValue: string, oldValue: string): void;
-    render(): JSX.Element[];
+    render(): any[];
 }

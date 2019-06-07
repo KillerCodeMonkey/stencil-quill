@@ -5,13 +5,10 @@
  */
 
 
-import './stencil.core';
-
-
+import { HTMLStencilElement, JSXBase } from './stencil.core';
 
 
 export namespace Components {
-
   interface QuillComponent {
     'bounds': HTMLElement | string;
     'content': string;
@@ -28,7 +25,23 @@ export namespace Components {
     'styles': string;
     'theme': string;
   }
-  interface QuillComponentAttributes extends StencilHTMLAttributes {
+}
+
+declare global {
+
+
+  interface HTMLQuillComponentElement extends Components.QuillComponent, HTMLStencilElement {}
+  var HTMLQuillComponentElement: {
+    prototype: HTMLQuillComponentElement;
+    new (): HTMLQuillComponentElement;
+  };
+  interface HTMLElementTagNameMap {
+    'quill-component': HTMLQuillComponentElement;
+  }
+}
+
+declare namespace LocalJSX {
+  interface QuillComponent extends JSXBase.HTMLAttributes<HTMLQuillComponentElement> {
     'bounds'?: HTMLElement | string;
     'content'?: string;
     'customToolbarPosition'?: 'top' | 'bottom';
@@ -68,31 +81,19 @@ export namespace Components {
     'styles'?: string;
     'theme'?: string;
   }
+
+  interface IntrinsicElements {
+    'quill-component': QuillComponent;
+  }
 }
 
-declare global {
-  interface StencilElementInterfaces {
-    'QuillComponent': Components.QuillComponent;
+export { LocalJSX as JSX };
+
+
+declare module "@stencil/core" {
+  export namespace JSX {
+    interface IntrinsicElements extends LocalJSX.IntrinsicElements {}
   }
-
-  interface StencilIntrinsicElements {
-    'quill-component': Components.QuillComponentAttributes;
-  }
-
-
-  interface HTMLQuillComponentElement extends Components.QuillComponent, HTMLStencilElement {}
-  var HTMLQuillComponentElement: {
-    prototype: HTMLQuillComponentElement;
-    new (): HTMLQuillComponentElement;
-  };
-
-  interface HTMLElementTagNameMap {
-    'quill-component': HTMLQuillComponentElement
-  }
-
-  interface ElementTagNameMap {
-    'quill-component': HTMLQuillComponentElement;
-  }
-
-
 }
+
+

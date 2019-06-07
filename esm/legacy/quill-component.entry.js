@@ -1,0 +1,244 @@
+import { r as registerInstance, c as createEvent, h, g as getElement } from './quill-component-369407fa.js';
+var QuillComponent = /** @class */ (function () {
+    function QuillComponent(hostRef) {
+        registerInstance(this, hostRef);
+        this.format = 'html';
+        this.debug = 'warn';
+        this.placeholder = 'Insert text here ...';
+        this.strict = true;
+        this.styles = '{}';
+        this.customToolbarPosition = 'top';
+        this.preserveWhitespace = false;
+        this.defaultModules = {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ header: 1 }, { header: 2 }],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                [{ script: 'sub' }, { script: 'super' }],
+                [{ indent: '-1' }, { indent: '+1' }],
+                [{ direction: 'rtl' }],
+                [{ size: ['small', false, 'large', 'huge'] }],
+                [{ header: [1, 2, 3, 4, 5, 6, false] }],
+                [
+                    { color: [].slice() },
+                    { background: [].slice() }
+                ],
+                [{ font: [].slice() }],
+                [{ align: [].slice() }],
+                ['clean'],
+                ['link', 'image', 'video'] // link and image, video
+            ]
+        };
+        this.onInitialised = createEvent(this, "onInitialised", 7);
+        this.onContentChanged = createEvent(this, "onContentChanged", 7);
+        this.onSelectionChanged = createEvent(this, "onSelectionChanged", 7);
+        this.onFocus = createEvent(this, "onFocus", 7);
+        this.onBlur = createEvent(this, "onBlur", 7);
+    }
+    QuillComponent.prototype.setEditorContent = function (value) {
+        if (this.format === 'html') {
+            var contents = this.quillEditor.clipboard.convert(value);
+            this.quillEditor.setContents(contents, 'api');
+        }
+        else if (this.format === 'text') {
+            this.quillEditor.setText(value);
+        }
+        else if (this.format === 'json') {
+            try {
+                this.quillEditor.setContents(JSON.parse(value), 'api');
+            }
+            catch (e) {
+                this.quillEditor.setText(value, 'api');
+            }
+        }
+        else {
+            this.quillEditor.setText(value, 'api');
+        }
+    };
+    QuillComponent.prototype.getEditorContent = function () {
+        var text = this.quillEditor.getText();
+        var content = this.quillEditor.getContents();
+        var html = this.editorElement.children[0].innerHTML;
+        if (html === '<p><br></p>' || html === '<div><br><div>') {
+            html = '';
+        }
+        if (this.format === 'html') {
+            return html;
+        }
+        else if (this.format === 'text') {
+            this.quillEditor.getText();
+        }
+        else if (this.format === 'json') {
+            try {
+                return JSON.stringify(content);
+            }
+            catch (e) {
+                return text;
+            }
+        }
+        else {
+            return text;
+        }
+    };
+    QuillComponent.prototype.componentDidLoad = function () {
+        var _this = this;
+        var modules = this.modules ? JSON.parse(this.modules) : this.defaultModules;
+        var toolbarElem = this.wrapperElement.querySelector('[slot="quill-toolbar"]');
+        if (toolbarElem) {
+            modules['toolbar'] = toolbarElem;
+        }
+        this.quillEditor = new Quill(this.editorElement, {
+            debug: this.debug,
+            modules: modules,
+            placeholder: this.placeholder,
+            readOnly: this.readOnly || false,
+            theme: this.theme || 'snow',
+            formats: this.formats,
+            bounds: this.bounds ? (this.bounds === 'self' ? this.editorElement : this.bounds) : document.body,
+            strict: this.strict,
+            scrollingContainer: this.scrollingContainer
+        });
+        if (this.styles) {
+            var styles_1 = JSON.parse(this.styles);
+            Object.keys(styles_1).forEach(function (key) {
+                _this.editorElement.style.setProperty(key, styles_1[key]);
+            });
+        }
+        if (this.content) {
+            this.setEditorContent(this.content);
+            this.quillEditor['history'].clear();
+        }
+        this.onInitialised.emit(this.quillEditor);
+        this.selectionChangeEvent = this.quillEditor.on('selection-change', function (range, oldRange, source) {
+            if (range === null) {
+                _this.onBlur.emit({
+                    editor: _this.quillEditor,
+                    source: source
+                });
+            }
+            else if (oldRange === null) {
+                _this.onFocus.emit({
+                    editor: _this.quillEditor,
+                    source: source
+                });
+            }
+            _this.onSelectionChanged.emit({
+                editor: _this.quillEditor,
+                range: range,
+                oldRange: oldRange,
+                source: source
+            });
+        });
+        this.textChangeEvent = this.quillEditor.on('text-change', function (delta, oldDelta, source) {
+            var text = _this.quillEditor.getText();
+            var content = _this.quillEditor.getContents();
+            var html = _this.editorElement.querySelector('.ql-editor').innerHTML;
+            if (html === '<p><br></p>' || html === '<div><br><div>') {
+                html = null;
+            }
+            _this.onContentChanged.emit({
+                editor: _this.quillEditor,
+                content: content,
+                delta: delta,
+                html: html,
+                oldDelta: oldDelta,
+                source: source,
+                text: text
+            });
+        });
+    };
+    QuillComponent.prototype.componentDidUnload = function () {
+        if (this.selectionChangeEvent) {
+            this.selectionChangeEvent.removeListener('selection-change');
+        }
+        if (this.textChangeEvent) {
+            this.textChangeEvent.removeListener('text-change');
+        }
+    };
+    QuillComponent.prototype.updateContent = function (newValue) {
+        var editorContents = this.getEditorContent();
+        if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
+            return null;
+        }
+        else {
+            var changed = false;
+            try {
+                var newContentString = JSON.stringify(newValue);
+                changed = JSON.stringify(editorContents) !== newContentString;
+            }
+            catch (_a) {
+                return null;
+            }
+            if (!changed) {
+                return null;
+            }
+        }
+        this.setEditorContent(newValue);
+    };
+    QuillComponent.prototype.updateReadOnly = function (newValue, oldValue) {
+        if (!this.quillEditor) {
+            return;
+        }
+        if (newValue !== oldValue) {
+            this.quillEditor.enable(!newValue);
+        }
+    };
+    QuillComponent.prototype.updatePlaceholder = function (newValue, oldValue) {
+        if (!this.quillEditor) {
+            return;
+        }
+        if (newValue !== oldValue) {
+            this.quillEditor.root.dataset.placeholder = newValue;
+        }
+    };
+    QuillComponent.prototype.updateStyle = function (newValue, oldValue) {
+        var _this = this;
+        if (!this.editorElement) {
+            return;
+        }
+        if (oldValue) {
+            var old = JSON.parse(oldValue);
+            Object.keys(old).forEach(function (key) {
+                _this.editorElement.style.setProperty(key, '');
+            });
+        }
+        if (newValue) {
+            var value_1 = JSON.parse(newValue);
+            Object.keys(value_1).forEach(function (key) {
+                _this.editorElement.style.setProperty(key, value_1[key]);
+            });
+        }
+    };
+    QuillComponent.prototype.render = function () {
+        var _this = this;
+        var editor = this.preserveWhitespace ? h("pre", { "quill-element": true, ref: function (el) { return _this.editorElement = el; } }) : h("div", { "quill-element": true, ref: function (el) { return _this.editorElement = el; } });
+        var elements = [h("slot", { name: "quill-toolbar" })];
+        if (this.customToolbarPosition === 'bottom') {
+            elements.unshift(editor);
+        }
+        else {
+            elements.push(editor);
+        }
+        return (elements);
+    };
+    Object.defineProperty(QuillComponent.prototype, "wrapperElement", {
+        get: function () { return getElement(this); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(QuillComponent, "watchers", {
+        get: function () {
+            return {
+                "content": ["updateContent"],
+                "readOnly": ["updateReadOnly"],
+                "placeholder": ["updatePlaceholder"],
+                "styles": ["updateStyle"]
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return QuillComponent;
+}());
+export { QuillComponent as quill_component };

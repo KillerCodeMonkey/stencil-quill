@@ -1,122 +1,12 @@
 {
-  "components": [
-    {
-      "tag": "quill-component",
-      "dependencies": [],
-      "componentClass": "QuillComponent",
-      "componentPath": "components/quill/quill.js",
-      "styles": {},
-      "props": [
-        {
-          "name": "bounds",
-          "type": "String",
-          "attr": "bounds"
-        },
-        {
-          "name": "content",
-          "type": "String",
-          "attr": "content",
-          "watch": [
-            "updateContent"
-          ]
-        },
-        {
-          "name": "customToolbarPosition",
-          "type": "String",
-          "attr": "custom-toolbar-position"
-        },
-        {
-          "name": "debug",
-          "type": "String",
-          "attr": "debug"
-        },
-        {
-          "name": "format",
-          "type": "String",
-          "attr": "format"
-        },
-        {
-          "name": "formats",
-          "attr": "formats"
-        },
-        {
-          "name": "modules",
-          "type": "String",
-          "attr": "modules"
-        },
-        {
-          "name": "placeholder",
-          "type": "String",
-          "attr": "placeholder",
-          "watch": [
-            "updatePlaceholder"
-          ]
-        },
-        {
-          "name": "preserveWhitespace",
-          "type": "Boolean",
-          "attr": "preserve-whitespace"
-        },
-        {
-          "name": "readOnly",
-          "type": "Boolean",
-          "attr": "read-only",
-          "watch": [
-            "updateReadOnly"
-          ]
-        },
-        {
-          "name": "scrollingContainer",
-          "type": "String",
-          "attr": "scrolling-container"
-        },
-        {
-          "name": "strict",
-          "type": "Boolean",
-          "attr": "strict"
-        },
-        {
-          "name": "styles",
-          "type": "String",
-          "attr": "styles",
-          "watch": [
-            "updateStyle"
-          ]
-        },
-        {
-          "name": "theme",
-          "type": "String",
-          "attr": "theme"
-        }
-      ],
-      "hostElement": {
-        "name": "wrapperElement"
-      },
-      "events": [
-        {
-          "event": "onBlur"
-        },
-        {
-          "event": "onContentChanged"
-        },
-        {
-          "event": "onFocus"
-        },
-        {
-          "event": "onInitialised"
-        },
-        {
-          "event": "onSelectionChanged"
-        }
-      ],
-      "scoped": true
-    }
+  "entries": [
+    "components/quill/quill.js"
   ],
-  "collections": [],
   "compiler": {
     "name": "@stencil/core",
-    "version": "0.18.1",
-    "typescriptVersion": "3.3.3"
+    "version": "1.0.1",
+    "typescriptVersion": "3.5.1"
   },
+  "collections": [],
   "bundles": []
 }

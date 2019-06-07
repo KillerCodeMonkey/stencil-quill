@@ -1,1 +1,0 @@
-export * from '../esm/es5/quill-component.define.js';
