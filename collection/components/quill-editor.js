@@ -1,5 +1,5 @@
 import { h } from '@stencil/core';
-export class QuillComponent {
+export class QuillEditorComponent {
     constructor() {
         this.format = 'html';
         this.debug = 'warn';
@@ -213,7 +213,7 @@ export class QuillComponent {
         }
         return (elements);
     }
-    static get is() { return "quill-component"; }
+    static get is() { return "quill-editor"; }
     static get encapsulation() { return "scoped"; }
     static get properties() { return {
         "format": {

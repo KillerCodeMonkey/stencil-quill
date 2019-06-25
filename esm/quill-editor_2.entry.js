@@ -1,6 +1,6 @@
-import { r as registerInstance, c as createEvent, h, g as getElement } from './quill-component-369407fa.js';
+import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-818d8bae.js';
 
-class QuillComponent {
+class QuillEditorComponent {
     constructor(hostRef) {
         registerInstance(this, hostRef);
         this.format = 'html';
@@ -229,4 +229,23 @@ class QuillComponent {
     }; }
 }
 
-export { QuillComponent as quill_component };
+class QuillViewHTMLComponent {
+    constructor(hostRef) {
+        registerInstance(this, hostRef);
+        this.theme = 'snow';
+        this.themeClass = 'ql-snow';
+    }
+    updateTheme(newValue) {
+        this.themeClass = `ql-${newValue || 'snow'}`;
+    }
+    render() {
+        const classes = `ql-container ${this.themeClass} quill-view-html`;
+        return (h("div", { class: classes }, h("div", { class: "ql-editor", innerHTML: this.content })));
+    }
+    static get watchers() { return {
+        "theme": ["updateTheme"]
+    }; }
+    static get style() { return ".ql-container.quill-view-html.sc-quill-view-html{border:0}"; }
+}
+
+export { QuillEditorComponent as quill_editor, QuillViewHTMLComponent as quill_view_html };

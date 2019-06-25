@@ -413,7 +413,7 @@ function sortSelectors(selectors) {
     return selectors;
 }
 function matches(el, selector) {
-    return el.matches(selector);
+    return selector === ':root' || selector === 'html' || el.matches(selector);
 }
 function parseCSS(original) {
     var ast = parse(original);
@@ -423,7 +423,7 @@ function parseCSS(original) {
         original: original,
         template: template,
         selectors: selectors,
-        isDynamic: template.length > 1
+        usesCssVars: template.length > 1
     };
 }
 function addGlobalStyle(globalScopes, styleEl) {
@@ -435,23 +435,23 @@ function updateGlobalScopes(scopes) {
     var selectors = getSelectorsForScopes(scopes);
     var props = resolveValues(selectors);
     scopes.forEach(function (scope) {
-        if (scope.isDynamic) {
+        if (scope.usesCssVars) {
             scope.styleEl.innerHTML = executeTemplate(scope.template, props);
         }
     });
 }
-function reScope(scope, cssScopeId) {
+function reScope(scope, scopeId) {
     var template = scope.template.map(function (segment) {
         return (typeof segment === 'string')
-            ? replaceScope(segment, scope.cssScopeId, cssScopeId)
+            ? replaceScope(segment, scope.scopeId, scopeId)
             : segment;
     });
     var selectors = scope.selectors.map(function (sel) {
-        return Object.assign({}, sel, { selector: replaceScope(sel.selector, scope.cssScopeId, cssScopeId) });
+        return Object.assign({}, sel, { selector: replaceScope(sel.selector, scope.scopeId, scopeId) });
     });
     return Object.assign({}, scope, { template: template,
         selectors: selectors,
-        cssScopeId: cssScopeId });
+        scopeId: scopeId });
 }
 function replaceScope(original, oldScopeId, newScopeId) {
     original = replaceAll(original, "\\." + oldScopeId, "." + newScopeId);
@@ -461,9 +461,8 @@ function replaceAll(input, find, replace) {
     return input.replace(new RegExp(find, 'g'), replace);
 }
 function loadDocument(doc, globalScopes) {
-    return loadDocumentLinks(doc, globalScopes).then(function () {
-        loadDocumentStyles(doc, globalScopes);
-    });
+    loadDocumentStyles(doc, globalScopes);
+    return loadDocumentLinks(doc, globalScopes);
 }
 function loadDocumentLinks(doc, globalScopes) {
     var promises = [];
@@ -474,7 +473,7 @@ function loadDocumentLinks(doc, globalScopes) {
     return Promise.all(promises);
 }
 function loadDocumentStyles(doc, globalScopes) {
-    var styleElms = doc.querySelectorAll('style');
+    var styleElms = doc.querySelectorAll('style:not([data-styles])');
     for (var i = 0; i < styleElms.length; i++) {
         addGlobalStyle(globalScopes, styleElms[i]);
     }
@@ -487,6 +486,7 @@ function addGlobalLink(doc, globalScopes, linkElm) {
                 text = fixRelativeUrls(text, url);
             }
             var styleEl = doc.createElement('style');
+            styleEl.setAttribute('data-styles', '');
             styleEl.innerHTML = text;
             addGlobalStyle(globalScopes, styleEl);
             linkElm.parentNode.insertBefore(styleEl, linkElm);
@@ -555,34 +555,33 @@ var CustomStyle = /** @class */ (function () {
         addGlobalStyle(this.globalScopes, styleEl);
         this.updateGlobal();
     };
-    CustomStyle.prototype.createHostStyle = function (hostEl, cssScopeId, cssText) {
+    CustomStyle.prototype.createHostStyle = function (hostEl, cssScopeId, cssText, isScoped) {
         if (this.hostScopeMap.has(hostEl)) {
             throw new Error('host style already created');
         }
-        var baseScope = this.registerHostTemplate(cssText, cssScopeId);
-        var isDynamicScoped = !!(baseScope.isDynamic && baseScope.cssScopeId);
-        var needStyleEl = isDynamicScoped || !baseScope.styleEl;
+        var baseScope = this.registerHostTemplate(cssText, cssScopeId, isScoped);
         var styleEl = this.doc.createElement('style');
-        if (!needStyleEl) {
+        if (!baseScope.usesCssVars) {
+            // This component does not use (read) css variables
             styleEl.innerHTML = cssText;
         }
+        else if (isScoped) {
+            // This component is dynamic: uses css var and is scoped
+            styleEl['s-sc'] = cssScopeId = baseScope.scopeId + "-" + this.count;
+            styleEl.innerHTML = '/*needs update*/';
+            this.hostStyleMap.set(hostEl, styleEl);
+            this.hostScopeMap.set(hostEl, reScope(baseScope, cssScopeId));
+            this.count++;
+        }
         else {
-            if (isDynamicScoped) {
-                styleEl['s-sc'] = cssScopeId = baseScope.cssScopeId + "-" + this.count;
-                styleEl.innerHTML = '/*needs update*/';
-                this.hostStyleMap.set(hostEl, styleEl);
-                this.hostScopeMap.set(hostEl, reScope(baseScope, cssScopeId));
-                this.count++;
+            // This component uses css vars, but it's no-encapsulation (global static)
+            baseScope.styleEl = styleEl;
+            if (!baseScope.usesCssVars) {
+                styleEl.innerHTML = executeTemplate(baseScope.template, {});
             }
-            else {
-                baseScope.styleEl = styleEl;
-                if (!baseScope.isDynamic) {
-                    styleEl.innerHTML = executeTemplate(baseScope.template, {});
-                }
-                this.globalScopes.push(baseScope);
-                this.updateGlobal();
-                this.hostScopeMap.set(hostEl, baseScope);
-            }
+            this.globalScopes.push(baseScope);
+            this.updateGlobal();
+            this.hostScopeMap.set(hostEl, baseScope);
         }
         return styleEl;
     };
@@ -596,7 +595,7 @@ var CustomStyle = /** @class */ (function () {
     };
     CustomStyle.prototype.updateHost = function (hostEl) {
         var scope = this.hostScopeMap.get(hostEl);
-        if (scope && scope.isDynamic && scope.cssScopeId) {
+        if (scope && scope.usesCssVars && scope.isScoped) {
             var styleEl = this.hostStyleMap.get(hostEl);
             if (styleEl) {
                 var selectors = getActiveSelectors(hostEl, this.hostScopeMap, this.globalScopes);
@@ -608,11 +607,12 @@ var CustomStyle = /** @class */ (function () {
     CustomStyle.prototype.updateGlobal = function () {
         updateGlobalScopes(this.globalScopes);
     };
-    CustomStyle.prototype.registerHostTemplate = function (cssText, scopeId) {
+    CustomStyle.prototype.registerHostTemplate = function (cssText, scopeId, isScoped) {
         var scope = this.scopesMap.get(scopeId);
         if (!scope) {
             scope = parseCSS(cssText);
-            scope.cssScopeId = scopeId;
+            scope.scopeId = scopeId;
+            scope.isScoped = isScoped;
             this.scopesMap.set(scopeId, scope);
         }
         return scope;

@@ -1,5 +1,5 @@
-import { ComponentDidLoad, ComponentDidUnload, EventEmitter } from '../../stencil.core';
-export declare class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
+import { ComponentDidLoad, ComponentDidUnload, EventEmitter } from '../stencil.core';
+export declare class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnload {
     onInitialised: EventEmitter<any>;
     onContentChanged: EventEmitter<{
         editor: any;

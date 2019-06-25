@@ -54,10 +54,10 @@
     }
     /* We do not set Aref Ruqaa since it is the default font */
   </style>
-  <script type="module" src="/build/quill-component.esm.js"></script>
-  <script nomodule src="/build/quill-component.js"></script>
-  <script type="module" src="/stencil-quill/esm/quill-component.mjs"></script>
-  <script nomodule src="/stencil-quill/quill-component.js"></script>
+  <script type="module" src="/build/quill-components.esm.js"></script>
+  <script nomodule src="/build/quill-components.js"></script>
+  <script type="module" src="/stencil-quill/esm/quill-components.mjs"></script>
+  <script nomodule src="/stencil-quill/quill-components.js"></script>
 </head>
 <body>
   <h3>Default Editor</h3>
@@ -65,10 +65,10 @@
   <button id="placeholder">Set Placeholder</button>
   <button id="text">Set Text</button>
   <button id="backgroundColor">Toggle BackgroundColor</button>
-  <quill-component id="quill-component" styles='{"background-color": "red"}' format="json" content=""></quill-component>
+  <quill-editor id="quill-editor" styles='{"background-color": "red"}' format="json" content=""></quill-editor>
 
   <h3>Custom HTML Toolbar + PreserveWhitespace</h3>
-  <quill-component modules='{ "counter": true }' custom-toolbar-position="bottom" preserve-whitespace="true" content="test" format="html">
+  <quill-editor modules='{ "counter": true }' custom-toolbar-position="bottom" preserve-whitespace="true" content="test" format="html">
     <div slot="quill-toolbar">
       <span class="ql-formats">
         <select class="ql-font">
@@ -93,48 +93,60 @@
         <div id="counter"></div>
       </span>
     </div>
-  </quill-component>
+  </quill-editor>
+
+  <h3>QuillViewHtml - Present html</h3>
+  <quill-view-html id="htmlView" theme="snow" content="<ul><li>Hallo</li></ul>">
+  </quill-view-html>
+
+  <h3>QuillView - Present json <small>connected to default editor</small></h3>
+  <quill-view id="view" theme="snow" format="json" preserve-whitespaces="true" content="">
+  </quill-view>
   <script>
-    const quillComponent = document.getElementById('quill-component')
+    const quillEditor = document.getElementById('quill-editor')
+    const quillView = document.getElementById('view')
+    const quillViewHTML = document.getElementById('htmlView')
 
     const readOnlyButton = document.getElementById('readOnly')
     readOnlyButton.onclick = () => {
-      quillComponent.readOnly = !quillComponent.readOnly
+      quillEditor.readOnly = !quillEditor.readOnly
     }
 
     const placeholderButton = document.getElementById('placeholder')
     placeholderButton.onclick = () => {
-      quillComponent.placeholder = quillComponent.placeholder + '!'
+      quillEditor.placeholder = quillEditor.placeholder + '!'
     }
 
     const textButton = document.getElementById('text')
     textButton.onclick = () => {
-      quillComponent.content = JSON.stringify({ ops: [{ insert: 'test!!!\n' }] })
+      quillEditor.content = JSON.stringify({ ops: [{ insert: 'test!!!\n' }] })
     }
 
     const backgroundColorButton = document.getElementById('backgroundColor')
     backgroundColorButton.onclick = () => {
-      quillComponent.styles = !JSON.parse(quillComponent.styles)['background-color'] ? JSON.stringify({ 'background-color': 'grey' }) : '{}'
+      quillEditor.styles = !JSON.parse(quillEditor.styles)['background-color'] ? JSON.stringify({ 'background-color': 'grey' }) : '{}'
     }
 
-    quillComponent.addEventListener('onInitialised', (event) => {
+    quillEditor.addEventListener('onInitialised', (event) => {
       console.log('onInitialised', event.detail)
-      quillComponent.content = JSON.stringify({ ops: [{ insert: 'hallo' }] })
+      quillEditor.content = JSON.stringify({ ops: [{ insert: 'hallo' }] })
+      quillView.content = JSON.stringify({ ops: [{ insert: 'hallo' }] })
     });
 
-    quillComponent.addEventListener('onContentChanged', (event) => {
+    quillEditor.addEventListener('onContentChanged', (event) => {
       console.log('onContentChanged', event.detail)
+      quillView.content = JSON.stringify(event.detail.content)
     });
 
-    quillComponent.addEventListener('onSelectionChanged', (event) => {
+    quillEditor.addEventListener('onSelectionChanged', (event) => {
       console.log('onSelectionChanged', event.detail)
     });
 
-    quillComponent.addEventListener('onFocus', (event) => {
+    quillEditor.addEventListener('onFocus', (event) => {
       console.log('onFocus', event.detail)
     });
 
-    quillComponent.addEventListener('onBlur', (event) => {
+    quillEditor.addEventListener('onBlur', (event) => {
       console.log('onFocus', event.detail)
     });
   </script>

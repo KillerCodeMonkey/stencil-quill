@@ -9,7 +9,7 @@ import { HTMLStencilElement, JSXBase } from './stencil.core';
 
 
 export namespace Components {
-  interface QuillComponent {
+  interface QuillEditor {
     'bounds': HTMLElement | string;
     'content': string;
     'customToolbarPosition': 'top' | 'bottom';
@@ -25,23 +25,52 @@ export namespace Components {
     'styles': string;
     'theme': string;
   }
+  interface QuillView {
+    'content': string;
+    'debug': string;
+    'format': 'html' | 'text' | 'json';
+    'formats': string[];
+    'modules': string;
+    'preserveWhitespace': boolean;
+    'strict': boolean;
+    'styles': string;
+    'theme': string;
+  }
+  interface QuillViewHtml {
+    'content': string;
+    'theme': string;
+  }
 }
 
 declare global {
 
 
-  interface HTMLQuillComponentElement extends Components.QuillComponent, HTMLStencilElement {}
-  var HTMLQuillComponentElement: {
-    prototype: HTMLQuillComponentElement;
-    new (): HTMLQuillComponentElement;
+  interface HTMLQuillEditorElement extends Components.QuillEditor, HTMLStencilElement {}
+  var HTMLQuillEditorElement: {
+    prototype: HTMLQuillEditorElement;
+    new (): HTMLQuillEditorElement;
+  };
+
+  interface HTMLQuillViewElement extends Components.QuillView, HTMLStencilElement {}
+  var HTMLQuillViewElement: {
+    prototype: HTMLQuillViewElement;
+    new (): HTMLQuillViewElement;
+  };
+
+  interface HTMLQuillViewHtmlElement extends Components.QuillViewHtml, HTMLStencilElement {}
+  var HTMLQuillViewHtmlElement: {
+    prototype: HTMLQuillViewHtmlElement;
+    new (): HTMLQuillViewHtmlElement;
   };
   interface HTMLElementTagNameMap {
-    'quill-component': HTMLQuillComponentElement;
+    'quill-editor': HTMLQuillEditorElement;
+    'quill-view': HTMLQuillViewElement;
+    'quill-view-html': HTMLQuillViewHtmlElement;
   }
 }
 
 declare namespace LocalJSX {
-  interface QuillComponent extends JSXBase.HTMLAttributes<HTMLQuillComponentElement> {
+  interface QuillEditor extends JSXBase.HTMLAttributes<HTMLQuillEditorElement> {
     'bounds'?: HTMLElement | string;
     'content'?: string;
     'customToolbarPosition'?: 'top' | 'bottom';
@@ -81,9 +110,26 @@ declare namespace LocalJSX {
     'styles'?: string;
     'theme'?: string;
   }
+  interface QuillView extends JSXBase.HTMLAttributes<HTMLQuillViewElement> {
+    'content'?: string;
+    'debug'?: string;
+    'format'?: 'html' | 'text' | 'json';
+    'formats'?: string[];
+    'modules'?: string;
+    'preserveWhitespace'?: boolean;
+    'strict'?: boolean;
+    'styles'?: string;
+    'theme'?: string;
+  }
+  interface QuillViewHtml extends JSXBase.HTMLAttributes<HTMLQuillViewHtmlElement> {
+    'content'?: string;
+    'theme'?: string;
+  }
 
   interface IntrinsicElements {
-    'quill-component': QuillComponent;
+    'quill-editor': QuillEditor;
+    'quill-view': QuillView;
+    'quill-view-html': QuillViewHtml;
   }
 }
 

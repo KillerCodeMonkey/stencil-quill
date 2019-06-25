@@ -1,5 +1,5 @@
 {
-  "name": "quill-component-loader",
+  "name": "quill-components-loader",
   "typings": "./index.d.ts",
   "module": "./index.mjs",
   "main": "./index.cjs.js",
