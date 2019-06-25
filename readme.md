@@ -30,11 +30,18 @@ XRP Wallet Address:
 
 ## Installation
 - `npm install stencil-quill`
-- load `node_modules/stencil-quill/dist/quill-component.js` in your index.html or add it to your build process or project
-- use `<quill-component></quill-component>` in your templates to add a default quill editor
+- load `node_modules/stencil-quill/dist/quill-components.js` in your index.html or add it to your build process or project
 - do not forget to install `quill` and include it + theme css in your buildprocess, module or `index.html`! (the component is using the global Quill object)
 
-## Config
+## QuillEditor component
+
+### HTML-Tag
+
+```HTML
+<quill-editor content="" format="html" theme="snow"></quill-editor>
+```
+
+### Config
 - content - the base content of the editor passed as string or JSON string
 - readOnly (true | false) if user can edit content
 - formats - array of allowed formats/groupings
@@ -106,7 +113,7 @@ XRP Wallet Address:
 
 [Full Quill Toolbar HTML](https://github.com/quilljs/quill/blob/f75ff2973f068c3db44f949915eb8a74faf162a8/docs/_includes/full-toolbar.html)
 
-## Outputs
+### Events
 - onInitialised - editor instance
 ```
 editor
@@ -147,20 +154,55 @@ editor
 }
 ```
 
-## Using this component
+## QuillView component
+
+It renders a readOnly quilljs editor without a border and toolbar. Does not provide any Events, but has similar properties.
+
+### HTML-Tag
+
+```HTML
+<quill-view content="" format="html" theme="snow"></quill-view>
+```
+
+### Config
+- content - the base content of the editor passed as string or JSON string
+- formats - array of allowed formats/groupings
+- format - model format - default: `html`, values: `html | text | json`, sets the model value type - html = html string, json = quill operations as json string, text = plain text
+- modules - configure/disable quill modules, passed as JSON-string! - keep in mind toolbar will be set to false anyways
+- theme - bubble/snow, default is `snow`
+- styles - set a styles object, e.g. `styles="{height: '250px'}"`
+- strict - default: true, sets editor in strict mode
+- debug - set log level `warn`, `error`, `log` or `false` to deactivate logging, default: `warn`
+- preserveWhitespace - default: false - possbility to use a pre-tag instead of a div-tag for the contenteditable area to preserve duplicated whitespaces | caution if used with syntax plugin [Related issue](https://github.com/quilljs/quill/issues/1751)
+
+## QuillViewHTML component
+
+It renders an quilljs html string as you would expect it without createing a quilljs instance.
+
+### HTML-Tag
+
+```HTML
+<quill-view-html content="" theme="snow"></quill-view-html>
+```
+
+### Config
+- content - the base content of the editor passed as string or JSON string
+- theme - bubble/snow, default is `snow`
+
+## Using the components
 
 ### Script tag
 
 - [Publish to NPM](https://docs.npmjs.com/getting-started/publishing-npm-packages)
-- Put a script tag similar to this `<script src='https://unpkg.com/stencil-quill@latest/dist/quill-component.js'></script>` in the head of your index.html
+- Put a script tag similar to this `<script src='https://unpkg.com/stencil-quill@latest/dist/quill-components.js'></script>` in the head of your index.html
 - Then you can use the element anywhere in your template, JSX, html etc
 
 ### Node Modules
 - Run `npm install stencil-quill --save`
-- Put a script tag similar to this `<script src='node_modules/stencil-quill/dist/quill-component.js'></script>` in the head of your index.html
+- Put a script tag similar to this `<script src='node_modules/stencil-quill/dist/quill-components.js'></script>` in the head of your index.html
 - Then you can use the element anywhere in your template, JSX, html etc
 
 ### In a stencil-starter app
 - Run `npm install stencil-quill --save`
-- Add an import to the npm packages `import quill-component;`
+- Add an import to the npm packages `import quill-components;`
 - Then you can use the element anywhere in your template, JSX, html etc

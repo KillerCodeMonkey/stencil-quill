@@ -3,11 +3,11 @@ import { h, Component, ComponentDidLoad, ComponentDidUnload, Element, Event, Eve
 declare const Quill: any
 
 @Component({
-  tag: 'quill-component',
+  tag: 'quill-editor',
   scoped: true,
   shadow: false
 })
-export class QuillComponent implements ComponentDidLoad, ComponentDidUnload {
+export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnload {
 
   @Event() onInitialised: EventEmitter<any>;
   @Event() onContentChanged: EventEmitter<{

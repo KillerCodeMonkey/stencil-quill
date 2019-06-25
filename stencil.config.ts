@@ -1,7 +1,10 @@
 import { Config } from '@stencil/core';
 
 export const config: Config = {
-  namespace: 'quill-component',
+  bundles: [{
+    components: ['quill-editor', 'quill-view-html']
+  }],
+  namespace: 'quill-components',
   outputTargets:[
     {
       type: 'dist'
