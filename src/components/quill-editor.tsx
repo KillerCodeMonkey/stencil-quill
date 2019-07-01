@@ -159,8 +159,6 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
       this.quillEditor['history'].clear();
     }
 
-    this.onInitialised.emit(this.quillEditor);
-
     this.selectionChangeEvent = this.quillEditor.on(
       'selection-change',
       (range: any, oldRange: any, source: string) => {
@@ -207,6 +205,8 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
         });
       }
     );
+
+    this.onInitialised.emit(this.quillEditor);
   }
 
   componentDidUnload() {
