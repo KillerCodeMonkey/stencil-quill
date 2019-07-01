@@ -1,3 +1,24 @@
+'use strict';
+
+function _interopNamespace(e) {
+  if (e && e.__esModule) { return e; } else {
+    var n = {};
+    if (e) {
+      Object.keys(e).forEach(function (k) {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: function () {
+            return e[k];
+          }
+        });
+      });
+    }
+    n['default'] = e;
+    return n;
+  }
+}
+
 const BUILD = {"allRenderFn":true,"cmpDidLoad":true,"cmpDidUnload":true,"cmpDidUpdate":false,"cmpDidRender":false,"cmpWillLoad":false,"cmpWillUpdate":false,"cmpWillRender":false,"connectedCallback":false,"disconnectedCallback":false,"element":false,"event":true,"hasRenderFn":true,"lifecycle":true,"hostListener":false,"hostListenerTargetWindow":false,"hostListenerTargetDocument":false,"hostListenerTargetBody":false,"hostListenerTargetParent":false,"hostListenerTarget":false,"member":true,"method":false,"mode":false,"noVdomRender":false,"observeAttribute":true,"prop":true,"propBoolean":true,"propNumber":false,"propString":true,"propMutable":false,"reflect":false,"scoped":true,"shadowDom":false,"slot":true,"slotRelocation":true,"state":false,"style":true,"svg":false,"updatable":true,"vdomAttribute":true,"vdomClass":true,"vdomFunctional":true,"vdomKey":true,"vdomListener":true,"vdomRef":true,"vdomRender":true,"vdomStyle":true,"vdomText":true,"watchCallback":true,"taskQueue":true,"lazyLoad":true,"hydrateServerSide":false,"cssVarShim":true,"hydrateClientSide":false,"isDebug":false,"isDev":false,"lifecycleDOMEvents":false,"profile":false,"hotModuleReplacement":false,"constructableCSS":true,"cssAnnotations":true};
 const NAMESPACE = 'quill-components';
 
@@ -41,11 +62,11 @@ const consoleError = (e) => console.error(e);
 const loadModule = (cmpMeta, hostRef, hmrVersionId) => {
     // loadModuleImport
     const bundleId =  cmpMeta.$lazyBundleIds$;
-    return import(
+    return new Promise(function (resolve) { resolve(_interopNamespace(require(
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */
-    `./${bundleId}.entry.js${ ''}`).then(importedModule => importedModule[cmpMeta.$tagName$.replace(/-/g, '_')], consoleError);
+    `./${bundleId}.entry.js${ ''}`))); }).then(importedModule => importedModule[cmpMeta.$tagName$.replace(/-/g, '_')], consoleError);
 };
 
 const styles = new Map();
@@ -141,13 +162,13 @@ const patchEsm = () => {
     // @ts-ignore
     if (!(win.CSS && win.CSS.supports && win.CSS.supports('color', 'var(--c)'))) {
         // @ts-ignore
-        return import('./css-shim-3ea8955c-3ea8955c.js');
+        return new Promise(function (resolve) { resolve(require('./css-shim-3ea8955c-8b902b6b.js')); });
     }
     return Promise.resolve();
 };
 const patchBrowser = async () => {
     // @ts-ignore
-    const importMeta = "";
+    const importMeta = (typeof document === 'undefined' ? new (require('u' + 'rl').URL)('file:' + __filename).href : (document.currentScript && document.currentScript.src || new URL('chunk-926d3fbc.js', document.baseURI).href));
     if (importMeta !== '') {
         return Promise.resolve(new URL('.', importMeta).href);
     }
@@ -158,7 +179,7 @@ const patchBrowser = async () => {
         patchDynamicImport(resourcesUrl.href);
         if (!window.customElements) {
             // @ts-ignore
-            await import('./dom-a0c82e31-a0c82e31.js');
+            await new Promise(function (resolve) { resolve(require('./dom-a0c82e31-d4621515.js')); });
         }
         return resourcesUrl.href;
     }
@@ -962,14 +983,13 @@ const renderVdom = (hostElm, hostRef, cmpMeta, renderFnResults) => {
                 let orgLocationNode = relocateNode.nodeToRelocate['s-ol'];
                 while (orgLocationNode = orgLocationNode.previousSibling) {
                     let refNode = orgLocationNode['s-nr'];
-                    if (refNode && refNode) {
-                        if (refNode['s-sn'] === relocateNode.nodeToRelocate['s-sn']) {
-                            if (parentNodeRef === refNode.parentNode) {
-                                if ((refNode = refNode.nextSibling) && refNode && !refNode['s-nr']) {
-                                    insertBeforeNode = refNode;
-                                    break;
-                                }
-                            }
+                    if (refNode &&
+                        refNode['s-sn'] === relocateNode.nodeToRelocate['s-sn'] &&
+                        parentNodeRef === refNode.parentNode) {
+                        refNode = refNode.nextSibling;
+                        if (!refNode || !refNode['s-nr']) {
+                            insertBeforeNode = refNode;
+                            break;
                         }
                     }
                 }
@@ -1011,6 +1031,11 @@ const scheduleUpdate = async (elm, hostRef, cmpMeta, isInitialLoad) => {
         hostRef.$flags$ |= 16 /* isQueuedForUpdate */;
     }
     const instance =  hostRef.$lazyInstance$ ;
+    if (isInitialLoad) {
+        {
+            hostRef.$flags$ |= 128 /* isWatchReady */;
+        }
+    }
     // there is no ancestorc omponent or the ancestor component
     // has already fired off its lifecycle update then
     // fire off the initial update
@@ -1071,8 +1096,8 @@ const postUpdateComponent = (elm, hostRef, ancestorsActivelyLoadingChildren) => 
     if ( !elm['s-al']) {
         const instance =  hostRef.$lazyInstance$ ;
         const ancestorComponent = hostRef.$ancestorComponent$;
-        if (!(hostRef.$flags$ & 512 /* hasLoadedComponent */)) {
-            hostRef.$flags$ |= 512 /* hasLoadedComponent */;
+        if (!(hostRef.$flags$ & 64 /* hasLoadedComponent */)) {
+            hostRef.$flags$ |= 64 /* hasLoadedComponent */;
             {
                 // DOM WRITE!
                 // add the css class that this element has officially hydrated
@@ -1116,6 +1141,14 @@ const postUpdateComponent = (elm, hostRef, ancestorsActivelyLoadingChildren) => 
         // ( •_•)
         // ( •_•)>⌐■-■
         // (⌐■_■)
+    }
+};
+const forceUpdate = (elm, cmpMeta) => {
+    {
+        const hostRef = getHostRef(elm);
+        if (hostRef.$flags$ & 2 /* hasRendered */) {
+            scheduleUpdate(elm, hostRef, cmpMeta, false);
+        }
     }
 };
 
@@ -1168,8 +1201,7 @@ const setValue = (ref, propName, newVal, cmpMeta) => {
         hostRef.$instanceValues$.set(propName, newVal);
         if ( hostRef.$lazyInstance$) {
             // get an array of method names of watch functions to call
-            if ( cmpMeta.$watchers$ &&
-                (flags & (1 /* hasConnected */ | 8 /* isConstructingInstance */)) === 1 /* hasConnected */) {
+            if ( cmpMeta.$watchers$ && flags & 128 /* isWatchReady */) {
                 const watchMethods = cmpMeta.$watchers$[propName];
                 if (watchMethods) {
                     // this instance is watching for when this property changed
@@ -1246,9 +1278,9 @@ const proxyComponent = (Cstr, cmpMeta, flags) => {
 
 const initializeComponent = async (elm, hostRef, cmpMeta, hmrVersionId, Cstr) => {
     // initializeComponent
-    if ( (hostRef.$flags$ & 256 /* hasInitializedComponent */) === 0) {
+    if ( (hostRef.$flags$ & 32 /* hasInitializedComponent */) === 0) {
         // we haven't initialized this element yet
-        hostRef.$flags$ |= 256 /* hasInitializedComponent */;
+        hostRef.$flags$ |= 32 /* hasInitializedComponent */;
         {
             // lazy loaded components
             // request the component's implementation to be
@@ -1294,7 +1326,7 @@ const initializeComponent = async (elm, hostRef, cmpMeta, hmrVersionId, Cstr) =>
     }
     // we've successfully created a lazy instance
     const ancestorComponent = hostRef.$ancestorComponent$;
-    if ( ancestorComponent && !ancestorComponent['s-lr'] && ancestorComponent['s-rc']) {
+    if ( ancestorComponent && ancestorComponent['s-lr'] === false && ancestorComponent['s-rc']) {
         // this is the intial load and this component it has an ancestor component
         // but the ancestor component has NOT fired its will update lifecycle yet
         // so let's just cool our jets and wait for the ancestor to continue first
@@ -1334,7 +1366,7 @@ const connectedCallback = (elm, cmpMeta) => {
                 while ((ancestorComponent = (ancestorComponent.parentNode || ancestorComponent.host))) {
                     // climb up the ancestors looking for the first
                     // component that hasn't finished its lifecycle update yet
-                    if ( (ancestorComponent['s-init'] && !ancestorComponent['s-lr'])) {
+                    if ( (ancestorComponent['s-init'] && ancestorComponent['s-lr'] === false)) {
                         // we found this components first ancestor component
                         // keep a reference to this component's ancestor component
                         hostRef.$ancestorComponent$ = ancestorComponent;
@@ -1428,10 +1460,7 @@ const bootstrapLazy = (lazyBundles, options = {}) => {
             's-hmr'(hmrVersionId) {
             }
             forceUpdate() {
-                {
-                    const hostRef = getHostRef(this);
-                    scheduleUpdate(this, hostRef, cmpMeta, false);
-                }
+                forceUpdate(this, cmpMeta);
             }
             componentOnReady() {
                 return getHostRef(this).$onReadyPromise$;
@@ -1463,4 +1492,10 @@ const createEvent = (ref, name, flags) => {
 
 const getElement = (ref) =>  getHostRef(ref).$hostElement$ ;
 
-export { patchEsm as a, bootstrapLazy as b, createEvent as c, getElement as g, h, patchBrowser as p, registerInstance as r };
+exports.bootstrapLazy = bootstrapLazy;
+exports.createEvent = createEvent;
+exports.getElement = getElement;
+exports.h = h;
+exports.patchBrowser = patchBrowser;
+exports.patchEsm = patchEsm;
+exports.registerInstance = registerInstance;

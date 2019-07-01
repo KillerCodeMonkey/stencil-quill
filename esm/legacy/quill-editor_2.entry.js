@@ -1,4 +1,4 @@
-import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-818d8bae.js';
+import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-4bbc276d.js';
 var QuillEditorComponent = /** @class */ (function () {
     function QuillEditorComponent(hostRef) {
         registerInstance(this, hostRef);
@@ -109,7 +109,6 @@ var QuillEditorComponent = /** @class */ (function () {
             this.setEditorContent(this.content);
             this.quillEditor['history'].clear();
         }
-        this.onInitialised.emit(this.quillEditor);
         this.selectionChangeEvent = this.quillEditor.on('selection-change', function (range, oldRange, source) {
             if (range === null) {
                 _this.onBlur.emit({
@@ -147,6 +146,7 @@ var QuillEditorComponent = /** @class */ (function () {
                 text: text
             });
         });
+        this.onInitialised.emit(this.quillEditor);
     };
     QuillEditorComponent.prototype.componentDidUnload = function () {
         if (this.selectionChangeEvent) {

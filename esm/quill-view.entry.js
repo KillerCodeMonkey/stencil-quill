@@ -1,4 +1,4 @@
-import { r as registerInstance, h, g as getElement } from './chunk-818d8bae.js';
+import { r as registerInstance, h, g as getElement } from './chunk-4bbc276d.js';
 
 class QuillViewComponent {
     constructor(hostRef) {

@@ -102,7 +102,6 @@ export class QuillEditorComponent {
             this.setEditorContent(this.content);
             this.quillEditor['history'].clear();
         }
-        this.onInitialised.emit(this.quillEditor);
         this.selectionChangeEvent = this.quillEditor.on('selection-change', (range, oldRange, source) => {
             if (range === null) {
                 this.onBlur.emit({
@@ -140,6 +139,7 @@ export class QuillEditorComponent {
                 text
             });
         });
+        this.onInitialised.emit(this.quillEditor);
     }
     componentDidUnload() {
         if (this.selectionChangeEvent) {

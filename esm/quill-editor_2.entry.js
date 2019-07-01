@@ -1,4 +1,4 @@
-import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-818d8bae.js';
+import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-4bbc276d.js';
 
 class QuillEditorComponent {
     constructor(hostRef) {
@@ -109,7 +109,6 @@ class QuillEditorComponent {
             this.setEditorContent(this.content);
             this.quillEditor['history'].clear();
         }
-        this.onInitialised.emit(this.quillEditor);
         this.selectionChangeEvent = this.quillEditor.on('selection-change', (range, oldRange, source) => {
             if (range === null) {
                 this.onBlur.emit({
@@ -147,6 +146,7 @@ class QuillEditorComponent {
                 text
             });
         });
+        this.onInitialised.emit(this.quillEditor);
     }
     componentDidUnload() {
         if (this.selectionChangeEvent) {
