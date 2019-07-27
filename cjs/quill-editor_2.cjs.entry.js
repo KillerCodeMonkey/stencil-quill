@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-const __chunk_1 = require('./chunk-926d3fbc.js');
+const __chunk_1 = require('./chunk-0a02996c.js');
 
 class QuillEditorComponent {
     constructor(hostRef) {

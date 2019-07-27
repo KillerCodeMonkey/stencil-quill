@@ -414,16 +414,29 @@
         Object.defineProperty(window, "customElements", { configurable: !0, enumerable: !0, value: customElements });
     }
 }).call(self);
+// Polyfill document.baseURI
+if (typeof document.baseURI !== 'string') {
+    Object.defineProperty(Document.prototype, 'baseURI', {
+        enumerable: true,
+        configurable: true,
+        get: function () {
+            var base = document.querySelector('base');
+            if (base) {
+                return base.href;
+            }
+            return document.URL;
+        }
+    });
+}
 // Polyfill CustomEvent
 if (typeof window.CustomEvent !== 'function') {
-    function CustomEvent(event, params) {
+    window.CustomEvent = function CustomEvent(event, params) {
         params = params || { bubbles: false, cancelable: false, detail: undefined };
         var evt = document.createEvent('CustomEvent');
         evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
         return evt;
-    }
-    CustomEvent.prototype = window.Event.prototype;
-    window.CustomEvent = CustomEvent;
+    };
+    window.CustomEvent.prototype = window.Event.prototype;
 }
 // Event.composedPath
 (function (E, d, w) {

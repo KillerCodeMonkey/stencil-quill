@@ -1,4 +1,4 @@
-import { a as patchEsm, b as bootstrapLazy } from './chunk-4bbc276d.js';
+import { a as patchEsm, b as bootstrapLazy } from './chunk-7bdfbad8.js';
 
 const defineCustomElements = (win, options) => {
   return patchEsm().then(() => {

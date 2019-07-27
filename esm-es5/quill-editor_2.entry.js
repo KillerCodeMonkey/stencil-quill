@@ -1,4 +1,4 @@
-import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-4bbc276d.js';
+import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-7bdfbad8.js';
 var QuillEditorComponent = /** @class */ (function () {
     function QuillEditorComponent(hostRef) {
         registerInstance(this, hostRef);

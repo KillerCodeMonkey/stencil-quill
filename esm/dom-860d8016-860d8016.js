@@ -1,5 +1,3 @@
-'use strict';
-
 (function(){
 var aa=new Set("annotation-xml color-profile font-face font-face-src font-face-uri font-face-format font-face-name missing-glyph".split(" "));function g(a){var b=aa.has(a);a=/^[a-z][.0-9_a-z]*-[\-.0-9_a-z]*$/.test(a);return !b&&a}function l(a){var b=a.isConnected;if(void 0!==b)return b;for(;a&&!(a.__CE_isImportDocument||a instanceof Document);)a=a.parentNode||(window.ShadowRoot&&a instanceof ShadowRoot?a.host:void 0);return !(!a||!(a.__CE_isImportDocument||a instanceof Document))}
   function n(a,b){for(;b&&b!==a&&!b.nextSibling;)b=b.parentNode;return b&&b!==a?b.nextSibling:null}
@@ -30,18 +28,30 @@ var aa=new Set("annotation-xml color-profile font-face font-face-src font-face-u
   b,d){if(1!==this.__CE_state)return T.call(this,a,b,d);var e=S.call(this,a,b);T.call(this,a,b,d);d=S.call(this,a,b);c.attributeChangedCallback(this,b,e,d,a);});r(Element.prototype,"removeAttribute",function(a){if(1!==this.__CE_state)return R.call(this,a);var b=P.call(this,a);R.call(this,a);null!==b&&c.attributeChangedCallback(this,a,b,null,null);});r(Element.prototype,"removeAttributeNS",function(a,b){if(1!==this.__CE_state)return U.call(this,a,b);var d=S.call(this,a,b);U.call(this,a,b);var e=S.call(this,
   a,b);d!==e&&c.attributeChangedCallback(this,b,d,e,a);});ua?b(HTMLElement.prototype,ua):ma?b(Element.prototype,ma):console.warn("Custom Elements: `Element#insertAdjacentElement` was not patched.");va?d(HTMLElement.prototype,va):na?d(Element.prototype,na):console.warn("Custom Elements: `Element#insertAdjacentHTML` was not patched.");Y(c,Element.prototype,{h:oa,append:pa});Aa(c);}var Z=window.customElements;if(!Z||Z.forcePolyfill||"function"!=typeof Z.define||"function"!=typeof Z.get){var X=new u;xa();ya();Y(X,DocumentFragment.prototype,{h:ka,append:la});za();Ba();document.__CE_hasRegistry=!0;var customElements=new E(X);Object.defineProperty(window,"customElements",{configurable:!0,enumerable:!0,value:customElements});}}).call(self);
 
+// Polyfill document.baseURI
+if (typeof document.baseURI !== 'string') {
+  Object.defineProperty(Document.prototype, 'baseURI', {
+    enumerable: true,
+    configurable: true,
+    get: function () {
+      var base = document.querySelector('base');
+      if (base) {
+        return base.href;
+      }
+      return document.URL;
+    }
+  });
+}
+
 // Polyfill CustomEvent
 if (typeof window.CustomEvent !== 'function') {
-  function CustomEvent(event, params) {
+  window.CustomEvent = function CustomEvent(event, params) {
     params = params || { bubbles: false, cancelable: false, detail: undefined };
     var evt = document.createEvent( 'CustomEvent' );
     evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
     return evt;
-  }
-
-  CustomEvent.prototype = window.Event.prototype;
-
-  window.CustomEvent = CustomEvent;
+  };
+  window.CustomEvent.prototype = window.Event.prototype;
 }
 
 // Event.composedPath

@@ -1,4 +1,4 @@
-import { h } from '@stencil/core';
+import { h } from "@stencil/core";
 export class QuillEditorComponent {
     constructor() {
         this.format = 'html';

@@ -19,7 +19,7 @@ function _interopNamespace(e) {
   }
 }
 
-const BUILD = {"allRenderFn":true,"cmpDidLoad":true,"cmpDidUnload":true,"cmpDidUpdate":false,"cmpDidRender":false,"cmpWillLoad":false,"cmpWillUpdate":false,"cmpWillRender":false,"connectedCallback":false,"disconnectedCallback":false,"element":false,"event":true,"hasRenderFn":true,"lifecycle":true,"hostListener":false,"hostListenerTargetWindow":false,"hostListenerTargetDocument":false,"hostListenerTargetBody":false,"hostListenerTargetParent":false,"hostListenerTarget":false,"member":true,"method":false,"mode":false,"noVdomRender":false,"observeAttribute":true,"prop":true,"propBoolean":true,"propNumber":false,"propString":true,"propMutable":false,"reflect":false,"scoped":true,"shadowDom":false,"slot":true,"slotRelocation":true,"state":false,"style":true,"svg":false,"updatable":true,"vdomAttribute":true,"vdomClass":true,"vdomFunctional":true,"vdomKey":true,"vdomListener":true,"vdomRef":true,"vdomRender":true,"vdomStyle":true,"vdomText":true,"watchCallback":true,"taskQueue":true,"lazyLoad":true,"hydrateServerSide":false,"cssVarShim":true,"hydrateClientSide":false,"isDebug":false,"isDev":false,"lifecycleDOMEvents":false,"profile":false,"hotModuleReplacement":false,"constructableCSS":true,"cssAnnotations":true};
+const BUILD = {"allRenderFn":true,"cmpDidLoad":true,"cmpDidUnload":true,"cmpDidUpdate":false,"cmpDidRender":false,"cmpWillLoad":false,"cmpWillUpdate":false,"cmpWillRender":false,"connectedCallback":false,"disconnectedCallback":false,"element":false,"event":true,"hasRenderFn":true,"lifecycle":true,"hostListener":false,"hostListenerTargetWindow":false,"hostListenerTargetDocument":false,"hostListenerTargetBody":false,"hostListenerTargetParent":false,"hostListenerTarget":false,"member":true,"method":false,"mode":false,"noVdomRender":false,"observeAttribute":true,"prop":true,"propBoolean":true,"propNumber":false,"propString":true,"propMutable":false,"reflect":false,"scoped":true,"shadowDom":false,"slot":true,"slotRelocation":true,"state":false,"style":true,"svg":false,"updatable":true,"vdomAttribute":true,"vdomClass":true,"vdomFunctional":true,"vdomKey":true,"vdomListener":true,"vdomRef":true,"vdomRender":true,"vdomStyle":true,"vdomText":true,"watchCallback":true,"taskQueue":true,"lazyLoad":true,"hydrateServerSide":false,"cssVarShim":true,"hydrateClientSide":false,"isDebug":false,"isDev":false,"lifecycleDOMEvents":false,"profile":false,"hotModuleReplacement":false,"constructableCSS":true,"initializeNextTick":true,"cssAnnotations":true};
 const NAMESPACE = 'quill-components';
 
 const win = window;
@@ -27,6 +27,7 @@ const doc = document;
 const plt = {
     $flags$: 0,
     $resourcesUrl$: '',
+    jmp: (h) => h(),
     raf: (h) => requestAnimationFrame(h),
     ael: (el, eventName, listener, opts) => el.addEventListener(eventName, listener, opts),
     rel: (el, eventName, listener, opts) => el.removeEventListener(eventName, listener, opts),
@@ -59,14 +60,25 @@ const isMemberInElement = (elm, memberName) => memberName in elm;
 
 const consoleError = (e) => console.error(e);
 
+const moduleCache = /*@__PURE__*/ new Map();
 const loadModule = (cmpMeta, hostRef, hmrVersionId) => {
     // loadModuleImport
-    const bundleId =  cmpMeta.$lazyBundleIds$;
+    const exportName = cmpMeta.$tagName$.replace(/-/g, '_');
+    const bundleId = ( cmpMeta.$lazyBundleIds$);
+    const module =  moduleCache.get(bundleId) ;
+    if (module) {
+        return module[exportName];
+    }
     return new Promise(function (resolve) { resolve(_interopNamespace(require(
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */
-    `./${bundleId}.entry.js${ ''}`))); }).then(importedModule => importedModule[cmpMeta.$tagName$.replace(/-/g, '_')], consoleError);
+    `./${bundleId}.entry.js${ ''}`))); }).then(importedModule => {
+        {
+            moduleCache.set(bundleId, importedModule);
+        }
+        return importedModule[exportName];
+    }, consoleError);
 };
 
 const styles = new Map();
@@ -77,12 +89,16 @@ let queuePending = false;
 const queueDomReads = [];
 const queueDomWrites = [];
 const queueDomWritesLow = [];
-const queueTask = (queue) => (cb) => {
-    // queue dom reads
+const queueTask = (queue, write) => (cb) => {
     queue.push(cb);
     if (!queuePending) {
         queuePending = true;
-        plt.raf(flush);
+        if (write && plt.$flags$ & 4 /* queueSync */) {
+            nextTick(flush);
+        }
+        else {
+            plt.raf(flush);
+        }
     }
 };
 const consume = (queue) => {
@@ -121,7 +137,7 @@ const flush = () => {
     // DOM READS!!!
     consume(queueDomReads);
     const timeout = (plt.$flags$ & 6 /* queueMask */) === 2 /* appLoaded */
-        ? performance.now() + (7 * Math.ceil(queueCongestion * (1.0 / 22.0)))
+        ? performance.now() + (10 * Math.ceil(queueCongestion * (1.0 / 22.0)))
         : Infinity;
     // DOM WRITES!!!
     consumeTimeout(queueDomWrites, timeout);
@@ -139,7 +155,8 @@ const flush = () => {
         queueCongestion = 0;
     }
 };
-const writeTask = /*@__PURE__*/ queueTask(queueDomWrites);
+const nextTick = /*@__PURE__*/ (cb) => Promise.resolve().then(cb);
+const writeTask = /*@__PURE__*/ queueTask(queueDomWrites, true);
 
 /**
  * Default style mode id
@@ -154,9 +171,9 @@ const isDef = (v) => v != null;
 const toLowerCase = (str) => str.toLowerCase();
 const isComplexType = (o) => ['object', 'function'].includes(typeof o);
 
-function getDynamicImportFunction(namespace) {
+const getDynamicImportFunction = (namespace) => {
     return `__sc_import_${namespace.replace(/\s|-/g, '_')}`;
-}
+};
 
 const patchEsm = () => {
     // @ts-ignore
@@ -168,20 +185,22 @@ const patchEsm = () => {
 };
 const patchBrowser = async () => {
     // @ts-ignore
-    const importMeta = (typeof document === 'undefined' ? new (require('u' + 'rl').URL)('file:' + __filename).href : (document.currentScript && document.currentScript.src || new URL('chunk-926d3fbc.js', document.baseURI).href));
+    const importMeta = (typeof document === 'undefined' ? new (require('u' + 'rl').URL)('file:' + __filename).href : (document.currentScript && document.currentScript.src || new URL('chunk-0a02996c.js', document.baseURI).href));
+    const regex = new RegExp(`\/${NAMESPACE}(\.esm)?\.js$`);
+    const scriptElm = Array.from(doc.querySelectorAll('script')).find(s => (regex.test(s.src) ||
+        s.getAttribute('data-namespace') === NAMESPACE));
+    const opts = scriptElm['data-opts'];
     if (importMeta !== '') {
-        return Promise.resolve(new URL('.', importMeta).href);
+        return Object.assign({}, opts, { resourcesUrl: new URL('.', importMeta).href });
     }
     else {
-        const scriptElm = Array.from(doc.querySelectorAll('script')).find(s => (s.src.includes(`/${NAMESPACE}.esm.js`) ||
-            s.getAttribute('data-namespace') === NAMESPACE));
         const resourcesUrl = new URL('.', new URL(scriptElm.getAttribute('data-resources-url') || scriptElm.src, win.location.href));
         patchDynamicImport(resourcesUrl.href);
         if (!window.customElements) {
             // @ts-ignore
-            await new Promise(function (resolve) { resolve(require('./dom-a0c82e31-d4621515.js')); });
+            await new Promise(function (resolve) { resolve(require('./dom-860d8016-0ebf8707.js')); });
         }
-        return resourcesUrl.href;
+        return Object.assign({}, opts, { resourcesUrl: resourcesUrl.href });
     }
 };
 const patchDynamicImport = (base) => {
@@ -412,13 +431,10 @@ const setAccessor = (elm, memberName, oldValue, newValue, isSvg, flags) => {
     if (oldValue === newValue) {
         return;
     }
-    if ( memberName === 'class' && !isSvg) {
-        // Class
-        {
-            const oldList = parseClassList(oldValue);
-            const baseList = parseClassList(elm.className).filter(item => !oldList.includes(item));
-            elm.className = baseList.concat(parseClassList(newValue).filter(item => !baseList.includes(item))).join(' ');
-        }
+    if ( memberName === 'class') {
+        const classList = elm.classList;
+        parseClassList(oldValue).forEach(cls => classList.remove(cls));
+        parseClassList(newValue).forEach(cls => classList.add(cls));
     }
     else if ( memberName === 'style') {
         // update style attribute, css properties and values
@@ -483,9 +499,15 @@ const setAccessor = (elm, memberName, oldValue, newValue, isSvg, flags) => {
         // Set property if it exists and it's not a SVG
         const isProp = isMemberInElement(elm, memberName);
         const isComplex = isComplexType(newValue);
+        const isCustomElement = elm.tagName.includes('-');
         if ((isProp || (isComplex && newValue !== null)) && !isSvg) {
             try {
-                elm[memberName] = newValue == null && elm.tagName.indexOf('-') === -1 ? '' : newValue;
+                if (isCustomElement) {
+                    elm[memberName] = newValue;
+                }
+                else if (elm[memberName] !== newValue || '') {
+                    elm[memberName] = newValue || '';
+                }
             }
             catch (e) { }
         }
@@ -502,7 +524,7 @@ const setAccessor = (elm, memberName, oldValue, newValue, isSvg, flags) => {
         }
     }
 };
-const parseClassList = (value) => (!value) ? [] : value.split(' ');
+const parseClassList = (value) => (!value) ? [] : value.split(/\s+/).filter(c => c);
 
 const updateElement = (oldVnode, newVnode, isSvgMode, memberName) => {
     // if the element passed in is a shadow root, which is a document fragment
@@ -514,7 +536,7 @@ const updateElement = (oldVnode, newVnode, isSvgMode, memberName) => {
     {
         // remove attributes no longer present on the vnode by setting them to undefined
         for (memberName in oldVnodeAttrs) {
-            if (newVnodeAttrs[memberName] == null && oldVnodeAttrs[memberName] != null) {
+            if (!(memberName in newVnodeAttrs)) {
                 setAccessor(elm, memberName, oldVnodeAttrs[memberName], undefined, isSvgMode, newVnode.$flags$);
             }
         }
@@ -908,7 +930,7 @@ const relocateSlotContent = (elm) => {
                         (nodeType === 1 /* ElementNode */ && node.getAttribute('slot') === null && slotNameAttr === '') ||
                         (nodeType === 1 /* ElementNode */ && node.getAttribute('slot') === slotNameAttr)) {
                         // it's possible we've already decided to relocate this node
-                        if (!relocateNodes.some(r => r.nodeToRelocate === node)) {
+                        if (!relocateNodes.some(r => r.$nodeToRelocate$ === node)) {
                             // made some changes to slots
                             // let's make sure we also double check
                             // fallbacks are correctly hidden or shown
@@ -916,8 +938,8 @@ const relocateSlotContent = (elm) => {
                             node['s-sn'] = slotNameAttr;
                             // add to our list of nodes to relocate
                             relocateNodes.push({
-                                slotRefNode: childNode,
-                                nodeToRelocate: node
+                                $slotRefNode$: childNode,
+                                $nodeToRelocate$: node
                             });
                         }
                     }
@@ -963,12 +985,12 @@ const renderVdom = (hostElm, hostRef, cmpMeta, renderFnResults) => {
             relocateSlotContent(rootVnode.$elm$);
             for (let i = 0; i < relocateNodes.length; i++) {
                 const relocateNode = relocateNodes[i];
-                if (!relocateNode.nodeToRelocate['s-ol']) {
+                if (!relocateNode.$nodeToRelocate$['s-ol']) {
                     // add a reference node marking this node's original location
                     // keep a reference to this node for later lookups
                     const orgLocationNode =  doc.createTextNode('');
-                    orgLocationNode['s-nr'] = relocateNode.nodeToRelocate;
-                    relocateNode.nodeToRelocate.parentNode.insertBefore((relocateNode.nodeToRelocate['s-ol'] = orgLocationNode), relocateNode.nodeToRelocate);
+                    orgLocationNode['s-nr'] = relocateNode.$nodeToRelocate$;
+                    relocateNode.$nodeToRelocate$.parentNode.insertBefore((relocateNode.$nodeToRelocate$['s-ol'] = orgLocationNode), relocateNode.$nodeToRelocate$);
                 }
             }
             // while we're moving nodes around existing nodes, temporarily disable
@@ -978,13 +1000,13 @@ const renderVdom = (hostElm, hostRef, cmpMeta, renderFnResults) => {
                 const relocateNode = relocateNodes[i];
                 // by default we're just going to insert it directly
                 // after the slot reference node
-                const parentNodeRef = relocateNode.slotRefNode.parentNode;
-                let insertBeforeNode = relocateNode.slotRefNode.nextSibling;
-                let orgLocationNode = relocateNode.nodeToRelocate['s-ol'];
+                const parentNodeRef = relocateNode.$slotRefNode$.parentNode;
+                let insertBeforeNode = relocateNode.$slotRefNode$.nextSibling;
+                let orgLocationNode = relocateNode.$nodeToRelocate$['s-ol'];
                 while (orgLocationNode = orgLocationNode.previousSibling) {
                     let refNode = orgLocationNode['s-nr'];
                     if (refNode &&
-                        refNode['s-sn'] === relocateNode.nodeToRelocate['s-sn'] &&
+                        refNode['s-sn'] === relocateNode.$nodeToRelocate$['s-sn'] &&
                         parentNodeRef === refNode.parentNode) {
                         refNode = refNode.nextSibling;
                         if (!refNode || !refNode['s-nr']) {
@@ -993,14 +1015,14 @@ const renderVdom = (hostElm, hostRef, cmpMeta, renderFnResults) => {
                         }
                     }
                 }
-                if ((!insertBeforeNode && parentNodeRef !== relocateNode.nodeToRelocate.parentNode) ||
-                    (relocateNode.nodeToRelocate.nextSibling !== insertBeforeNode)) {
+                if ((!insertBeforeNode && parentNodeRef !== relocateNode.$nodeToRelocate$.parentNode) ||
+                    (relocateNode.$nodeToRelocate$.nextSibling !== insertBeforeNode)) {
                     // we've checked that it's worth while to relocate
                     // since that the node to relocate
                     // has a different next sibling or parent relocated
-                    if (relocateNode.nodeToRelocate !== insertBeforeNode) {
+                    if (relocateNode.$nodeToRelocate$ !== insertBeforeNode) {
                         // add it back to the dom but in its new home
-                        parentNodeRef.insertBefore(relocateNode.nodeToRelocate, insertBeforeNode);
+                        parentNodeRef.insertBefore(relocateNode.$nodeToRelocate$, insertBeforeNode);
                     }
                 }
             }
@@ -1016,32 +1038,32 @@ const renderVdom = (hostElm, hostRef, cmpMeta, renderFnResults) => {
     }
 };
 
-const safeCall = async (instance, method) => {
+const safeCall = (instance, method, arg) => {
     if (instance && instance[method]) {
         try {
-            await instance[method]();
+            return instance[method](arg);
         }
         catch (e) {
             consoleError(e);
         }
     }
+    return undefined;
 };
-const scheduleUpdate = async (elm, hostRef, cmpMeta, isInitialLoad) => {
+const then = (promise, thenFn) => {
+    return promise && promise.then ? promise.then(thenFn) : thenFn();
+};
+const scheduleUpdate = (elm, hostRef, cmpMeta, isInitialLoad) => {
     {
         hostRef.$flags$ |= 16 /* isQueuedForUpdate */;
     }
     const instance =  hostRef.$lazyInstance$ ;
-    if (isInitialLoad) {
-        {
-            hostRef.$flags$ |= 128 /* isWatchReady */;
-        }
-    }
+    let promise;
     // there is no ancestorc omponent or the ancestor component
     // has already fired off its lifecycle update then
     // fire off the initial update
-    {
-        writeTask(() => updateComponent(elm, hostRef, cmpMeta, instance, isInitialLoad));
-    }
+    const update = () => updateComponent(elm, hostRef, cmpMeta, instance, isInitialLoad);
+    return then(promise,  () => writeTask(update)
+        );
 };
 const updateComponent = (elm, hostRef, cmpMeta, instance, isInitialLoad) => {
     // updateComponent
@@ -1257,10 +1279,12 @@ const proxyComponent = (Cstr, cmpMeta, flags) => {
         if ( ( flags & 1 /* isElementConstructor */)) {
             const attrNameToPropName = new Map();
             prototype.attributeChangedCallback = function (attrName, _oldValue, newValue) {
-                const propName = attrNameToPropName.get(attrName);
-                this[propName] = newValue === null && typeof this[propName] === 'boolean'
-                    ? false
-                    : newValue;
+                plt.jmp(() => {
+                    const propName = attrNameToPropName.get(attrName);
+                    this[propName] = newValue === null && typeof this[propName] === 'boolean'
+                        ? false
+                        : newValue;
+                });
             };
             // create an array of attributes to observe
             // and also create a map of html attribute name to js property name
@@ -1285,7 +1309,11 @@ const initializeComponent = async (elm, hostRef, cmpMeta, hmrVersionId, Cstr) =>
             // lazy loaded components
             // request the component's implementation to be
             // wired up with the host element
-            Cstr = await loadModule(cmpMeta);
+            Cstr = loadModule(cmpMeta);
+            if (Cstr.then) {
+                // Await creates a micro-task avoid if possible
+                Cstr = await Cstr;
+            }
             if ( !Cstr.isProxied) {
                 // we'eve never proxied this Constructor before
                 // let's add the getters/setters to its prototype before
@@ -1315,29 +1343,32 @@ const initializeComponent = async (elm, hostRef, cmpMeta, hmrVersionId, Cstr) =>
             {
                 hostRef.$flags$ &= ~8 /* isConstructingInstance */;
             }
+            {
+                hostRef.$flags$ |= 128 /* isWatchReady */;
+            }
         }
-        if ( !Cstr.isStyleRegistered && Cstr.style) {
+        if ( !Cstr.$isStyleRegistered$ && Cstr.style) {
             // this component has styles but we haven't registered them yet
             let style = Cstr.style;
             let scopeId = getScopeId(cmpMeta.$tagName$);
             registerStyle(scopeId, style, !!(cmpMeta.$flags$ & 1 /* shadowDomEncapsulation */));
-            Cstr.isStyleRegistered = true;
+            Cstr.$isStyleRegistered$ = true;
         }
     }
     // we've successfully created a lazy instance
     const ancestorComponent = hostRef.$ancestorComponent$;
+    const schedule = () => scheduleUpdate(elm, hostRef, cmpMeta, true);
     if ( ancestorComponent && ancestorComponent['s-lr'] === false && ancestorComponent['s-rc']) {
         // this is the intial load and this component it has an ancestor component
         // but the ancestor component has NOT fired its will update lifecycle yet
         // so let's just cool our jets and wait for the ancestor to continue first
-        ancestorComponent['s-rc'].push(() => 
         // this will get fired off when the ancestor component
         // finally gets around to rendering its lazy self
         // fire off the initial update
-        initializeComponent(elm, hostRef, cmpMeta));
+        ancestorComponent['s-rc'].push(schedule);
     }
     else {
-        scheduleUpdate(elm, hostRef, cmpMeta, true);
+        schedule();
     }
 };
 const connectedCallback = (elm, cmpMeta) => {
@@ -1389,7 +1420,11 @@ const connectedCallback = (elm, cmpMeta) => {
                 });
             }
             {
-                initializeComponent(elm, hostRef, cmpMeta);
+                // connectedCallback, taskQueue, initialLoad
+                // angular sets attribute AFTER connectCallback
+                // https://github.com/angular/angular/issues/18909
+                // https://github.com/angular/angular/issues/19940
+                nextTick(() => initializeComponent(elm, hostRef, cmpMeta));
             }
         }
     }
@@ -1418,7 +1453,7 @@ const bootstrapLazy = (lazyBundles, options = {}) => {
     const y = /*@__PURE__*/ head.querySelector('meta[charset]');
     const visibilityStyle = /*@__PURE__*/ doc.createElement('style');
     Object.assign(plt, options);
-    plt.$resourcesUrl$ = new URL(options.resourcesUrl || '/', win.location.href).href;
+    plt.$resourcesUrl$ = new URL(options.resourcesUrl || './', doc.baseURI).href;
     if (options.syncQueue) {
         plt.$flags$ |= 4 /* queueSync */;
     }
@@ -1446,10 +1481,10 @@ const bootstrapLazy = (lazyBundles, options = {}) => {
                 registerHost(self);
             }
             connectedCallback() {
-                connectedCallback(this, cmpMeta);
+                plt.jmp(() => connectedCallback(this, cmpMeta));
             }
             disconnectedCallback() {
-                disconnectedCallback(this);
+                plt.jmp(() => disconnectedCallback(this));
             }
             's-init'() {
                 const hostRef = getHostRef(this);

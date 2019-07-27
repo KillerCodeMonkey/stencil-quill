@@ -6,5 +6,6 @@
   "node:main": "./node-main.js",
   "jsnext:main": "./index.es2017.mjs",
   "es2015": "./index.es2017.mjs",
-  "es2017": "./index.es2017.mjs"
+  "es2017": "./index.es2017.mjs",
+  "unpkg": "./cdn.js"
 }
