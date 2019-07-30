@@ -1,3 +1,24 @@
+'use strict';
+
+function _interopNamespace(e) {
+  if (e && e.__esModule) { return e; } else {
+    var n = {};
+    if (e) {
+      Object.keys(e).forEach(function (k) {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: function () {
+            return e[k];
+          }
+        });
+      });
+    }
+    n['default'] = e;
+    return n;
+  }
+}
+
 const BUILD = {"allRenderFn":true,"cmpDidLoad":true,"cmpDidUnload":true,"cmpDidUpdate":false,"cmpDidRender":false,"cmpWillLoad":false,"cmpWillUpdate":false,"cmpWillRender":false,"connectedCallback":false,"disconnectedCallback":false,"element":false,"event":true,"hasRenderFn":true,"lifecycle":true,"hostListener":false,"hostListenerTargetWindow":false,"hostListenerTargetDocument":false,"hostListenerTargetBody":false,"hostListenerTargetParent":false,"hostListenerTarget":false,"member":true,"method":false,"mode":false,"noVdomRender":false,"observeAttribute":true,"prop":true,"propBoolean":true,"propNumber":false,"propString":true,"propMutable":false,"reflect":false,"scoped":true,"shadowDom":false,"slot":true,"slotRelocation":true,"state":false,"style":true,"svg":false,"updatable":true,"vdomAttribute":true,"vdomClass":true,"vdomFunctional":true,"vdomKey":true,"vdomListener":true,"vdomRef":true,"vdomRender":true,"vdomStyle":true,"vdomText":true,"watchCallback":true,"taskQueue":true,"lazyLoad":true,"hydrateServerSide":false,"cssVarShim":true,"hydrateClientSide":false,"isDebug":false,"isDev":false,"lifecycleDOMEvents":false,"profile":false,"hotModuleReplacement":false,"constructableCSS":true,"initializeNextTick":true,"cssAnnotations":true};
 const NAMESPACE = 'quill-components';
 
@@ -48,11 +69,11 @@ const loadModule = (cmpMeta, hostRef, hmrVersionId) => {
     if (module) {
         return module[exportName];
     }
-    return import(
+    return new Promise(function (resolve) { resolve(_interopNamespace(require(
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */
-    `./${bundleId}.entry.js${ ''}`).then(importedModule => {
+    `./${bundleId}.entry.js${ ''}`))); }).then(importedModule => {
         {
             moduleCache.set(bundleId, importedModule);
         }
@@ -158,13 +179,13 @@ const patchEsm = () => {
     // @ts-ignore
     if (!(win.CSS && win.CSS.supports && win.CSS.supports('color', 'var(--c)'))) {
         // @ts-ignore
-        return import('./css-shim-3ea8955c-3ea8955c.js');
+        return new Promise(function (resolve) { resolve(require('./css-shim-3ea8955c-8b902b6b.js')); });
     }
     return Promise.resolve();
 };
 const patchBrowser = async () => {
     // @ts-ignore
-    const importMeta = "";
+    const importMeta = (typeof document === 'undefined' ? new (require('u' + 'rl').URL)('file:' + __filename).href : (document.currentScript && document.currentScript.src || new URL('chunk-a8844df4.js', document.baseURI).href));
     const regex = new RegExp(`\/${NAMESPACE}(\.esm)?\.js$`);
     const scriptElm = Array.from(doc.querySelectorAll('script')).find(s => (regex.test(s.src) ||
         s.getAttribute('data-namespace') === NAMESPACE));
@@ -177,7 +198,7 @@ const patchBrowser = async () => {
         patchDynamicImport(resourcesUrl.href);
         if (!window.customElements) {
             // @ts-ignore
-            await import('./dom-860d8016-860d8016.js');
+            await new Promise(function (resolve) { resolve(require('./dom-860d8016-0ebf8707.js')); });
         }
         return Object.assign({}, opts, { resourcesUrl: resourcesUrl.href });
     }
@@ -208,6 +229,27 @@ const patchDynamicImport = (base) => {
             return mod;
         };
     }
+};
+
+const parsePropertyValue = (propValue, propType) => {
+    // ensure this value is of the correct prop type
+    if (propValue != null && !isComplexType(propValue)) {
+        if ( propType & 4 /* Boolean */) {
+            // per the HTML spec, any string value means it is a boolean true value
+            // but we'll cheat here and say that the string "false" is the boolean false
+            return (propValue === 'false' ? false : propValue === '' || !!propValue);
+        }
+        if ( propType & 1 /* String */) {
+            // could have been passed as a number or boolean
+            // but we still want it as a string
+            return String(propValue);
+        }
+        // redundant return here for better minification
+        return propValue;
+    }
+    // not sure exactly what type we want
+    // so no need to change to a different type
+    return propValue;
 };
 const HYDRATED_CLASS = 'hydrated';
 
@@ -1017,20 +1059,6 @@ const renderVdom = (hostElm, hostRef, cmpMeta, renderFnResults) => {
     }
 };
 
-const safeCall = (instance, method, arg) => {
-    if (instance && instance[method]) {
-        try {
-            return instance[method](arg);
-        }
-        catch (e) {
-            consoleError(e);
-        }
-    }
-    return undefined;
-};
-const then = (promise, thenFn) => {
-    return promise && promise.then ? promise.then(thenFn) : thenFn();
-};
 const scheduleUpdate = (elm, hostRef, cmpMeta, isInitialLoad) => {
     {
         hostRef.$flags$ |= 16 /* isQueuedForUpdate */;
@@ -1111,12 +1139,7 @@ const postUpdateComponent = (elm, hostRef, ancestorsActivelyLoadingChildren) => 
                 hostRef.$onReadyResolve$(elm);
             }
             if ( !ancestorComponent) {
-                // on appload
-                // we have finish the first big initial render
-                doc.documentElement.classList.add(HYDRATED_CLASS);
-                {
-                    setTimeout(() => plt.$flags$ |= 2 /* appLoaded */, 999);
-                }
+                appDidLoad();
             }
         }
         // load events fire from bottom to top
@@ -1152,40 +1175,29 @@ const forceUpdate = (elm, cmpMeta) => {
         }
     }
 };
-
-const disconnectedCallback = (elm) => {
-    if ((plt.$flags$ & 1 /* isTmpDisconnected */) === 0) {
-        const hostRef = getHostRef(elm);
-        // clear CSS var-shim tracking
-        if (cssVarShim) {
-            cssVarShim.removeHost(elm);
-        }
-        const instance =  hostRef.$lazyInstance$ ;
-        {
-            safeCall(instance, 'componentDidUnload');
-        }
+const appDidLoad = () => {
+    // on appload
+    // we have finish the first big initial render
+    {
+        doc.documentElement.classList.add(HYDRATED_CLASS);
+    }
+    {
+        plt.$flags$ |= 2 /* appLoaded */;
     }
 };
-
-const parsePropertyValue = (propValue, propType) => {
-    // ensure this value is of the correct prop type
-    if (propValue != null && !isComplexType(propValue)) {
-        if ( propType & 4 /* Boolean */) {
-            // per the HTML spec, any string value means it is a boolean true value
-            // but we'll cheat here and say that the string "false" is the boolean false
-            return (propValue === 'false' ? false : propValue === '' || !!propValue);
+const safeCall = (instance, method, arg) => {
+    if (instance && instance[method]) {
+        try {
+            return instance[method](arg);
         }
-        if ( propType & 1 /* String */) {
-            // could have been passed as a number or boolean
-            // but we still want it as a string
-            return String(propValue);
+        catch (e) {
+            consoleError(e);
         }
-        // redundant return here for better minification
-        return propValue;
     }
-    // not sure exactly what type we want
-    // so no need to change to a different type
-    return propValue;
+    return undefined;
+};
+const then = (promise, thenFn) => {
+    return promise && promise.then ? promise.then(thenFn) : thenFn();
 };
 
 const getValue = (ref, propName) => getHostRef(ref).$instanceValues$.get(propName);
@@ -1424,6 +1436,20 @@ const setContentReference = (elm, contentRefElm) => {
     elm.insertBefore(contentRefElm, elm.firstChild);
 };
 
+const disconnectedCallback = (elm) => {
+    if ((plt.$flags$ & 1 /* isTmpDisconnected */) === 0) {
+        const hostRef = getHostRef(elm);
+        // clear CSS var-shim tracking
+        if (cssVarShim) {
+            cssVarShim.removeHost(elm);
+        }
+        const instance =  hostRef.$lazyInstance$ ;
+        {
+            safeCall(instance, 'componentDidUnload');
+        }
+    }
+};
+
 const bootstrapLazy = (lazyBundles, options = {}) => {
     const cmpTags = [];
     const exclude = options.exclude || [];
@@ -1431,6 +1457,7 @@ const bootstrapLazy = (lazyBundles, options = {}) => {
     const customElements = win.customElements;
     const y = /*@__PURE__*/ head.querySelector('meta[charset]');
     const visibilityStyle = /*@__PURE__*/ doc.createElement('style');
+    let appLoadFallback;
     Object.assign(plt, options);
     plt.$resourcesUrl$ = new URL(options.resourcesUrl || './', doc.baseURI).href;
     if (options.syncQueue) {
@@ -1460,6 +1487,10 @@ const bootstrapLazy = (lazyBundles, options = {}) => {
                 registerHost(self);
             }
             connectedCallback() {
+                if (appLoadFallback) {
+                    clearTimeout(appLoadFallback);
+                    appLoadFallback = null;
+                }
                 plt.jmp(() => connectedCallback(this, cmpMeta));
             }
             disconnectedCallback() {
@@ -1490,6 +1521,8 @@ const bootstrapLazy = (lazyBundles, options = {}) => {
     visibilityStyle.innerHTML = cmpTags + '{visibility:hidden}.hydrated{visibility:inherit}';
     visibilityStyle.setAttribute('data-styles', '');
     head.insertBefore(visibilityStyle, y ? y.nextSibling : head.firstChild);
+    // Fallback appLoad event
+    plt.jmp(() => appLoadFallback = setTimeout(appDidLoad, 30));
 };
 
 const createEvent = (ref, name, flags) => {
@@ -1506,4 +1539,10 @@ const createEvent = (ref, name, flags) => {
 
 const getElement = (ref) =>  getHostRef(ref).$hostElement$ ;
 
-export { patchEsm as a, bootstrapLazy as b, createEvent as c, getElement as g, h, patchBrowser as p, registerInstance as r };
+exports.bootstrapLazy = bootstrapLazy;
+exports.createEvent = createEvent;
+exports.getElement = getElement;
+exports.h = h;
+exports.patchBrowser = patchBrowser;
+exports.patchEsm = patchEsm;
+exports.registerInstance = registerInstance;

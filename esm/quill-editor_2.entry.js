@@ -1,4 +1,4 @@
-import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-7bdfbad8.js';
+import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-28994abd.js';
 
 class QuillEditorComponent {
     constructor(hostRef) {
@@ -32,6 +32,7 @@ class QuillEditorComponent {
             ]
         };
         this.onInitialised = createEvent(this, "onInitialised", 7);
+        this.onEditorChanged = createEvent(this, "onEditorChanged", 7);
         this.onContentChanged = createEvent(this, "onContentChanged", 7);
         this.onSelectionChanged = createEvent(this, "onSelectionChanged", 7);
         this.onFocus = createEvent(this, "onFocus", 7);
@@ -109,6 +110,36 @@ class QuillEditorComponent {
             this.setEditorContent(this.content);
             this.quillEditor['history'].clear();
         }
+        this.editorChangeEvent = this.quillEditor.on('editor-change', (event, current, old, source) => {
+            // only emit changes emitted by user interactions
+            if (event === 'text-change') {
+                const text = this.quillEditor.getText();
+                const content = this.quillEditor.getContents();
+                let html = this.editorElement.querySelector('.ql-editor').innerHTML;
+                if (html === '<p><br></p>' || html === '<div><br><div>') {
+                    html = null;
+                }
+                this.onEditorChanged.emit({
+                    content,
+                    delta: current,
+                    editor: this.quillEditor,
+                    event,
+                    html,
+                    oldDelta: old,
+                    source,
+                    text
+                });
+            }
+            else {
+                this.onEditorChanged.emit({
+                    editor: this.quillEditor,
+                    event,
+                    oldRange: old,
+                    range: current,
+                    source
+                });
+            }
+        });
         this.selectionChangeEvent = this.quillEditor.on('selection-change', (range, oldRange, source) => {
             if (range === null) {
                 this.onBlur.emit({
@@ -154,6 +185,9 @@ class QuillEditorComponent {
         }
         if (this.textChangeEvent) {
             this.textChangeEvent.removeListener('text-change');
+        }
+        if (this.editorChangeEvent) {
+            this.editorChangeEvent.removeListener('editor-change');
         }
     }
     updateContent(newValue) {

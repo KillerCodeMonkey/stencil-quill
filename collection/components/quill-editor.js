@@ -102,6 +102,36 @@ export class QuillEditorComponent {
             this.setEditorContent(this.content);
             this.quillEditor['history'].clear();
         }
+        this.editorChangeEvent = this.quillEditor.on('editor-change', (event, current, old, source) => {
+            // only emit changes emitted by user interactions
+            if (event === 'text-change') {
+                const text = this.quillEditor.getText();
+                const content = this.quillEditor.getContents();
+                let html = this.editorElement.querySelector('.ql-editor').innerHTML;
+                if (html === '<p><br></p>' || html === '<div><br><div>') {
+                    html = null;
+                }
+                this.onEditorChanged.emit({
+                    content,
+                    delta: current,
+                    editor: this.quillEditor,
+                    event,
+                    html,
+                    oldDelta: old,
+                    source,
+                    text
+                });
+            }
+            else {
+                this.onEditorChanged.emit({
+                    editor: this.quillEditor,
+                    event,
+                    oldRange: old,
+                    range: current,
+                    source
+                });
+            }
+        });
         this.selectionChangeEvent = this.quillEditor.on('selection-change', (range, oldRange, source) => {
             if (range === null) {
                 this.onBlur.emit({
@@ -147,6 +177,9 @@ export class QuillEditorComponent {
         }
         if (this.textChangeEvent) {
             this.textChangeEvent.removeListener('text-change');
+        }
+        if (this.editorChangeEvent) {
+            this.editorChangeEvent.removeListener('editor-change');
         }
     }
     updateContent(newValue) {
@@ -481,6 +514,21 @@ export class QuillEditorComponent {
             "complexType": {
                 "original": "any",
                 "resolved": "any",
+                "references": {}
+            }
+        }, {
+            "method": "onEditorChanged",
+            "name": "onEditorChanged",
+            "bubbles": true,
+            "cancelable": true,
+            "composed": true,
+            "docs": {
+                "tags": [],
+                "text": ""
+            },
+            "complexType": {
+                "original": "{\n    editor: any\n    event: 'text-change',\n    content: any\n    text: string\n    html: string\n    delta: any\n    oldDelta: any\n    source: string\n  } | {\n    editor: any\n    event: 'selection-change',\n    range: any\n    oldRange: any\n    source: string\n  }",
+                "resolved": "{ editor: any; event: \"selection-change\"; range: any; oldRange: any; source: string; } | { editor: any; event: \"text-change\"; content: any; text: string; html: string; delta: any; oldDelta: any; source: string; }",
                 "references": {}
             }
         }, {

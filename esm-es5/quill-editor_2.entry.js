@@ -1,4 +1,4 @@
-import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-7bdfbad8.js';
+import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-28994abd.js';
 var QuillEditorComponent = /** @class */ (function () {
     function QuillEditorComponent(hostRef) {
         registerInstance(this, hostRef);
@@ -31,6 +31,7 @@ var QuillEditorComponent = /** @class */ (function () {
             ]
         };
         this.onInitialised = createEvent(this, "onInitialised", 7);
+        this.onEditorChanged = createEvent(this, "onEditorChanged", 7);
         this.onContentChanged = createEvent(this, "onContentChanged", 7);
         this.onSelectionChanged = createEvent(this, "onSelectionChanged", 7);
         this.onFocus = createEvent(this, "onFocus", 7);
@@ -109,6 +110,36 @@ var QuillEditorComponent = /** @class */ (function () {
             this.setEditorContent(this.content);
             this.quillEditor['history'].clear();
         }
+        this.editorChangeEvent = this.quillEditor.on('editor-change', function (event, current, old, source) {
+            // only emit changes emitted by user interactions
+            if (event === 'text-change') {
+                var text = _this.quillEditor.getText();
+                var content = _this.quillEditor.getContents();
+                var html = _this.editorElement.querySelector('.ql-editor').innerHTML;
+                if (html === '<p><br></p>' || html === '<div><br><div>') {
+                    html = null;
+                }
+                _this.onEditorChanged.emit({
+                    content: content,
+                    delta: current,
+                    editor: _this.quillEditor,
+                    event: event,
+                    html: html,
+                    oldDelta: old,
+                    source: source,
+                    text: text
+                });
+            }
+            else {
+                _this.onEditorChanged.emit({
+                    editor: _this.quillEditor,
+                    event: event,
+                    oldRange: old,
+                    range: current,
+                    source: source
+                });
+            }
+        });
         this.selectionChangeEvent = this.quillEditor.on('selection-change', function (range, oldRange, source) {
             if (range === null) {
                 _this.onBlur.emit({
@@ -154,6 +185,9 @@ var QuillEditorComponent = /** @class */ (function () {
         }
         if (this.textChangeEvent) {
             this.textChangeEvent.removeListener('text-change');
+        }
+        if (this.editorChangeEvent) {
+            this.editorChangeEvent.removeListener('editor-change');
         }
     };
     QuillEditorComponent.prototype.updateContent = function (newValue) {

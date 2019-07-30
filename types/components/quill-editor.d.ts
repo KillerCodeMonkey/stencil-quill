@@ -1,6 +1,22 @@
 import { ComponentDidLoad, ComponentDidUnload, EventEmitter } from '../stencil.core';
 export declare class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnload {
     onInitialised: EventEmitter<any>;
+    onEditorChanged: EventEmitter<{
+        editor: any;
+        event: 'text-change';
+        content: any;
+        text: string;
+        html: string;
+        delta: any;
+        oldDelta: any;
+        source: string;
+    } | {
+        editor: any;
+        event: 'selection-change';
+        range: any;
+        oldRange: any;
+        source: string;
+    }>;
     onContentChanged: EventEmitter<{
         editor: any;
         content: any;
@@ -44,6 +60,7 @@ export declare class QuillEditorComponent implements ComponentDidLoad, Component
     private defaultModules;
     selectionChangeEvent: any;
     textChangeEvent: any;
+    editorChangeEvent: any;
     setEditorContent(value: any): void;
     getEditorContent(): any;
     componentDidLoad(): void;

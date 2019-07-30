@@ -91,6 +91,22 @@ declare namespace LocalJSX {
       oldDelta: any
       source: string
     }>) => void;
+    'onOnEditorChanged'?: (event: CustomEvent<{
+      editor: any
+      event: 'text-change',
+      content: any
+      text: string
+      html: string
+      delta: any
+      oldDelta: any
+      source: string
+    } | {
+      editor: any
+      event: 'selection-change',
+      range: any
+      oldRange: any
+      source: string
+    }>) => void;
     'onOnFocus'?: (event: CustomEvent<{
       editor: any
       source: string

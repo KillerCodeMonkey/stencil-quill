@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-const __chunk_1 = require('./chunk-0a02996c.js');
+const __chunk_1 = require('./chunk-a8844df4.js');
 
 class QuillViewComponent {
     constructor(hostRef) {
