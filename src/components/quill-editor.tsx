@@ -10,6 +10,22 @@ declare const Quill: any
 export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnload {
 
   @Event() onInitialised: EventEmitter<any>;
+  @Event() onEditorChanged: EventEmitter<{
+    editor: any
+    event: 'text-change',
+    content: any
+    text: string
+    html: string
+    delta: any
+    oldDelta: any
+    source: string
+  } | {
+    editor: any
+    event: 'selection-change',
+    range: any
+    oldRange: any
+    source: string
+  }>
   @Event() onContentChanged: EventEmitter<{
     editor: any
     content: any
@@ -82,6 +98,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
 
   selectionChangeEvent: any;
   textChangeEvent: any;
+  editorChangeEvent: any;
 
   setEditorContent(value: any) {
     if (this.format === 'html') {
@@ -159,6 +176,42 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
       this.quillEditor['history'].clear();
     }
 
+    this.editorChangeEvent = this.quillEditor.on(
+      'editor-change',
+      (event: 'text-change' | 'selection-change', current: any | Range | null, old: any | Range | null, source: string): void => {
+        // only emit changes emitted by user interactions
+
+        if (event === 'text-change') {
+          const text = this.quillEditor.getText()
+          const content = this.quillEditor.getContents()
+
+          let html: string | null = this.editorElement.querySelector('.ql-editor')!.innerHTML
+          if (html === '<p><br></p>' || html === '<div><br><div>') {
+            html = null
+          }
+
+          this.onEditorChanged.emit({
+            content,
+            delta: current,
+            editor: this.quillEditor,
+            event,
+            html,
+            oldDelta: old,
+            source,
+            text
+          })
+        } else {
+          this.onEditorChanged.emit({
+            editor: this.quillEditor,
+            event,
+            oldRange: old,
+            range: current,
+            source
+          })
+        }
+      }
+    )
+
     this.selectionChangeEvent = this.quillEditor.on(
       'selection-change',
       (range: any, oldRange: any, source: string) => {
@@ -215,6 +268,9 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
     }
     if (this.textChangeEvent) {
       this.textChangeEvent.removeListener('text-change');
+    }
+    if (this.editorChangeEvent) {
+      this.editorChangeEvent.removeListener('editor-change');
     }
   }
 

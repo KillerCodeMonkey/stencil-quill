@@ -138,6 +138,10 @@
       quillView.content = JSON.stringify(event.detail.content)
     });
 
+    quillEditor.addEventListener('onEditorChanged', (event) => {
+      console.log('onEditorChanged', event.detail)
+    });
+
     quillEditor.addEventListener('onSelectionChanged', (event) => {
       console.log('onSelectionChanged', event.detail)
     });
