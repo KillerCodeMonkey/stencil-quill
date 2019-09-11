@@ -1,6 +1,6 @@
-import { r as registerInstance, c as createEvent, h, g as getElement } from './chunk-28994abd.js';
+import { r as registerInstance, c as createEvent, h, g as getElement } from './core-415de529.js';
 
-class QuillEditorComponent {
+const QuillEditorComponent = class {
     constructor(hostRef) {
         registerInstance(this, hostRef);
         this.format = 'html';
@@ -261,9 +261,9 @@ class QuillEditorComponent {
         "placeholder": ["updatePlaceholder"],
         "styles": ["updateStyle"]
     }; }
-}
+};
 
-class QuillViewHTMLComponent {
+const QuillViewHTMLComponent = class {
     constructor(hostRef) {
         registerInstance(this, hostRef);
         this.theme = 'snow';
@@ -280,6 +280,6 @@ class QuillViewHTMLComponent {
         "theme": ["updateTheme"]
     }; }
     static get style() { return ".ql-container.quill-view-html.sc-quill-view-html{border:0}"; }
-}
+};
 
 export { QuillEditorComponent as quill_editor, QuillViewHTMLComponent as quill_view_html };

@@ -2,11 +2,11 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-const __chunk_1 = require('./chunk-a8844df4.js');
+const core = require('./core-fd99eb1e.js');
 
-class QuillViewComponent {
+const QuillViewComponent = class {
     constructor(hostRef) {
-        __chunk_1.registerInstance(this, hostRef);
+        core.registerInstance(this, hostRef);
         this.format = 'html';
         this.debug = 'warn';
         this.strict = true;
@@ -123,14 +123,14 @@ class QuillViewComponent {
         this.setEditorContent(newValue);
     }
     render() {
-        return (this.preserveWhitespace ? __chunk_1.h("pre", { "quill-element": true, ref: (el) => this.editorElement = el }) : __chunk_1.h("div", { "quill-element": true, ref: (el) => this.editorElement = el }));
+        return (this.preserveWhitespace ? core.h("pre", { "quill-element": true, ref: (el) => this.editorElement = el }) : core.h("div", { "quill-element": true, ref: (el) => this.editorElement = el }));
     }
-    get wrapperElement() { return __chunk_1.getElement(this); }
+    get wrapperElement() { return core.getElement(this); }
     static get watchers() { return {
         "styles": ["updateStyle"],
         "content": ["updateContent"]
     }; }
     static get style() { return ".ql-container.quill-view.sc-quill-view{border:0}"; }
-}
+};
 
 exports.quill_view = QuillViewComponent;

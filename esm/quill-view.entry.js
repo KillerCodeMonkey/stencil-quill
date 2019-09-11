@@ -1,6 +1,6 @@
-import { r as registerInstance, h, g as getElement } from './chunk-28994abd.js';
+import { r as registerInstance, h, g as getElement } from './core-415de529.js';
 
-class QuillViewComponent {
+const QuillViewComponent = class {
     constructor(hostRef) {
         registerInstance(this, hostRef);
         this.format = 'html';
@@ -127,6 +127,6 @@ class QuillViewComponent {
         "content": ["updateContent"]
     }; }
     static get style() { return ".ql-container.quill-view.sc-quill-view{border:0}"; }
-}
+};
 
 export { QuillViewComponent as quill_view };

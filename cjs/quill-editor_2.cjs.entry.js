@@ -2,11 +2,11 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-const __chunk_1 = require('./chunk-a8844df4.js');
+const core = require('./core-fd99eb1e.js');
 
-class QuillEditorComponent {
+const QuillEditorComponent = class {
     constructor(hostRef) {
-        __chunk_1.registerInstance(this, hostRef);
+        core.registerInstance(this, hostRef);
         this.format = 'html';
         this.debug = 'warn';
         this.placeholder = 'Insert text here ...';
@@ -35,12 +35,12 @@ class QuillEditorComponent {
                 ['link', 'image', 'video'] // link and image, video
             ]
         };
-        this.onInitialised = __chunk_1.createEvent(this, "onInitialised", 7);
-        this.onEditorChanged = __chunk_1.createEvent(this, "onEditorChanged", 7);
-        this.onContentChanged = __chunk_1.createEvent(this, "onContentChanged", 7);
-        this.onSelectionChanged = __chunk_1.createEvent(this, "onSelectionChanged", 7);
-        this.onFocus = __chunk_1.createEvent(this, "onFocus", 7);
-        this.onBlur = __chunk_1.createEvent(this, "onBlur", 7);
+        this.onInitialised = core.createEvent(this, "onInitialised", 7);
+        this.onEditorChanged = core.createEvent(this, "onEditorChanged", 7);
+        this.onContentChanged = core.createEvent(this, "onContentChanged", 7);
+        this.onSelectionChanged = core.createEvent(this, "onSelectionChanged", 7);
+        this.onFocus = core.createEvent(this, "onFocus", 7);
+        this.onBlur = core.createEvent(this, "onBlur", 7);
     }
     setEditorContent(value) {
         if (this.format === 'html') {
@@ -248,8 +248,8 @@ class QuillEditorComponent {
         }
     }
     render() {
-        const editor = this.preserveWhitespace ? __chunk_1.h("pre", { "quill-element": true, ref: (el) => this.editorElement = el }) : __chunk_1.h("div", { "quill-element": true, ref: (el) => this.editorElement = el });
-        const elements = [__chunk_1.h("slot", { name: "quill-toolbar" })];
+        const editor = this.preserveWhitespace ? core.h("pre", { "quill-element": true, ref: (el) => this.editorElement = el }) : core.h("div", { "quill-element": true, ref: (el) => this.editorElement = el });
+        const elements = [core.h("slot", { name: "quill-toolbar" })];
         if (this.customToolbarPosition === 'bottom') {
             elements.unshift(editor);
         }
@@ -258,18 +258,18 @@ class QuillEditorComponent {
         }
         return (elements);
     }
-    get wrapperElement() { return __chunk_1.getElement(this); }
+    get wrapperElement() { return core.getElement(this); }
     static get watchers() { return {
         "content": ["updateContent"],
         "readOnly": ["updateReadOnly"],
         "placeholder": ["updatePlaceholder"],
         "styles": ["updateStyle"]
     }; }
-}
+};
 
-class QuillViewHTMLComponent {
+const QuillViewHTMLComponent = class {
     constructor(hostRef) {
-        __chunk_1.registerInstance(this, hostRef);
+        core.registerInstance(this, hostRef);
         this.theme = 'snow';
         this.themeClass = 'ql-snow';
     }
@@ -278,13 +278,13 @@ class QuillViewHTMLComponent {
     }
     render() {
         const classes = `ql-container ${this.themeClass} quill-view-html`;
-        return (__chunk_1.h("div", { class: classes }, __chunk_1.h("div", { class: "ql-editor", innerHTML: this.content })));
+        return (core.h("div", { class: classes }, core.h("div", { class: "ql-editor", innerHTML: this.content })));
     }
     static get watchers() { return {
         "theme": ["updateTheme"]
     }; }
     static get style() { return ".ql-container.quill-view-html.sc-quill-view-html{border:0}"; }
-}
+};
 
 exports.quill_editor = QuillEditorComponent;
 exports.quill_view_html = QuillViewHTMLComponent;
