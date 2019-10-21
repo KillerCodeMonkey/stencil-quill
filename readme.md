@@ -114,11 +114,11 @@ XRP Wallet Address:
 [Full Quill Toolbar HTML](https://github.com/quilljs/quill/blob/f75ff2973f068c3db44f949915eb8a74faf162a8/docs/_includes/full-toolbar.html)
 
 ### Events
-- onInitialised - editor instance
+- editorInit - editor instance
 ```
 editor
 ```
-- onContentChanged - text is updated by 'user'
+- editorContentChange - text is updated by 'user'
 ```
 {
   editor: editorInstance,
@@ -130,7 +130,7 @@ editor
   source: source
 }
 ```
-- onSelectionChanged - selection is updated, also triggered for onBlur and onFocus, because the selection changed
+- editorSelectionChange - selection is updated, also triggered for onBlur and onFocus, because the selection changed
 ```
 {
   editor: editorInstance,
@@ -139,7 +139,7 @@ editor
   source: source
 }
 ```
-- onEditorChanged - text or selection is updated - independent of the source
+- editorChange - text or selection is updated - independent of the source
 ```
 {
   editor: editorInstance, // Quill
@@ -165,14 +165,14 @@ or
 }
 ```
 
-- onFocus - editor is focused
+- editorFocus - editor is focused
 ```
 {
   editor: editorInstance, // Quill
   source: source // ('user', 'api', 'silent' , undefined)
 }
 ```
-- onBlur - editor is blured
+- editorBlur - editor is blured
 ```
 {
   editor: editorInstance, // Quill

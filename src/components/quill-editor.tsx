@@ -9,8 +9,8 @@ declare const Quill: any
 })
 export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnload {
 
-  @Event() onInitialised: EventEmitter<any>;
-  @Event() onEditorChanged: EventEmitter<{
+  @Event() editorInit: EventEmitter<any>;
+  @Event() editorChange: EventEmitter<{
     editor: any
     event: 'text-change',
     content: any
@@ -26,7 +26,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
     oldRange: any
     source: string
   }>
-  @Event() onContentChanged: EventEmitter<{
+  @Event() editorContentChange: EventEmitter<{
     editor: any
     content: any
     text: string
@@ -35,17 +35,17 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
     oldDelta: any
     source: string
   }>;
-  @Event() onSelectionChanged: EventEmitter<{
+  @Event() editorSelectionChange: EventEmitter<{
     editor: any
     range: any
     oldRange: any
     source: string
   }>;
-  @Event() onFocus: EventEmitter<{
+  @Event() editorFocus: EventEmitter<{
     editor: any
     source: string
   }>;
-  @Event() onBlur: EventEmitter<{
+  @Event() editorBlur: EventEmitter<{
     editor: any
     source: string
   }>;
@@ -190,7 +190,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
             html = null
           }
 
-          this.onEditorChanged.emit({
+          this.editorChange.emit({
             content,
             delta: current,
             editor: this.quillEditor,
@@ -201,7 +201,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
             text
           })
         } else {
-          this.onEditorChanged.emit({
+          this.editorChange.emit({
             editor: this.quillEditor,
             event,
             oldRange: old,
@@ -216,18 +216,18 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
       'selection-change',
       (range: any, oldRange: any, source: string) => {
         if (range === null) {
-          this.onBlur.emit({
+          this.editorBlur.emit({
             editor: this.quillEditor,
             source
           })
         } else if (oldRange === null) {
-          this.onFocus.emit({
+          this.editorFocus.emit({
             editor: this.quillEditor,
             source
           })
         }
 
-        this.onSelectionChanged.emit({
+        this.editorSelectionChange.emit({
           editor: this.quillEditor,
           range,
           oldRange,
@@ -247,7 +247,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
           html = null;
         }
 
-        this.onContentChanged.emit({
+        this.editorContentChange.emit({
           editor: this.quillEditor,
           content,
           delta,
@@ -259,7 +259,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
       }
     );
 
-    this.onInitialised.emit(this.quillEditor);
+    this.editorInit.emit(this.quillEditor);
   }
 
   componentDidUnload() {
