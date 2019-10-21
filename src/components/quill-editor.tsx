@@ -122,7 +122,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
     const content = this.quillEditor.getContents();
 
     let html: string | null = this.editorElement.children[0].innerHTML;
-    if (html === '<p><br></p>' || html === '<div><br><div>') {
+    if (html === '<p><br></p>' || html === '<div><br></div>') {
       html = '';
     }
 
@@ -186,7 +186,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
           const content = this.quillEditor.getContents()
 
           let html: string | null = this.editorElement.querySelector('.ql-editor')!.innerHTML
-          if (html === '<p><br></p>' || html === '<div><br><div>') {
+          if (html === '<p><br></p>' || html === '<div><br></div>') {
             html = null
           }
 
@@ -243,7 +243,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
         const content = this.quillEditor.getContents();
 
         let html: string | null = this.editorElement.querySelector('.ql-editor').innerHTML;
-        if (html === '<p><br></p>' || html === '<div><br><div>') {
+        if (html === '<p><br></p>' || html === '<div><br></div>') {
           html = null;
         }
 

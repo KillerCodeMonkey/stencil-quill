@@ -46,7 +46,7 @@ export class QuillViewComponent implements ComponentDidLoad {
     const content = this.quillEditor.getContents();
 
     let html: string | null = this.editorElement.children[0].innerHTML;
-    if (html === '<p><br></p>' || html === '<div><br><div>') {
+    if (html === '<p><br></p>' || html === '<div><br></div>') {
       html = '';
     }
 
