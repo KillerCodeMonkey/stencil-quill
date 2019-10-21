@@ -1,6 +1,6 @@
 {
   "name": "stencil-quill",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "Native web component for quill editor",
   "module": "dist/index.mjs",
   "main": "dist/index.js",
