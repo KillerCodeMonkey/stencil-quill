@@ -1,6 +1,13 @@
 
 'use strict';
-/*!
+(function () {
+  var doc = document;
+  var currentScript = doc.currentScript;
+
+  // Safari 10 support type="module" but still download and executes the nomodule script
+  if (!currentScript || !currentScript.hasAttribute('nomodule') || !('onbeforeload' in currentScript)) {
+
+    /*!
 es6-promise - a tiny implementation of Promises/A+.
 Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
 Licensed under MIT license
@@ -23,7 +30,6 @@ v4.2.8
 
 (function(){
   /*
-
     Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
     This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
     The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
@@ -117,7 +123,23 @@ Creative Commons Zero v1.0 Universal
 /*!
 Element.getRootNode()
 */
-(function(c){function d(a){a=b(a);return 11===a.nodeType?d(a.host):a}function b(a){return a.parentNode?b(a.parentNode):a}"function"!==typeof c.getRootNode&&(c.getRootNode=function(a){return a&&a.composed?d(this):b(this)})})(Element.prototype);
+(function(c){function d(a){a=b(a);return a&&11===a.nodeType?d(a.host):a}function b(a){return a&&a.parentNode?b(a.parentNode):a}"function"!==typeof c.getRootNode&&(c.getRootNode=function(a){return a&&a.composed?d(this):b(this)})})(Element.prototype);
+
+/*!
+Element.isConnected()
+*/
+(function(prototype) {
+  if (!("isConnected" in prototype)) {
+    Object.defineProperty(prototype, 'isConnected', {
+      configurable: true,
+      enumerable: true,
+      get: function() {
+        var root = this.getRootNode({composed: true});
+        return root && root.nodeType === 9;
+      }
+    })
+  }
+})(Element.prototype);
 
 /*!
 Element.remove()
@@ -128,6 +150,30 @@ Element.remove()
 Element.classList
 */
 !function(e){'classList'in e||Object.defineProperty(e,"classList",{get:function(){var e=this,t=(e.getAttribute("class")||"").replace(/^\s+|\s$/g,"").split(/\s+/g);function n(){t.length>0?e.setAttribute("class",t.join(" ")):e.removeAttribute("class")}return""===t[0]&&t.splice(0,1),t.toggle=function(e,i){void 0!==i?i?t.add(e):t.remove(e):-1!==t.indexOf(e)?t.splice(t.indexOf(e),1):t.push(e),n()},t.add=function(){for(var e=[].slice.call(arguments),i=0,s=e.length;i<s;i++)-1===t.indexOf(e[i])&&t.push(e[i]);n()},t.remove=function(){for(var e=[].slice.call(arguments),i=0,s=e.length;i<s;i++)-1!==t.indexOf(e[i])&&t.splice(t.indexOf(e[i]),1);n()},t.item=function(e){return t[e]},t.contains=function(e){return-1!==t.indexOf(e)},t.replace=function(e,i){-1!==t.indexOf(e)&&t.splice(t.indexOf(e),1,i),n()},t.value=e.getAttribute("class")||"",t}})}(Element.prototype);
+
+/*!
+DOMTokenList
+*/
+(function(prototype){
+  try {
+    document.body.classList.add();
+  } catch (e) {
+    var originalAdd = prototype.add;
+    var originalRemove = prototype.remove;
+
+    prototype.add = function() {
+      for (var i = 0; i < arguments.length; i++) {
+        originalAdd.call(this, arguments[i]);
+      }
+    };
+
+    prototype.remove = function() {
+      for (var i = 0; i < arguments.length; i++) {
+        originalRemove.call(this, arguments[i]);
+      }
+    };
+  }
+}(DOMTokenList.prototype));
 
 (function() {
   if (
@@ -588,16 +634,20 @@ function parseCSS(original) {
     };
 }
 function addGlobalStyle(globalScopes, styleEl) {
-    var css = parseCSS(styleEl.innerHTML);
+    if (globalScopes.some(function (css) { return css.styleEl === styleEl; })) {
+        return false;
+    }
+    var css = parseCSS(styleEl.textContent);
     css.styleEl = styleEl;
     globalScopes.push(css);
+    return true;
 }
 function updateGlobalScopes(scopes) {
     var selectors = getSelectorsForScopes(scopes);
     var props = resolveValues(selectors);
     scopes.forEach(function (scope) {
         if (scope.usesCssVars) {
-            scope.styleEl.innerHTML = executeTemplate(scope.template, props);
+            scope.styleEl.textContent = executeTemplate(scope.template, props);
         }
     });
 }
@@ -625,19 +675,27 @@ function loadDocument(doc, globalScopes) {
     loadDocumentStyles(doc, globalScopes);
     return loadDocumentLinks(doc, globalScopes);
 }
+function startWatcher(doc, globalScopes) {
+    var mutation = new MutationObserver(function () {
+        if (loadDocumentStyles(doc, globalScopes)) {
+            updateGlobalScopes(globalScopes);
+        }
+    });
+    mutation.observe(document.head, { childList: true });
+}
 function loadDocumentLinks(doc, globalScopes) {
     var promises = [];
-    var linkElms = doc.querySelectorAll('link[rel="stylesheet"][href]');
+    var linkElms = doc.querySelectorAll('link[rel="stylesheet"][href]:not([data-no-shim])');
     for (var i = 0; i < linkElms.length; i++) {
         promises.push(addGlobalLink(doc, globalScopes, linkElms[i]));
     }
     return Promise.all(promises);
 }
 function loadDocumentStyles(doc, globalScopes) {
-    var styleElms = doc.querySelectorAll('style:not([data-styles])');
-    for (var i = 0; i < styleElms.length; i++) {
-        addGlobalStyle(globalScopes, styleElms[i]);
-    }
+    var styleElms = Array.from(doc.querySelectorAll('style:not([data-styles]):not([data-no-shim])'));
+    return styleElms
+        .map(function (style) { return addGlobalStyle(globalScopes, style); })
+        .some(Boolean);
 }
 function addGlobalLink(doc, globalScopes, linkElm) {
     var url = linkElm.href;
@@ -648,7 +706,7 @@ function addGlobalLink(doc, globalScopes, linkElm) {
             }
             var styleEl = doc.createElement('style');
             styleEl.setAttribute('data-styles', '');
-            styleEl.innerHTML = text;
+            styleEl.textContent = text;
             addGlobalStyle(globalScopes, styleEl);
             linkElm.parentNode.insertBefore(styleEl, linkElm);
             linkElm.remove();
@@ -672,7 +730,7 @@ function hasCssVariables(css) {
     return css.indexOf('var(') > -1 || CSS_VARIABLE_REGEXP.test(css);
 }
 // This regexp find all url() usages with relative urls
-var CSS_URL_REGEXP = /url[\s]*\([\s]*['"]?(?![http|/])([^\'\"\)]*)[\s]*['"]?\)[\s]*/gim;
+var CSS_URL_REGEXP = /url[\s]*\([\s]*['"]?(?!(?:https?|data)\:|\/)([^\'\"\)]*)[\s]*['"]?\)[\s]*/gim;
 function hasRelativeUrls(css) {
     CSS_URL_REGEXP.lastIndex = 0;
     return CSS_URL_REGEXP.test(css);
@@ -697,14 +755,22 @@ var CustomStyle = /** @class */ (function () {
         this.hostScopeMap = new WeakMap();
         this.globalScopes = [];
         this.scopesMap = new Map();
+        this.didInit = false;
     }
     CustomStyle.prototype.initShim = function () {
         var _this = this;
-        return new Promise(function (resolve) {
-            _this.win.requestAnimationFrame(function () {
-                loadDocument(_this.doc, _this.globalScopes).then(function () { return resolve(); });
+        if (this.didInit) {
+            return Promise.resolve();
+        }
+        else {
+            this.didInit = true;
+            return new Promise(function (resolve) {
+                _this.win.requestAnimationFrame(function () {
+                    startWatcher(_this.doc, _this.globalScopes);
+                    loadDocument(_this.doc, _this.globalScopes).then(function () { return resolve(); });
+                });
             });
-        });
+        }
     };
     CustomStyle.prototype.addLink = function (linkEl) {
         var _this = this;
@@ -713,8 +779,9 @@ var CustomStyle = /** @class */ (function () {
         });
     };
     CustomStyle.prototype.addGlobalStyle = function (styleEl) {
-        addGlobalStyle(this.globalScopes, styleEl);
-        this.updateGlobal();
+        if (addGlobalStyle(this.globalScopes, styleEl)) {
+            this.updateGlobal();
+        }
     };
     CustomStyle.prototype.createHostStyle = function (hostEl, cssScopeId, cssText, isScoped) {
         if (this.hostScopeMap.has(hostEl)) {
@@ -722,14 +789,15 @@ var CustomStyle = /** @class */ (function () {
         }
         var baseScope = this.registerHostTemplate(cssText, cssScopeId, isScoped);
         var styleEl = this.doc.createElement('style');
+        styleEl.setAttribute('data-no-shim', '');
         if (!baseScope.usesCssVars) {
             // This component does not use (read) css variables
-            styleEl.innerHTML = cssText;
+            styleEl.textContent = cssText;
         }
         else if (isScoped) {
             // This component is dynamic: uses css var and is scoped
             styleEl['s-sc'] = cssScopeId = baseScope.scopeId + "-" + this.count;
-            styleEl.innerHTML = '/*needs update*/';
+            styleEl.textContent = '/*needs update*/';
             this.hostStyleMap.set(hostEl, styleEl);
             this.hostScopeMap.set(hostEl, reScope(baseScope, cssScopeId));
             this.count++;
@@ -738,7 +806,7 @@ var CustomStyle = /** @class */ (function () {
             // This component uses css vars, but it's no-encapsulation (global static)
             baseScope.styleEl = styleEl;
             if (!baseScope.usesCssVars) {
-                styleEl.innerHTML = executeTemplate(baseScope.template, {});
+                styleEl.textContent = executeTemplate(baseScope.template, {});
             }
             this.globalScopes.push(baseScope);
             this.updateGlobal();
@@ -761,7 +829,7 @@ var CustomStyle = /** @class */ (function () {
             if (styleEl) {
                 var selectors = getActiveSelectors(hostEl, this.hostScopeMap, this.globalScopes);
                 var props = resolveValues(selectors);
-                styleEl.innerHTML = executeTemplate(scope.template, props);
+                styleEl.textContent = executeTemplate(scope.template, props);
             }
         }
     };
@@ -788,23 +856,25 @@ if (!win.__stencil_cssshim && needsShim()) {
     win.__stencil_cssshim = new CustomStyle(win, document);
 }
 
-var doc = document;
-var allScripts = doc.querySelectorAll('script');
-var scriptElm;
-for (var x = allScripts.length - 1; x >= 0; x--) {
-  scriptElm = allScripts[x];
-  if (scriptElm.src || scriptElm.hasAttribute('data-resources-url')) {
-    break;
-  }
-}
-var resourcesUrl = scriptElm ? scriptElm.getAttribute('data-resources-url') || scriptElm.src : '';
-var start = function() {
-  var url = new URL('./p-936699d3.system.js', resourcesUrl);
-  System.import(url.href);
-};
+    // Figure out currentScript (for IE11, since it does not support currentScript)
+    var regex = /\/quill-components(\.esm)?\.js($|\?|#)/;
+    var scriptElm = currentScript || Array.from(doc.querySelectorAll('script')).find(function(s) {
+      return regex.test(s.src) || s.getAttribute('data-stencil-namespace') === "quill-components";
+    });
 
-if (win.__stencil_cssshim) {
-  win.__stencil_cssshim.initShim().then(start);
-} else {
-  start();
-}
+    var resourcesUrl = scriptElm ? scriptElm.getAttribute('data-resources-url') || scriptElm.src : '';
+    var start = function() {
+      var url = new URL('./p-e2d30109.system.js', resourcesUrl);
+      System.import(url.href);
+    };
+
+    if (win.__stencil_cssshim) {
+      win.__stencil_cssshim.initShim().then(start);
+    } else {
+      start();
+    }
+
+    // Note: using .call(window) here because the self-executing function needs
+    // to be scoped to the window object for the ES6Promise polyfill to work
+  }
+}).call(window);

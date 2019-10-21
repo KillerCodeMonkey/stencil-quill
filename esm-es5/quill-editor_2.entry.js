@@ -1,4 +1,4 @@
-import { r as registerInstance, c as createEvent, h, g as getElement } from './core-415de529.js';
+import { r as registerInstance, c as createEvent, h, g as getElement } from './core-3184f5a2.js';
 var QuillEditorComponent = /** @class */ (function () {
     function QuillEditorComponent(hostRef) {
         registerInstance(this, hostRef);
@@ -61,7 +61,7 @@ var QuillEditorComponent = /** @class */ (function () {
         var text = this.quillEditor.getText();
         var content = this.quillEditor.getContents();
         var html = this.editorElement.children[0].innerHTML;
-        if (html === '<p><br></p>' || html === '<div><br><div>') {
+        if (html === '<p><br></p>' || html === '<div><br></div>') {
             html = '';
         }
         if (this.format === 'html') {
@@ -116,7 +116,7 @@ var QuillEditorComponent = /** @class */ (function () {
                 var text = _this.quillEditor.getText();
                 var content = _this.quillEditor.getContents();
                 var html = _this.editorElement.querySelector('.ql-editor').innerHTML;
-                if (html === '<p><br></p>' || html === '<div><br><div>') {
+                if (html === '<p><br></p>' || html === '<div><br></div>') {
                     html = null;
                 }
                 _this.onEditorChanged.emit({
@@ -164,7 +164,7 @@ var QuillEditorComponent = /** @class */ (function () {
             var text = _this.quillEditor.getText();
             var content = _this.quillEditor.getContents();
             var html = _this.editorElement.querySelector('.ql-editor').innerHTML;
-            if (html === '<p><br></p>' || html === '<div><br><div>') {
+            if (html === '<p><br></p>' || html === '<div><br></div>') {
                 html = null;
             }
             _this.onContentChanged.emit({

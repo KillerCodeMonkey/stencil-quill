@@ -31,7 +31,7 @@ export class QuillViewComponent {
         const text = this.quillEditor.getText();
         const content = this.quillEditor.getContents();
         let html = this.editorElement.children[0].innerHTML;
-        if (html === '<p><br></p>' || html === '<div><br><div>') {
+        if (html === '<p><br></p>' || html === '<div><br></div>') {
             html = '';
         }
         if (this.format === 'html') {

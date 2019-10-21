@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-const core = require('./core-fd99eb1e.js');
+const core = require('./core-dd681f6d.js');
 
 const QuillEditorComponent = class {
     constructor(hostRef) {
@@ -66,7 +66,7 @@ const QuillEditorComponent = class {
         const text = this.quillEditor.getText();
         const content = this.quillEditor.getContents();
         let html = this.editorElement.children[0].innerHTML;
-        if (html === '<p><br></p>' || html === '<div><br><div>') {
+        if (html === '<p><br></p>' || html === '<div><br></div>') {
             html = '';
         }
         if (this.format === 'html') {
@@ -120,7 +120,7 @@ const QuillEditorComponent = class {
                 const text = this.quillEditor.getText();
                 const content = this.quillEditor.getContents();
                 let html = this.editorElement.querySelector('.ql-editor').innerHTML;
-                if (html === '<p><br></p>' || html === '<div><br><div>') {
+                if (html === '<p><br></p>' || html === '<div><br></div>') {
                     html = null;
                 }
                 this.onEditorChanged.emit({
@@ -168,7 +168,7 @@ const QuillEditorComponent = class {
             const text = this.quillEditor.getText();
             const content = this.quillEditor.getContents();
             let html = this.editorElement.querySelector('.ql-editor').innerHTML;
-            if (html === '<p><br></p>' || html === '<div><br><div>') {
+            if (html === '<p><br></p>' || html === '<div><br></div>') {
                 html = null;
             }
             this.onContentChanged.emit({

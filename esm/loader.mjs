@@ -1,4 +1,4 @@
-import { a as patchEsm, b as bootstrapLazy } from './core-415de529.js';
+import { a as patchEsm, b as bootstrapLazy } from './core-3184f5a2.js';
 
 const defineCustomElements = (win, options) => {
   return patchEsm().then(() => {

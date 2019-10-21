@@ -433,16 +433,20 @@ function parseCSS(original) {
     };
 }
 function addGlobalStyle(globalScopes, styleEl) {
-    var css = parseCSS(styleEl.innerHTML);
+    if (globalScopes.some(function (css) { return css.styleEl === styleEl; })) {
+        return false;
+    }
+    var css = parseCSS(styleEl.textContent);
     css.styleEl = styleEl;
     globalScopes.push(css);
+    return true;
 }
 function updateGlobalScopes(scopes) {
     var selectors = getSelectorsForScopes(scopes);
     var props = resolveValues(selectors);
     scopes.forEach(function (scope) {
         if (scope.usesCssVars) {
-            scope.styleEl.innerHTML = executeTemplate(scope.template, props);
+            scope.styleEl.textContent = executeTemplate(scope.template, props);
         }
     });
 }
@@ -470,19 +474,27 @@ function loadDocument(doc, globalScopes) {
     loadDocumentStyles(doc, globalScopes);
     return loadDocumentLinks(doc, globalScopes);
 }
+function startWatcher(doc, globalScopes) {
+    var mutation = new MutationObserver(function () {
+        if (loadDocumentStyles(doc, globalScopes)) {
+            updateGlobalScopes(globalScopes);
+        }
+    });
+    mutation.observe(document.head, { childList: true });
+}
 function loadDocumentLinks(doc, globalScopes) {
     var promises = [];
-    var linkElms = doc.querySelectorAll('link[rel="stylesheet"][href]');
+    var linkElms = doc.querySelectorAll('link[rel="stylesheet"][href]:not([data-no-shim])');
     for (var i = 0; i < linkElms.length; i++) {
         promises.push(addGlobalLink(doc, globalScopes, linkElms[i]));
     }
     return Promise.all(promises);
 }
 function loadDocumentStyles(doc, globalScopes) {
-    var styleElms = doc.querySelectorAll('style:not([data-styles])');
-    for (var i = 0; i < styleElms.length; i++) {
-        addGlobalStyle(globalScopes, styleElms[i]);
-    }
+    var styleElms = Array.from(doc.querySelectorAll('style:not([data-styles]):not([data-no-shim])'));
+    return styleElms
+        .map(function (style) { return addGlobalStyle(globalScopes, style); })
+        .some(Boolean);
 }
 function addGlobalLink(doc, globalScopes, linkElm) {
     var url = linkElm.href;
@@ -493,7 +505,7 @@ function addGlobalLink(doc, globalScopes, linkElm) {
             }
             var styleEl = doc.createElement('style');
             styleEl.setAttribute('data-styles', '');
-            styleEl.innerHTML = text;
+            styleEl.textContent = text;
             addGlobalStyle(globalScopes, styleEl);
             linkElm.parentNode.insertBefore(styleEl, linkElm);
             linkElm.remove();
@@ -517,7 +529,7 @@ function hasCssVariables(css) {
     return css.indexOf('var(') > -1 || CSS_VARIABLE_REGEXP.test(css);
 }
 // This regexp find all url() usages with relative urls
-var CSS_URL_REGEXP = /url[\s]*\([\s]*['"]?(?![http|/])([^\'\"\)]*)[\s]*['"]?\)[\s]*/gim;
+var CSS_URL_REGEXP = /url[\s]*\([\s]*['"]?(?!(?:https?|data)\:|\/)([^\'\"\)]*)[\s]*['"]?\)[\s]*/gim;
 function hasRelativeUrls(css) {
     CSS_URL_REGEXP.lastIndex = 0;
     return CSS_URL_REGEXP.test(css);
@@ -542,14 +554,22 @@ var CustomStyle = /** @class */ (function () {
         this.hostScopeMap = new WeakMap();
         this.globalScopes = [];
         this.scopesMap = new Map();
+        this.didInit = false;
     }
     CustomStyle.prototype.initShim = function () {
         var _this = this;
-        return new Promise(function (resolve) {
-            _this.win.requestAnimationFrame(function () {
-                loadDocument(_this.doc, _this.globalScopes).then(function () { return resolve(); });
+        if (this.didInit) {
+            return Promise.resolve();
+        }
+        else {
+            this.didInit = true;
+            return new Promise(function (resolve) {
+                _this.win.requestAnimationFrame(function () {
+                    startWatcher(_this.doc, _this.globalScopes);
+                    loadDocument(_this.doc, _this.globalScopes).then(function () { return resolve(); });
+                });
             });
-        });
+        }
     };
     CustomStyle.prototype.addLink = function (linkEl) {
         var _this = this;
@@ -558,8 +578,9 @@ var CustomStyle = /** @class */ (function () {
         });
     };
     CustomStyle.prototype.addGlobalStyle = function (styleEl) {
-        addGlobalStyle(this.globalScopes, styleEl);
-        this.updateGlobal();
+        if (addGlobalStyle(this.globalScopes, styleEl)) {
+            this.updateGlobal();
+        }
     };
     CustomStyle.prototype.createHostStyle = function (hostEl, cssScopeId, cssText, isScoped) {
         if (this.hostScopeMap.has(hostEl)) {
@@ -567,14 +588,15 @@ var CustomStyle = /** @class */ (function () {
         }
         var baseScope = this.registerHostTemplate(cssText, cssScopeId, isScoped);
         var styleEl = this.doc.createElement('style');
+        styleEl.setAttribute('data-no-shim', '');
         if (!baseScope.usesCssVars) {
             // This component does not use (read) css variables
-            styleEl.innerHTML = cssText;
+            styleEl.textContent = cssText;
         }
         else if (isScoped) {
             // This component is dynamic: uses css var and is scoped
             styleEl['s-sc'] = cssScopeId = baseScope.scopeId + "-" + this.count;
-            styleEl.innerHTML = '/*needs update*/';
+            styleEl.textContent = '/*needs update*/';
             this.hostStyleMap.set(hostEl, styleEl);
             this.hostScopeMap.set(hostEl, reScope(baseScope, cssScopeId));
             this.count++;
@@ -583,7 +605,7 @@ var CustomStyle = /** @class */ (function () {
             // This component uses css vars, but it's no-encapsulation (global static)
             baseScope.styleEl = styleEl;
             if (!baseScope.usesCssVars) {
-                styleEl.innerHTML = executeTemplate(baseScope.template, {});
+                styleEl.textContent = executeTemplate(baseScope.template, {});
             }
             this.globalScopes.push(baseScope);
             this.updateGlobal();
@@ -606,7 +628,7 @@ var CustomStyle = /** @class */ (function () {
             if (styleEl) {
                 var selectors = getActiveSelectors(hostEl, this.hostScopeMap, this.globalScopes);
                 var props = resolveValues(selectors);
-                styleEl.innerHTML = executeTemplate(scope.template, props);
+                styleEl.textContent = executeTemplate(scope.template, props);
             }
         }
     };
