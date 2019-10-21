@@ -79,20 +79,11 @@ declare namespace LocalJSX {
     'format'?: 'html' | 'text' | 'json';
     'formats'?: string[];
     'modules'?: string;
-    'onOnBlur'?: (event: CustomEvent<{
+    'onEditorBlur'?: (event: CustomEvent<{
       editor: any
       source: string
     }>) => void;
-    'onOnContentChanged'?: (event: CustomEvent<{
-      editor: any
-      content: any
-      text: string
-      html: string
-      delta: any
-      oldDelta: any
-      source: string
-    }>) => void;
-    'onOnEditorChanged'?: (event: CustomEvent<{
+    'onEditorChange'?: (event: CustomEvent<{
       editor: any
       event: 'text-change',
       content: any
@@ -108,12 +99,21 @@ declare namespace LocalJSX {
       oldRange: any
       source: string
     }>) => void;
-    'onOnFocus'?: (event: CustomEvent<{
+    'onEditorContentChange'?: (event: CustomEvent<{
+      editor: any
+      content: any
+      text: string
+      html: string
+      delta: any
+      oldDelta: any
+      source: string
+    }>) => void;
+    'onEditorFocus'?: (event: CustomEvent<{
       editor: any
       source: string
     }>) => void;
-    'onOnInitialised'?: (event: CustomEvent<any>) => void;
-    'onOnSelectionChanged'?: (event: CustomEvent<{
+    'onEditorInit'?: (event: CustomEvent<any>) => void;
+    'onEditorSelectionChange'?: (event: CustomEvent<{
       editor: any
       range: any
       oldRange: any

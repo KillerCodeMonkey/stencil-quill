@@ -35,12 +35,12 @@ const QuillEditorComponent = class {
                 ['link', 'image', 'video'] // link and image, video
             ]
         };
-        this.onInitialised = core.createEvent(this, "onInitialised", 7);
-        this.onEditorChanged = core.createEvent(this, "onEditorChanged", 7);
-        this.onContentChanged = core.createEvent(this, "onContentChanged", 7);
-        this.onSelectionChanged = core.createEvent(this, "onSelectionChanged", 7);
-        this.onFocus = core.createEvent(this, "onFocus", 7);
-        this.onBlur = core.createEvent(this, "onBlur", 7);
+        this.editorInit = core.createEvent(this, "editorInit", 7);
+        this.editorChange = core.createEvent(this, "editorChange", 7);
+        this.editorContentChange = core.createEvent(this, "editorContentChange", 7);
+        this.editorSelectionChange = core.createEvent(this, "editorSelectionChange", 7);
+        this.editorFocus = core.createEvent(this, "editorFocus", 7);
+        this.editorBlur = core.createEvent(this, "editorBlur", 7);
     }
     setEditorContent(value) {
         if (this.format === 'html') {
@@ -123,7 +123,7 @@ const QuillEditorComponent = class {
                 if (html === '<p><br></p>' || html === '<div><br></div>') {
                     html = null;
                 }
-                this.onEditorChanged.emit({
+                this.editorChange.emit({
                     content,
                     delta: current,
                     editor: this.quillEditor,
@@ -135,7 +135,7 @@ const QuillEditorComponent = class {
                 });
             }
             else {
-                this.onEditorChanged.emit({
+                this.editorChange.emit({
                     editor: this.quillEditor,
                     event,
                     oldRange: old,
@@ -146,18 +146,18 @@ const QuillEditorComponent = class {
         });
         this.selectionChangeEvent = this.quillEditor.on('selection-change', (range, oldRange, source) => {
             if (range === null) {
-                this.onBlur.emit({
+                this.editorBlur.emit({
                     editor: this.quillEditor,
                     source
                 });
             }
             else if (oldRange === null) {
-                this.onFocus.emit({
+                this.editorFocus.emit({
                     editor: this.quillEditor,
                     source
                 });
             }
-            this.onSelectionChanged.emit({
+            this.editorSelectionChange.emit({
                 editor: this.quillEditor,
                 range,
                 oldRange,
@@ -171,7 +171,7 @@ const QuillEditorComponent = class {
             if (html === '<p><br></p>' || html === '<div><br></div>') {
                 html = null;
             }
-            this.onContentChanged.emit({
+            this.editorContentChange.emit({
                 editor: this.quillEditor,
                 content,
                 delta,
@@ -181,7 +181,7 @@ const QuillEditorComponent = class {
                 text
             });
         });
-        this.onInitialised.emit(this.quillEditor);
+        this.editorInit.emit(this.quillEditor);
     }
     componentDidUnload() {
         if (this.selectionChangeEvent) {

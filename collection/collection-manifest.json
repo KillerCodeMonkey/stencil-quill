@@ -1,7 +1,7 @@
 {
   "entries": [
-    "components/quill-view.js",
     "components/quill-view-html.js",
+    "components/quill-view.js",
     "components/quill-editor.js"
   ],
   "compiler": {

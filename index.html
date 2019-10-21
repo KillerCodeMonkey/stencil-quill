@@ -127,31 +127,31 @@
       quillEditor.styles = !JSON.parse(quillEditor.styles)['background-color'] ? JSON.stringify({ 'background-color': 'grey' }) : '{}'
     }
 
-    quillEditor.addEventListener('onInitialised', (event) => {
-      console.log('onInitialised', event.detail)
+    quillEditor.addEventListener('editorInit', (event) => {
+      console.log('editorInit', event.detail)
       quillEditor.content = JSON.stringify({ ops: [{ insert: 'hallo' }] })
       quillView.content = JSON.stringify({ ops: [{ insert: 'hallo' }] })
     });
 
-    quillEditor.addEventListener('onContentChanged', (event) => {
-      console.log('onContentChanged', event.detail)
+    quillEditor.addEventListener('editorContentChange', (event) => {
+      console.log('editorContentChange', event.detail)
       quillView.content = JSON.stringify(event.detail.content)
     });
 
-    quillEditor.addEventListener('onEditorChanged', (event) => {
-      console.log('onEditorChanged', event.detail)
+    quillEditor.addEventListener('editorChange', (event) => {
+      console.log('editorChange', event.detail)
     });
 
-    quillEditor.addEventListener('onSelectionChanged', (event) => {
-      console.log('onSelectionChanged', event.detail)
+    quillEditor.addEventListener('editorSelectionChange', (event) => {
+      console.log('editorSelectionChange', event.detail)
     });
 
-    quillEditor.addEventListener('onFocus', (event) => {
-      console.log('onFocus', event.detail)
+    quillEditor.addEventListener('editorFocus', (event) => {
+      console.log('editorFocus', event.detail)
     });
 
-    quillEditor.addEventListener('onBlur', (event) => {
-      console.log('onFocus', event.detail)
+    quillEditor.addEventListener('editorBlur', (event) => {
+      console.log('editorBlur', event.detail)
     });
   </script>
 </body>

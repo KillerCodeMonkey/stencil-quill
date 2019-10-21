@@ -111,7 +111,7 @@ export class QuillEditorComponent {
                 if (html === '<p><br></p>' || html === '<div><br></div>') {
                     html = null;
                 }
-                this.onEditorChanged.emit({
+                this.editorChange.emit({
                     content,
                     delta: current,
                     editor: this.quillEditor,
@@ -123,7 +123,7 @@ export class QuillEditorComponent {
                 });
             }
             else {
-                this.onEditorChanged.emit({
+                this.editorChange.emit({
                     editor: this.quillEditor,
                     event,
                     oldRange: old,
@@ -134,18 +134,18 @@ export class QuillEditorComponent {
         });
         this.selectionChangeEvent = this.quillEditor.on('selection-change', (range, oldRange, source) => {
             if (range === null) {
-                this.onBlur.emit({
+                this.editorBlur.emit({
                     editor: this.quillEditor,
                     source
                 });
             }
             else if (oldRange === null) {
-                this.onFocus.emit({
+                this.editorFocus.emit({
                     editor: this.quillEditor,
                     source
                 });
             }
-            this.onSelectionChanged.emit({
+            this.editorSelectionChange.emit({
                 editor: this.quillEditor,
                 range,
                 oldRange,
@@ -159,7 +159,7 @@ export class QuillEditorComponent {
             if (html === '<p><br></p>' || html === '<div><br></div>') {
                 html = null;
             }
-            this.onContentChanged.emit({
+            this.editorContentChange.emit({
                 editor: this.quillEditor,
                 content,
                 delta,
@@ -169,7 +169,7 @@ export class QuillEditorComponent {
                 text
             });
         });
-        this.onInitialised.emit(this.quillEditor);
+        this.editorInit.emit(this.quillEditor);
     }
     componentDidUnload() {
         if (this.selectionChangeEvent) {
@@ -502,8 +502,8 @@ export class QuillEditorComponent {
         }
     }; }
     static get events() { return [{
-            "method": "onInitialised",
-            "name": "onInitialised",
+            "method": "editorInit",
+            "name": "editorInit",
             "bubbles": true,
             "cancelable": true,
             "composed": true,
@@ -517,8 +517,8 @@ export class QuillEditorComponent {
                 "references": {}
             }
         }, {
-            "method": "onEditorChanged",
-            "name": "onEditorChanged",
+            "method": "editorChange",
+            "name": "editorChange",
             "bubbles": true,
             "cancelable": true,
             "composed": true,
@@ -532,8 +532,8 @@ export class QuillEditorComponent {
                 "references": {}
             }
         }, {
-            "method": "onContentChanged",
-            "name": "onContentChanged",
+            "method": "editorContentChange",
+            "name": "editorContentChange",
             "bubbles": true,
             "cancelable": true,
             "composed": true,
@@ -547,8 +547,8 @@ export class QuillEditorComponent {
                 "references": {}
             }
         }, {
-            "method": "onSelectionChanged",
-            "name": "onSelectionChanged",
+            "method": "editorSelectionChange",
+            "name": "editorSelectionChange",
             "bubbles": true,
             "cancelable": true,
             "composed": true,
@@ -562,8 +562,8 @@ export class QuillEditorComponent {
                 "references": {}
             }
         }, {
-            "method": "onFocus",
-            "name": "onFocus",
+            "method": "editorFocus",
+            "name": "editorFocus",
             "bubbles": true,
             "cancelable": true,
             "composed": true,
@@ -577,8 +577,8 @@ export class QuillEditorComponent {
                 "references": {}
             }
         }, {
-            "method": "onBlur",
-            "name": "onBlur",
+            "method": "editorBlur",
+            "name": "editorBlur",
             "bubbles": true,
             "cancelable": true,
             "composed": true,

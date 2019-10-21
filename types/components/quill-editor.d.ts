@@ -1,7 +1,7 @@
 import { ComponentDidLoad, ComponentDidUnload, EventEmitter } from '../stencil.core';
 export declare class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnload {
-    onInitialised: EventEmitter<any>;
-    onEditorChanged: EventEmitter<{
+    editorInit: EventEmitter<any>;
+    editorChange: EventEmitter<{
         editor: any;
         event: 'text-change';
         content: any;
@@ -17,7 +17,7 @@ export declare class QuillEditorComponent implements ComponentDidLoad, Component
         oldRange: any;
         source: string;
     }>;
-    onContentChanged: EventEmitter<{
+    editorContentChange: EventEmitter<{
         editor: any;
         content: any;
         text: string;
@@ -26,17 +26,17 @@ export declare class QuillEditorComponent implements ComponentDidLoad, Component
         oldDelta: any;
         source: string;
     }>;
-    onSelectionChanged: EventEmitter<{
+    editorSelectionChange: EventEmitter<{
         editor: any;
         range: any;
         oldRange: any;
         source: string;
     }>;
-    onFocus: EventEmitter<{
+    editorFocus: EventEmitter<{
         editor: any;
         source: string;
     }>;
-    onBlur: EventEmitter<{
+    editorBlur: EventEmitter<{
         editor: any;
         source: string;
     }>;

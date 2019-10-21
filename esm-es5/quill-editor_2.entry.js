@@ -30,12 +30,12 @@ var QuillEditorComponent = /** @class */ (function () {
                 ['link', 'image', 'video'] // link and image, video
             ]
         };
-        this.onInitialised = createEvent(this, "onInitialised", 7);
-        this.onEditorChanged = createEvent(this, "onEditorChanged", 7);
-        this.onContentChanged = createEvent(this, "onContentChanged", 7);
-        this.onSelectionChanged = createEvent(this, "onSelectionChanged", 7);
-        this.onFocus = createEvent(this, "onFocus", 7);
-        this.onBlur = createEvent(this, "onBlur", 7);
+        this.editorInit = createEvent(this, "editorInit", 7);
+        this.editorChange = createEvent(this, "editorChange", 7);
+        this.editorContentChange = createEvent(this, "editorContentChange", 7);
+        this.editorSelectionChange = createEvent(this, "editorSelectionChange", 7);
+        this.editorFocus = createEvent(this, "editorFocus", 7);
+        this.editorBlur = createEvent(this, "editorBlur", 7);
     }
     QuillEditorComponent.prototype.setEditorContent = function (value) {
         if (this.format === 'html') {
@@ -119,7 +119,7 @@ var QuillEditorComponent = /** @class */ (function () {
                 if (html === '<p><br></p>' || html === '<div><br></div>') {
                     html = null;
                 }
-                _this.onEditorChanged.emit({
+                _this.editorChange.emit({
                     content: content,
                     delta: current,
                     editor: _this.quillEditor,
@@ -131,7 +131,7 @@ var QuillEditorComponent = /** @class */ (function () {
                 });
             }
             else {
-                _this.onEditorChanged.emit({
+                _this.editorChange.emit({
                     editor: _this.quillEditor,
                     event: event,
                     oldRange: old,
@@ -142,18 +142,18 @@ var QuillEditorComponent = /** @class */ (function () {
         });
         this.selectionChangeEvent = this.quillEditor.on('selection-change', function (range, oldRange, source) {
             if (range === null) {
-                _this.onBlur.emit({
+                _this.editorBlur.emit({
                     editor: _this.quillEditor,
                     source: source
                 });
             }
             else if (oldRange === null) {
-                _this.onFocus.emit({
+                _this.editorFocus.emit({
                     editor: _this.quillEditor,
                     source: source
                 });
             }
-            _this.onSelectionChanged.emit({
+            _this.editorSelectionChange.emit({
                 editor: _this.quillEditor,
                 range: range,
                 oldRange: oldRange,
@@ -167,7 +167,7 @@ var QuillEditorComponent = /** @class */ (function () {
             if (html === '<p><br></p>' || html === '<div><br></div>') {
                 html = null;
             }
-            _this.onContentChanged.emit({
+            _this.editorContentChange.emit({
                 editor: _this.quillEditor,
                 content: content,
                 delta: delta,
@@ -177,7 +177,7 @@ var QuillEditorComponent = /** @class */ (function () {
                 text: text
             });
         });
-        this.onInitialised.emit(this.quillEditor);
+        this.editorInit.emit(this.quillEditor);
     };
     QuillEditorComponent.prototype.componentDidUnload = function () {
         if (this.selectionChangeEvent) {
