@@ -1,12 +1,8 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-const core = require('./core-dd681f6d.js');
+import { r as registerInstance, c as createEvent, h, H as Host, g as getElement } from './index-afe5d14d.js';
 
 const QuillEditorComponent = class {
     constructor(hostRef) {
-        core.registerInstance(this, hostRef);
+        registerInstance(this, hostRef);
         this.format = 'html';
         this.debug = 'warn';
         this.placeholder = 'Insert text here ...';
@@ -35,12 +31,12 @@ const QuillEditorComponent = class {
                 ['link', 'image', 'video'] // link and image, video
             ]
         };
-        this.editorInit = core.createEvent(this, "editorInit", 7);
-        this.editorChange = core.createEvent(this, "editorChange", 7);
-        this.editorContentChange = core.createEvent(this, "editorContentChange", 7);
-        this.editorSelectionChange = core.createEvent(this, "editorSelectionChange", 7);
-        this.editorFocus = core.createEvent(this, "editorFocus", 7);
-        this.editorBlur = core.createEvent(this, "editorBlur", 7);
+        this.editorInit = createEvent(this, "editorInit", 7);
+        this.editorChange = createEvent(this, "editorChange", 7);
+        this.editorContentChange = createEvent(this, "editorContentChange", 7);
+        this.editorSelectionChange = createEvent(this, "editorSelectionChange", 7);
+        this.editorFocus = createEvent(this, "editorFocus", 7);
+        this.editorBlur = createEvent(this, "editorBlur", 7);
     }
     setEditorContent(value) {
         if (this.format === 'html') {
@@ -88,10 +84,21 @@ const QuillEditorComponent = class {
         }
     }
     componentDidLoad() {
+        this.editorElement = this.preserveWhitespace ? document.createElement('div') : document.createElement('p');
+        this.editorElement.setAttribute('quill-editor', '');
         let modules = this.modules ? JSON.parse(this.modules) : this.defaultModules;
         const toolbarElem = this.wrapperElement.querySelector('[slot="quill-toolbar"]');
         if (toolbarElem) {
             modules['toolbar'] = toolbarElem;
+            if (this.customToolbarPosition === 'bottom') {
+                this.wrapperElement.prepend(this.editorElement);
+            }
+            else {
+                this.wrapperElement.append(this.editorElement);
+            }
+        }
+        else {
+            this.wrapperElement.append(this.editorElement);
         }
         this.quillEditor = new Quill(this.editorElement, {
             debug: this.debug,
@@ -181,7 +188,9 @@ const QuillEditorComponent = class {
                 text
             });
         });
-        this.editorInit.emit(this.quillEditor);
+        setTimeout(() => {
+            this.editorInit.emit(this.quillEditor);
+        });
     }
     componentDidUnload() {
         if (this.selectionChangeEvent) {
@@ -195,6 +204,9 @@ const QuillEditorComponent = class {
         }
     }
     updateContent(newValue) {
+        if (!this.quillEditor) {
+            return;
+        }
         const editorContents = this.getEditorContent();
         if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
             return null;
@@ -248,17 +260,9 @@ const QuillEditorComponent = class {
         }
     }
     render() {
-        const editor = this.preserveWhitespace ? core.h("pre", { "quill-element": true, ref: (el) => this.editorElement = el }) : core.h("div", { "quill-element": true, ref: (el) => this.editorElement = el });
-        const elements = [core.h("slot", { name: "quill-toolbar" })];
-        if (this.customToolbarPosition === 'bottom') {
-            elements.unshift(editor);
-        }
-        else {
-            elements.push(editor);
-        }
-        return (elements);
+        h(Host, null, h("slot", { name: "quill-toolbar", "quill-toolbar": "" }));
     }
-    get wrapperElement() { return core.getElement(this); }
+    get wrapperElement() { return getElement(this); }
     static get watchers() { return {
         "content": ["updateContent"],
         "readOnly": ["updateReadOnly"],
@@ -267,9 +271,142 @@ const QuillEditorComponent = class {
     }; }
 };
 
+const quillViewCss = ".ql-container.quill-view.sc-quill-view{border:0}";
+
+const QuillViewComponent = class {
+    constructor(hostRef) {
+        registerInstance(this, hostRef);
+        this.format = 'html';
+        this.debug = 'warn';
+        this.strict = true;
+        this.styles = '{}';
+        this.preserveWhitespace = false;
+    }
+    setEditorContent(value) {
+        if (this.format === 'html') {
+            const contents = this.quillEditor.clipboard.convert(value);
+            this.quillEditor.setContents(contents, 'api');
+        }
+        else if (this.format === 'text') {
+            this.quillEditor.setText(value);
+        }
+        else if (this.format === 'json') {
+            try {
+                this.quillEditor.setContents(JSON.parse(value), 'api');
+            }
+            catch (e) {
+                this.quillEditor.setText(value, 'api');
+            }
+        }
+        else {
+            this.quillEditor.setText(value, 'api');
+        }
+    }
+    getEditorContent() {
+        const text = this.quillEditor.getText();
+        const content = this.quillEditor.getContents();
+        let html = this.editorElement.children[0].innerHTML;
+        if (html === '<p><br></p>' || html === '<div><br></div>') {
+            html = '';
+        }
+        if (this.format === 'html') {
+            return html;
+        }
+        else if (this.format === 'text') {
+            this.quillEditor.getText();
+        }
+        else if (this.format === 'json') {
+            try {
+                return JSON.stringify(content);
+            }
+            catch (e) {
+                return text;
+            }
+        }
+        else {
+            return text;
+        }
+    }
+    componentDidLoad() {
+        let modules = this.modules ? JSON.parse(this.modules) : {
+            toolbar: false
+        };
+        if (modules.toolbar) {
+            modules.toolbar = false;
+        }
+        this.quillEditor = new Quill(this.editorElement, {
+            debug: this.debug,
+            modules: modules,
+            readOnly: true,
+            theme: this.theme || 'snow',
+            formats: this.formats,
+            strict: this.strict
+        });
+        if (this.styles) {
+            const styles = JSON.parse(this.styles);
+            Object.keys(styles).forEach((key) => {
+                this.editorElement.style.setProperty(key, styles[key]);
+            });
+        }
+        this.editorElement.classList.add('quill-view');
+        if (this.content) {
+            this.setEditorContent(this.content);
+            this.quillEditor['history'].clear();
+        }
+    }
+    updateStyle(newValue, oldValue) {
+        if (!this.editorElement) {
+            return;
+        }
+        if (oldValue) {
+            const old = JSON.parse(oldValue);
+            Object.keys(old).forEach((key) => {
+                this.editorElement.style.setProperty(key, '');
+            });
+        }
+        if (newValue) {
+            const value = JSON.parse(newValue);
+            Object.keys(value).forEach((key) => {
+                this.editorElement.style.setProperty(key, value[key]);
+            });
+        }
+    }
+    updateContent(newValue) {
+        const editorContents = this.getEditorContent();
+        if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
+            return null;
+        }
+        else {
+            let changed = false;
+            try {
+                const newContentString = JSON.stringify(newValue);
+                changed = JSON.stringify(editorContents) !== newContentString;
+            }
+            catch (_a) {
+                return null;
+            }
+            if (!changed) {
+                return null;
+            }
+        }
+        this.setEditorContent(newValue);
+    }
+    render() {
+        return (this.preserveWhitespace ? h("pre", { "quill-element": true, ref: (el) => this.editorElement = el }) : h("div", { "quill-element": true, ref: (el) => this.editorElement = el }));
+    }
+    get wrapperElement() { return getElement(this); }
+    static get watchers() { return {
+        "styles": ["updateStyle"],
+        "content": ["updateContent"]
+    }; }
+};
+QuillViewComponent.style = quillViewCss;
+
+const quillViewHtmlCss = ".ql-container.quill-view-html.sc-quill-view-html{border:0}";
+
 const QuillViewHTMLComponent = class {
     constructor(hostRef) {
-        core.registerInstance(this, hostRef);
+        registerInstance(this, hostRef);
         this.theme = 'snow';
         this.themeClass = 'ql-snow';
     }
@@ -278,13 +415,12 @@ const QuillViewHTMLComponent = class {
     }
     render() {
         const classes = `ql-container ${this.themeClass} quill-view-html`;
-        return (core.h("div", { class: classes }, core.h("div", { class: "ql-editor", innerHTML: this.content })));
+        return (h("div", { class: classes }, h("div", { class: "ql-editor", innerHTML: this.content })));
     }
     static get watchers() { return {
         "theme": ["updateTheme"]
     }; }
-    static get style() { return ".ql-container.quill-view-html.sc-quill-view-html{border:0}"; }
 };
+QuillViewHTMLComponent.style = quillViewHtmlCss;
 
-exports.quill_editor = QuillEditorComponent;
-exports.quill_view_html = QuillViewHTMLComponent;
+export { QuillEditorComponent as quill_editor, QuillViewComponent as quill_view, QuillViewHTMLComponent as quill_view_html };

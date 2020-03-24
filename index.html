@@ -20,6 +20,12 @@
         container.innerText = text.split(/\s+/).length;
       });
     });
+
+    // register custom fonts
+    const font = Quill.import('formats/font')
+    // We do not add Aref Ruqaa since it is the default
+    font.whitelist = ['mirza', 'roboto', 'aref', 'serif', 'sansserif', 'monospace']
+    Quill.register(font, true)
   </script>
 
   <link href="https://fonts.googleapis.com/css?family=Aref+Ruqaa|Mirza|Roboto" rel="stylesheet">
@@ -35,13 +41,13 @@
     }
 
     /* Set dropdown font-families */
-    [quill-toolbar] .ql-font span[data-label="Aref Ruqaa"]::before {
+    [slot="quill-toolbar"] .ql-font span[data-label="Aref Ruqaa"]::before {
       font-family: "Aref Ruqaa";
     }
-    [quill-toolbar] .ql-font span[data-label="Mirza"]::before {
+    [slot="quill-toolbar"] .ql-font span[data-label="Mirza"]::before {
       font-family: "Mirza";
     }
-    [quill-toolbar] .ql-font span[data-label="Roboto"]::before {
+    [slot="quill-toolbar"] .ql-font span[data-label="Roboto"]::before {
       font-family: "Roboto";
     }
 

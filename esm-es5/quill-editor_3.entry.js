@@ -1,4 +1,4 @@
-import { r as registerInstance, c as createEvent, h, g as getElement } from './core-3184f5a2.js';
+import { r as registerInstance, c as createEvent, h, H as Host, g as getElement } from './index-afe5d14d.js';
 
 const QuillEditorComponent = class {
     constructor(hostRef) {
@@ -84,10 +84,21 @@ const QuillEditorComponent = class {
         }
     }
     componentDidLoad() {
+        this.editorElement = this.preserveWhitespace ? document.createElement('div') : document.createElement('p');
+        this.editorElement.setAttribute('quill-editor', '');
         let modules = this.modules ? JSON.parse(this.modules) : this.defaultModules;
         const toolbarElem = this.wrapperElement.querySelector('[slot="quill-toolbar"]');
         if (toolbarElem) {
             modules['toolbar'] = toolbarElem;
+            if (this.customToolbarPosition === 'bottom') {
+                this.wrapperElement.prepend(this.editorElement);
+            }
+            else {
+                this.wrapperElement.append(this.editorElement);
+            }
+        }
+        else {
+            this.wrapperElement.append(this.editorElement);
         }
         this.quillEditor = new Quill(this.editorElement, {
             debug: this.debug,
@@ -177,7 +188,9 @@ const QuillEditorComponent = class {
                 text
             });
         });
-        this.editorInit.emit(this.quillEditor);
+        setTimeout(() => {
+            this.editorInit.emit(this.quillEditor);
+        });
     }
     componentDidUnload() {
         if (this.selectionChangeEvent) {
@@ -191,6 +204,9 @@ const QuillEditorComponent = class {
         }
     }
     updateContent(newValue) {
+        if (!this.quillEditor) {
+            return;
+        }
         const editorContents = this.getEditorContent();
         if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
             return null;
@@ -244,15 +260,7 @@ const QuillEditorComponent = class {
         }
     }
     render() {
-        const editor = this.preserveWhitespace ? h("pre", { "quill-element": true, ref: (el) => this.editorElement = el }) : h("div", { "quill-element": true, ref: (el) => this.editorElement = el });
-        const elements = [h("slot", { name: "quill-toolbar" })];
-        if (this.customToolbarPosition === 'bottom') {
-            elements.unshift(editor);
-        }
-        else {
-            elements.push(editor);
-        }
-        return (elements);
+        h(Host, null, h("slot", { name: "quill-toolbar", "quill-toolbar": "" }));
     }
     get wrapperElement() { return getElement(this); }
     static get watchers() { return {
@@ -262,6 +270,139 @@ const QuillEditorComponent = class {
         "styles": ["updateStyle"]
     }; }
 };
+
+const quillViewCss = ".ql-container.quill-view.sc-quill-view{border:0}";
+
+const QuillViewComponent = class {
+    constructor(hostRef) {
+        registerInstance(this, hostRef);
+        this.format = 'html';
+        this.debug = 'warn';
+        this.strict = true;
+        this.styles = '{}';
+        this.preserveWhitespace = false;
+    }
+    setEditorContent(value) {
+        if (this.format === 'html') {
+            const contents = this.quillEditor.clipboard.convert(value);
+            this.quillEditor.setContents(contents, 'api');
+        }
+        else if (this.format === 'text') {
+            this.quillEditor.setText(value);
+        }
+        else if (this.format === 'json') {
+            try {
+                this.quillEditor.setContents(JSON.parse(value), 'api');
+            }
+            catch (e) {
+                this.quillEditor.setText(value, 'api');
+            }
+        }
+        else {
+            this.quillEditor.setText(value, 'api');
+        }
+    }
+    getEditorContent() {
+        const text = this.quillEditor.getText();
+        const content = this.quillEditor.getContents();
+        let html = this.editorElement.children[0].innerHTML;
+        if (html === '<p><br></p>' || html === '<div><br></div>') {
+            html = '';
+        }
+        if (this.format === 'html') {
+            return html;
+        }
+        else if (this.format === 'text') {
+            this.quillEditor.getText();
+        }
+        else if (this.format === 'json') {
+            try {
+                return JSON.stringify(content);
+            }
+            catch (e) {
+                return text;
+            }
+        }
+        else {
+            return text;
+        }
+    }
+    componentDidLoad() {
+        let modules = this.modules ? JSON.parse(this.modules) : {
+            toolbar: false
+        };
+        if (modules.toolbar) {
+            modules.toolbar = false;
+        }
+        this.quillEditor = new Quill(this.editorElement, {
+            debug: this.debug,
+            modules: modules,
+            readOnly: true,
+            theme: this.theme || 'snow',
+            formats: this.formats,
+            strict: this.strict
+        });
+        if (this.styles) {
+            const styles = JSON.parse(this.styles);
+            Object.keys(styles).forEach((key) => {
+                this.editorElement.style.setProperty(key, styles[key]);
+            });
+        }
+        this.editorElement.classList.add('quill-view');
+        if (this.content) {
+            this.setEditorContent(this.content);
+            this.quillEditor['history'].clear();
+        }
+    }
+    updateStyle(newValue, oldValue) {
+        if (!this.editorElement) {
+            return;
+        }
+        if (oldValue) {
+            const old = JSON.parse(oldValue);
+            Object.keys(old).forEach((key) => {
+                this.editorElement.style.setProperty(key, '');
+            });
+        }
+        if (newValue) {
+            const value = JSON.parse(newValue);
+            Object.keys(value).forEach((key) => {
+                this.editorElement.style.setProperty(key, value[key]);
+            });
+        }
+    }
+    updateContent(newValue) {
+        const editorContents = this.getEditorContent();
+        if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
+            return null;
+        }
+        else {
+            let changed = false;
+            try {
+                const newContentString = JSON.stringify(newValue);
+                changed = JSON.stringify(editorContents) !== newContentString;
+            }
+            catch (_a) {
+                return null;
+            }
+            if (!changed) {
+                return null;
+            }
+        }
+        this.setEditorContent(newValue);
+    }
+    render() {
+        return (this.preserveWhitespace ? h("pre", { "quill-element": true, ref: (el) => this.editorElement = el }) : h("div", { "quill-element": true, ref: (el) => this.editorElement = el }));
+    }
+    get wrapperElement() { return getElement(this); }
+    static get watchers() { return {
+        "styles": ["updateStyle"],
+        "content": ["updateContent"]
+    }; }
+};
+QuillViewComponent.style = quillViewCss;
+
+const quillViewHtmlCss = ".ql-container.quill-view-html.sc-quill-view-html{border:0}";
 
 const QuillViewHTMLComponent = class {
     constructor(hostRef) {
@@ -279,7 +420,7 @@ const QuillViewHTMLComponent = class {
     static get watchers() { return {
         "theme": ["updateTheme"]
     }; }
-    static get style() { return ".ql-container.quill-view-html.sc-quill-view-html{border:0}"; }
 };
+QuillViewHTMLComponent.style = quillViewHtmlCss;
 
-export { QuillEditorComponent as quill_editor, QuillViewHTMLComponent as quill_view_html };
+export { QuillEditorComponent as quill_editor, QuillViewComponent as quill_view, QuillViewHTMLComponent as quill_view_html };

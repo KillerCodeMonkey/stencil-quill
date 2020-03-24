@@ -1,21 +1,14 @@
 {
   "entries": [
-    "components/quill-view-html.js",
-    "components/quill-view.js",
-    "components/quill-editor.js"
+    "./components/quill-editor/quill-editor.js",
+    "./components/quill-view/quill-view.js",
+    "./components/quill-view-html/quill-view-html.js"
   ],
   "compiler": {
     "name": "@stencil/core",
-    "version": "1.7.3",
-    "typescriptVersion": "3.6.3"
+    "version": "1.11.2",
+    "typescriptVersion": "3.8.3"
   },
   "collections": [],
-  "bundles": [
-    {
-      "components": [
-        "quill-editor",
-        "quill-view-html"
-      ]
-    }
-  ]
+  "bundles": []
 }
