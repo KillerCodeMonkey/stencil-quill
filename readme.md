@@ -42,6 +42,7 @@ XRP Wallet Address:
 ```
 
 ### Config
+- [Check the component readme](https://github.com/KillerCodeMonkey/stencil-quill/tree/master/src/components/quill-editor)
 - content - the base content of the editor passed as string or JSON string
 - readOnly (true | false) if user can edit content
 - formats - array of allowed formats/groupings
@@ -191,6 +192,7 @@ It renders a readOnly quilljs editor without a border and toolbar. Does not prov
 ```
 
 ### Config
+- [Check the component readme](https://github.com/KillerCodeMonkey/stencil-quill/tree/master/src/components/quill-view)
 - content - the base content of the editor passed as string or JSON string
 - formats - array of allowed formats/groupings
 - format - model format - default: `html`, values: `html | text | json`, sets the model value type - html = html string, json = quill operations as json string, text = plain text
@@ -212,6 +214,7 @@ It renders an quilljs html string as you would expect it without createing a qui
 ```
 
 ### Config
+- [Check the component readme](https://github.com/KillerCodeMonkey/stencil-quill/tree/master/src/components/quill-view-html)
 - content - the base content of the editor passed as string or JSON string
 - theme - bubble/snow, default is `snow`
 

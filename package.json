@@ -13,7 +13,7 @@
     "dist/"
   ],
   "scripts": {
-    "build": "stencil build",
+    "build": "stencil build --docs",
     "build:deploy": "stencil build && cp ./src/index.html ./dist && gh-pages -d ./dist",
     "prepublishOnly": "npm run build",
     "start": "stencil build --dev --watch --serve",
@@ -35,8 +35,8 @@
     "quill": "^1.3.6"
   },
   "devDependencies": {
-    "@stencil/core": "^1.4.0",
-    "@types/jest": "^25.1.0",
+    "@stencil/core": "^1.11.2",
+    "@types/jest": "^25.1.4",
     "@types/quill": "^1.3.10",
     "gh-pages": "2.2.0",
     "jest": "^25.1.0",
