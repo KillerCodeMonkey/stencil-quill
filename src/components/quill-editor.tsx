@@ -1,4 +1,4 @@
-import { h, Component, ComponentDidLoad, ComponentDidUnload, Element, Event, EventEmitter, Prop, Watch } from '@stencil/core';
+import { h, Component, ComponentDidLoad, ComponentDidUnload, Element, Event, EventEmitter, Prop, Watch, Host } from '@stencil/core';
 
 declare const Quill: any
 
@@ -142,6 +142,9 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
   }
 
   componentDidLoad() {
+    this.editorElement = this.preserveWhitespace ? document.createElement('div') : document.createElement('p')
+    this.editorElement.setAttribute('quill-editor', '')
+
     let modules: any = this.modules ? JSON.parse(this.modules) : this.defaultModules;
 
     const toolbarElem = this.wrapperElement.querySelector(
@@ -149,6 +152,13 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
     );
     if (toolbarElem) {
       modules['toolbar'] = toolbarElem;
+      if (this.customToolbarPosition === 'bottom') {
+        this.wrapperElement.prepend(this.editorElement)
+      } else {
+        this.wrapperElement.append(this.editorElement)
+      }
+    } else {
+      this.wrapperElement.append(this.editorElement)
     }
 
     this.quillEditor = new Quill(this.editorElement, {
@@ -259,7 +269,9 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
       }
     );
 
-    this.editorInit.emit(this.quillEditor);
+    setTimeout(() => {
+      this.editorInit.emit(this.quillEditor);
+    })
   }
 
   componentDidUnload() {
@@ -276,6 +288,9 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
 
   @Watch('content')
   updateContent(newValue: any): void {
+    if (!this.quillEditor) {
+      return
+    }
     const editorContents = this.getEditorContent();
 
     if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
@@ -338,13 +353,8 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
   }
 
   render() {
-    const editor = this.preserveWhitespace ? <pre quill-element ref={(el: HTMLPreElement) => this.editorElement = el}></pre> : <div quill-element ref={(el: HTMLDivElement) => this.editorElement = el}></div>
-    const elements = [<slot name="quill-toolbar" />]
-    if (this.customToolbarPosition === 'bottom') {
-      elements.unshift(editor)
-    } else {
-      elements.push(editor)
-    }
-    return (elements);
+    <Host>
+      <slot name="quill-toolbar" quill-toolbar="" />
+    </Host>
   }
 }

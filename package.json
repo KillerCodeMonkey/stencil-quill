@@ -15,6 +15,7 @@
   "scripts": {
     "build": "stencil build",
     "build:deploy": "stencil build && cp ./src/index.html ./dist && gh-pages -d ./dist",
+    "prepublishOnly": "npm run build",
     "start": "stencil build --dev --watch --serve",
     "test": "jest",
     "test.watch": "jest --watch"
