@@ -27,7 +27,7 @@ export namespace Components {
         "debug": string;
         "format": "html" | "text" | "json";
         "formats": string[];
-        "modules": string;
+        "modules"?: string;
         "preserveWhitespace": boolean;
         "strict": boolean;
         "styles": string;

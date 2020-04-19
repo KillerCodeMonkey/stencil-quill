@@ -56,8 +56,5 @@
   "bugs": {
     "url": "https://github.com/KillerCodeMonkey/stencil-quill"
   },
-  "homepage": "https://github.com/KillerCodeMonkey/stencil-quill",
-  "jest": {
-    "testEnvironment": "jest-environment-jsdom-sixteen"
-  }
+  "homepage": "https://github.com/KillerCodeMonkey/stencil-quill"
 }
