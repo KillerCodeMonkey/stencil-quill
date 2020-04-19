@@ -57,13 +57,13 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
   @Prop() content: string;
   @Prop() debug: string = 'warn';
   @Prop() formats: string[];
-  @Prop() modules: string;
+  @Prop() modules?: string;
   @Prop() placeholder: string = 'Insert text here ...';
   @Prop() readOnly: boolean;
   @Prop() scrollingContainer: HTMLElement | string;
   @Prop() strict: boolean = true;
   @Prop() styles: string = '{}';
-  @Prop() theme: string;
+  @Prop() theme: string = 'snow';
   @Prop() customToolbarPosition: 'top' | 'bottom' = 'top';
   @Prop() preserveWhitespace: boolean = false;
 
@@ -105,7 +105,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
       const contents = this.quillEditor.clipboard.convert(value);
       this.quillEditor.setContents(contents, 'api');
     } else if (this.format === 'text') {
-      this.quillEditor.setText(value);
+      this.quillEditor.setText(value, 'api');
     } else if (this.format === 'json') {
       try {
         this.quillEditor.setContents(JSON.parse(value), 'api');
@@ -142,7 +142,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
   }
 
   componentDidLoad() {
-    this.editorElement = this.preserveWhitespace ? document.createElement('div') : document.createElement('p')
+    this.editorElement = this.preserveWhitespace ? document.createElement('pre') : document.createElement('div')
     this.editorElement.setAttribute('quill-editor', '')
 
     let modules: any = this.modules ? JSON.parse(this.modules) : this.defaultModules;

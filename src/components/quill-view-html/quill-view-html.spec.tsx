@@ -67,4 +67,30 @@ describe('QuillViewHTMLComponent', () => {
 
     expect(page.rootInstance.content).toBe('<p>test</p>');
   });
+
+  it('renders theme update', async () => {
+    await page.setContent('<quill-view-html content=""></quill-view-html>');
+
+    page.rootInstance.theme = 'test';
+    await page.waitForChanges();
+
+    expect(page.root).toEqualHtml(`
+      <quill-view-html content="">
+        <div class="ql-container ql-test quill-view-html">
+          <div class="ql-editor"></div>
+        </div>
+      </quill-view-html>
+    `);
+
+    page.rootInstance.theme = '';
+    await page.waitForChanges();
+
+    expect(page.root).toEqualHtml(`
+      <quill-view-html content="">
+        <div class="ql-container ql-snow quill-view-html">
+          <div class="ql-editor"></div>
+        </div>
+      </quill-view-html>
+    `);
+  });
 });
