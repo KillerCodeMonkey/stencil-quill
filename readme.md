@@ -1,4 +1,4 @@
-# stencil-quill
+# stencil-quill [![Build Status](https://github.com/KillerCodeMonkey/stencil-quill/workflows/CI/badge.svg)](https://github.com/KillerCodeMonkey/stencil-quill/actions/)
 
 Native web components for the [Quill Rich Text Editor](https://quilljs.com/)
 

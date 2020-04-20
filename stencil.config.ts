@@ -10,5 +10,15 @@ export const config: Config = {
       type: 'www',
       serviceWorker: null
     }
-  ]
+  ],
+  testing: {
+    collectCoverage: true,
+    coverageThreshold: {
+      global: {
+        branches: 80,
+        functions: 80,
+        lines: 80
+      }
+    }
+  }
 };

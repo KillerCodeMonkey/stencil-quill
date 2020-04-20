@@ -15,10 +15,10 @@ export class QuillViewComponent implements ComponentDidLoad {
   @Prop() content: string;
   @Prop() debug: string = 'warn';
   @Prop() formats: string[];
-  @Prop() modules: string;
+  @Prop() modules?: string;
   @Prop() strict: boolean = true;
   @Prop() styles: string = '{}';
-  @Prop() theme: string;
+  @Prop() theme: string = 'snow';
   @Prop() preserveWhitespace: boolean = false;
 
   quillEditor: any;
@@ -29,7 +29,7 @@ export class QuillViewComponent implements ComponentDidLoad {
       const contents = this.quillEditor.clipboard.convert(value);
       this.quillEditor.setContents(contents, 'api');
     } else if (this.format === 'text') {
-      this.quillEditor.setText(value);
+      this.quillEditor.setText(value, 'api');
     } else if (this.format === 'json') {
       try {
         this.quillEditor.setContents(JSON.parse(value), 'api');
@@ -53,7 +53,7 @@ export class QuillViewComponent implements ComponentDidLoad {
     if (this.format === 'html') {
       return html;
     } else if (this.format === 'text') {
-      this.quillEditor.getText();
+      return text;
     } else if (this.format === 'json') {
       try {
         return JSON.stringify(content);
