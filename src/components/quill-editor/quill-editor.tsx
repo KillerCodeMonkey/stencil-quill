@@ -129,7 +129,7 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
     if (this.format === 'html') {
       return html;
     } else if (this.format === 'text') {
-      this.quillEditor.getText();
+      return text;
     } else if (this.format === 'json') {
       try {
         return JSON.stringify(content);
