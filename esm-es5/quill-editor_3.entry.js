@@ -1,13 +1,13 @@
-import { r as registerInstance, c as createEvent, h, H as Host, g as getElement } from './index-afe5d14d.js';
-
-const QuillEditorComponent = class {
-    constructor(hostRef) {
+import { r as registerInstance, c as createEvent, h, H as Host, g as getElement } from './index-c3d09cfa.js';
+var QuillEditorComponent = /** @class */ (function () {
+    function QuillEditorComponent(hostRef) {
         registerInstance(this, hostRef);
         this.format = 'html';
         this.debug = 'warn';
         this.placeholder = 'Insert text here ...';
         this.strict = true;
         this.styles = '{}';
+        this.theme = 'snow';
         this.customToolbarPosition = 'top';
         this.preserveWhitespace = false;
         this.defaultModules = {
@@ -38,13 +38,13 @@ const QuillEditorComponent = class {
         this.editorFocus = createEvent(this, "editorFocus", 7);
         this.editorBlur = createEvent(this, "editorBlur", 7);
     }
-    setEditorContent(value) {
+    QuillEditorComponent.prototype.setEditorContent = function (value) {
         if (this.format === 'html') {
-            const contents = this.quillEditor.clipboard.convert(value);
+            var contents = this.quillEditor.clipboard.convert(value);
             this.quillEditor.setContents(contents, 'api');
         }
         else if (this.format === 'text') {
-            this.quillEditor.setText(value);
+            this.quillEditor.setText(value, 'api');
         }
         else if (this.format === 'json') {
             try {
@@ -57,11 +57,11 @@ const QuillEditorComponent = class {
         else {
             this.quillEditor.setText(value, 'api');
         }
-    }
-    getEditorContent() {
-        const text = this.quillEditor.getText();
-        const content = this.quillEditor.getContents();
-        let html = this.editorElement.children[0].innerHTML;
+    };
+    QuillEditorComponent.prototype.getEditorContent = function () {
+        var text = this.quillEditor.getText();
+        var content = this.quillEditor.getContents();
+        var html = this.editorElement.children[0].innerHTML;
         if (html === '<p><br></p>' || html === '<div><br></div>') {
             html = '';
         }
@@ -69,7 +69,7 @@ const QuillEditorComponent = class {
             return html;
         }
         else if (this.format === 'text') {
-            this.quillEditor.getText();
+            return text;
         }
         else if (this.format === 'json') {
             try {
@@ -82,12 +82,13 @@ const QuillEditorComponent = class {
         else {
             return text;
         }
-    }
-    componentDidLoad() {
-        this.editorElement = this.preserveWhitespace ? document.createElement('div') : document.createElement('p');
+    };
+    QuillEditorComponent.prototype.componentDidLoad = function () {
+        var _this = this;
+        this.editorElement = this.preserveWhitespace ? document.createElement('pre') : document.createElement('div');
         this.editorElement.setAttribute('quill-editor', '');
-        let modules = this.modules ? JSON.parse(this.modules) : this.defaultModules;
-        const toolbarElem = this.wrapperElement.querySelector('[slot="quill-toolbar"]');
+        var modules = this.modules ? JSON.parse(this.modules) : this.defaultModules;
+        var toolbarElem = this.wrapperElement.querySelector('[slot="quill-toolbar"]');
         if (toolbarElem) {
             modules['toolbar'] = toolbarElem;
             if (this.customToolbarPosition === 'bottom') {
@@ -112,87 +113,87 @@ const QuillEditorComponent = class {
             scrollingContainer: this.scrollingContainer
         });
         if (this.styles) {
-            const styles = JSON.parse(this.styles);
-            Object.keys(styles).forEach((key) => {
-                this.editorElement.style.setProperty(key, styles[key]);
+            var styles_1 = JSON.parse(this.styles);
+            Object.keys(styles_1).forEach(function (key) {
+                _this.editorElement.style.setProperty(key, styles_1[key]);
             });
         }
         if (this.content) {
             this.setEditorContent(this.content);
             this.quillEditor['history'].clear();
         }
-        this.editorChangeEvent = this.quillEditor.on('editor-change', (event, current, old, source) => {
+        this.editorChangeEvent = this.quillEditor.on('editor-change', function (event, current, old, source) {
             // only emit changes emitted by user interactions
             if (event === 'text-change') {
-                const text = this.quillEditor.getText();
-                const content = this.quillEditor.getContents();
-                let html = this.editorElement.querySelector('.ql-editor').innerHTML;
+                var text = _this.quillEditor.getText();
+                var content = _this.quillEditor.getContents();
+                var html = _this.editorElement.querySelector('.ql-editor').innerHTML;
                 if (html === '<p><br></p>' || html === '<div><br></div>') {
                     html = null;
                 }
-                this.editorChange.emit({
-                    content,
+                _this.editorChange.emit({
+                    content: content,
                     delta: current,
-                    editor: this.quillEditor,
-                    event,
-                    html,
+                    editor: _this.quillEditor,
+                    event: event,
+                    html: html,
                     oldDelta: old,
-                    source,
-                    text
+                    source: source,
+                    text: text
                 });
             }
             else {
-                this.editorChange.emit({
-                    editor: this.quillEditor,
-                    event,
+                _this.editorChange.emit({
+                    editor: _this.quillEditor,
+                    event: event,
                     oldRange: old,
                     range: current,
-                    source
+                    source: source
                 });
             }
         });
-        this.selectionChangeEvent = this.quillEditor.on('selection-change', (range, oldRange, source) => {
+        this.selectionChangeEvent = this.quillEditor.on('selection-change', function (range, oldRange, source) {
             if (range === null) {
-                this.editorBlur.emit({
-                    editor: this.quillEditor,
-                    source
+                _this.editorBlur.emit({
+                    editor: _this.quillEditor,
+                    source: source
                 });
             }
             else if (oldRange === null) {
-                this.editorFocus.emit({
-                    editor: this.quillEditor,
-                    source
+                _this.editorFocus.emit({
+                    editor: _this.quillEditor,
+                    source: source
                 });
             }
-            this.editorSelectionChange.emit({
-                editor: this.quillEditor,
-                range,
-                oldRange,
-                source
+            _this.editorSelectionChange.emit({
+                editor: _this.quillEditor,
+                range: range,
+                oldRange: oldRange,
+                source: source
             });
         });
-        this.textChangeEvent = this.quillEditor.on('text-change', (delta, oldDelta, source) => {
-            const text = this.quillEditor.getText();
-            const content = this.quillEditor.getContents();
-            let html = this.editorElement.querySelector('.ql-editor').innerHTML;
+        this.textChangeEvent = this.quillEditor.on('text-change', function (delta, oldDelta, source) {
+            var text = _this.quillEditor.getText();
+            var content = _this.quillEditor.getContents();
+            var html = _this.editorElement.querySelector('.ql-editor').innerHTML;
             if (html === '<p><br></p>' || html === '<div><br></div>') {
                 html = null;
             }
-            this.editorContentChange.emit({
-                editor: this.quillEditor,
-                content,
-                delta,
-                html,
-                oldDelta,
-                source,
-                text
+            _this.editorContentChange.emit({
+                editor: _this.quillEditor,
+                content: content,
+                delta: delta,
+                html: html,
+                oldDelta: oldDelta,
+                source: source,
+                text: text
             });
         });
-        setTimeout(() => {
-            this.editorInit.emit(this.quillEditor);
+        setTimeout(function () {
+            _this.editorInit.emit(_this.quillEditor);
         });
-    }
-    componentDidUnload() {
+    };
+    QuillEditorComponent.prototype.componentDidUnload = function () {
         if (this.selectionChangeEvent) {
             this.selectionChangeEvent.removeListener('selection-change');
         }
@@ -202,19 +203,19 @@ const QuillEditorComponent = class {
         if (this.editorChangeEvent) {
             this.editorChangeEvent.removeListener('editor-change');
         }
-    }
-    updateContent(newValue) {
+    };
+    QuillEditorComponent.prototype.updateContent = function (newValue) {
         if (!this.quillEditor) {
             return;
         }
-        const editorContents = this.getEditorContent();
+        var editorContents = this.getEditorContent();
         if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
             return null;
         }
         else {
-            let changed = false;
+            var changed = false;
             try {
-                const newContentString = JSON.stringify(newValue);
+                var newContentString = JSON.stringify(newValue);
                 changed = JSON.stringify(editorContents) !== newContentString;
             }
             catch (_a) {
@@ -225,70 +226,81 @@ const QuillEditorComponent = class {
             }
         }
         this.setEditorContent(newValue);
-    }
-    updateReadOnly(newValue, oldValue) {
+    };
+    QuillEditorComponent.prototype.updateReadOnly = function (newValue, oldValue) {
         if (!this.quillEditor) {
             return;
         }
         if (newValue !== oldValue) {
             this.quillEditor.enable(!newValue);
         }
-    }
-    updatePlaceholder(newValue, oldValue) {
+    };
+    QuillEditorComponent.prototype.updatePlaceholder = function (newValue, oldValue) {
         if (!this.quillEditor) {
             return;
         }
         if (newValue !== oldValue) {
             this.quillEditor.root.dataset.placeholder = newValue;
         }
-    }
-    updateStyle(newValue, oldValue) {
+    };
+    QuillEditorComponent.prototype.updateStyle = function (newValue, oldValue) {
+        var _this = this;
         if (!this.editorElement) {
             return;
         }
         if (oldValue) {
-            const old = JSON.parse(oldValue);
-            Object.keys(old).forEach((key) => {
-                this.editorElement.style.setProperty(key, '');
+            var old = JSON.parse(oldValue);
+            Object.keys(old).forEach(function (key) {
+                _this.editorElement.style.setProperty(key, '');
             });
         }
         if (newValue) {
-            const value = JSON.parse(newValue);
-            Object.keys(value).forEach((key) => {
-                this.editorElement.style.setProperty(key, value[key]);
+            var value_1 = JSON.parse(newValue);
+            Object.keys(value_1).forEach(function (key) {
+                _this.editorElement.style.setProperty(key, value_1[key]);
             });
         }
-    }
-    render() {
+    };
+    QuillEditorComponent.prototype.render = function () {
         h(Host, null, h("slot", { name: "quill-toolbar", "quill-toolbar": "" }));
-    }
-    get wrapperElement() { return getElement(this); }
-    static get watchers() { return {
-        "content": ["updateContent"],
-        "readOnly": ["updateReadOnly"],
-        "placeholder": ["updatePlaceholder"],
-        "styles": ["updateStyle"]
-    }; }
-};
-
-const quillViewCss = ".ql-container.quill-view.sc-quill-view{border:0}";
-
-const QuillViewComponent = class {
-    constructor(hostRef) {
+    };
+    Object.defineProperty(QuillEditorComponent.prototype, "wrapperElement", {
+        get: function () { return getElement(this); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(QuillEditorComponent, "watchers", {
+        get: function () {
+            return {
+                "content": ["updateContent"],
+                "readOnly": ["updateReadOnly"],
+                "placeholder": ["updatePlaceholder"],
+                "styles": ["updateStyle"]
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return QuillEditorComponent;
+}());
+var quillViewCss = ".ql-container.quill-view.sc-quill-view{border:0}";
+var QuillViewComponent = /** @class */ (function () {
+    function QuillViewComponent(hostRef) {
         registerInstance(this, hostRef);
         this.format = 'html';
         this.debug = 'warn';
         this.strict = true;
         this.styles = '{}';
+        this.theme = 'snow';
         this.preserveWhitespace = false;
     }
-    setEditorContent(value) {
+    QuillViewComponent.prototype.setEditorContent = function (value) {
         if (this.format === 'html') {
-            const contents = this.quillEditor.clipboard.convert(value);
+            var contents = this.quillEditor.clipboard.convert(value);
             this.quillEditor.setContents(contents, 'api');
         }
         else if (this.format === 'text') {
-            this.quillEditor.setText(value);
+            this.quillEditor.setText(value, 'api');
         }
         else if (this.format === 'json') {
             try {
@@ -301,11 +313,11 @@ const QuillViewComponent = class {
         else {
             this.quillEditor.setText(value, 'api');
         }
-    }
-    getEditorContent() {
-        const text = this.quillEditor.getText();
-        const content = this.quillEditor.getContents();
-        let html = this.editorElement.children[0].innerHTML;
+    };
+    QuillViewComponent.prototype.getEditorContent = function () {
+        var text = this.quillEditor.getText();
+        var content = this.quillEditor.getContents();
+        var html = this.editorElement.children[0].innerHTML;
         if (html === '<p><br></p>' || html === '<div><br></div>') {
             html = '';
         }
@@ -313,7 +325,7 @@ const QuillViewComponent = class {
             return html;
         }
         else if (this.format === 'text') {
-            this.quillEditor.getText();
+            return text;
         }
         else if (this.format === 'json') {
             try {
@@ -326,9 +338,10 @@ const QuillViewComponent = class {
         else {
             return text;
         }
-    }
-    componentDidLoad() {
-        let modules = this.modules ? JSON.parse(this.modules) : {
+    };
+    QuillViewComponent.prototype.componentDidLoad = function () {
+        var _this = this;
+        var modules = this.modules ? JSON.parse(this.modules) : {
             toolbar: false
         };
         if (modules.toolbar) {
@@ -343,9 +356,9 @@ const QuillViewComponent = class {
             strict: this.strict
         });
         if (this.styles) {
-            const styles = JSON.parse(this.styles);
-            Object.keys(styles).forEach((key) => {
-                this.editorElement.style.setProperty(key, styles[key]);
+            var styles_2 = JSON.parse(this.styles);
+            Object.keys(styles_2).forEach(function (key) {
+                _this.editorElement.style.setProperty(key, styles_2[key]);
             });
         }
         this.editorElement.classList.add('quill-view');
@@ -353,33 +366,34 @@ const QuillViewComponent = class {
             this.setEditorContent(this.content);
             this.quillEditor['history'].clear();
         }
-    }
-    updateStyle(newValue, oldValue) {
+    };
+    QuillViewComponent.prototype.updateStyle = function (newValue, oldValue) {
+        var _this = this;
         if (!this.editorElement) {
             return;
         }
         if (oldValue) {
-            const old = JSON.parse(oldValue);
-            Object.keys(old).forEach((key) => {
-                this.editorElement.style.setProperty(key, '');
+            var old = JSON.parse(oldValue);
+            Object.keys(old).forEach(function (key) {
+                _this.editorElement.style.setProperty(key, '');
             });
         }
         if (newValue) {
-            const value = JSON.parse(newValue);
-            Object.keys(value).forEach((key) => {
-                this.editorElement.style.setProperty(key, value[key]);
+            var value_2 = JSON.parse(newValue);
+            Object.keys(value_2).forEach(function (key) {
+                _this.editorElement.style.setProperty(key, value_2[key]);
             });
         }
-    }
-    updateContent(newValue) {
-        const editorContents = this.getEditorContent();
+    };
+    QuillViewComponent.prototype.updateContent = function (newValue) {
+        var editorContents = this.getEditorContent();
         if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
             return null;
         }
         else {
-            let changed = false;
+            var changed = false;
             try {
-                const newContentString = JSON.stringify(newValue);
+                var newContentString = JSON.stringify(newValue);
                 changed = JSON.stringify(editorContents) !== newContentString;
             }
             catch (_a) {
@@ -390,37 +404,53 @@ const QuillViewComponent = class {
             }
         }
         this.setEditorContent(newValue);
-    }
-    render() {
-        return (this.preserveWhitespace ? h("pre", { "quill-element": true, ref: (el) => this.editorElement = el }) : h("div", { "quill-element": true, ref: (el) => this.editorElement = el }));
-    }
-    get wrapperElement() { return getElement(this); }
-    static get watchers() { return {
-        "styles": ["updateStyle"],
-        "content": ["updateContent"]
-    }; }
-};
+    };
+    QuillViewComponent.prototype.render = function () {
+        var _this = this;
+        return (this.preserveWhitespace ? h("pre", { "quill-element": true, ref: function (el) { return _this.editorElement = el; } }) : h("div", { "quill-element": true, ref: function (el) { return _this.editorElement = el; } }));
+    };
+    Object.defineProperty(QuillViewComponent.prototype, "wrapperElement", {
+        get: function () { return getElement(this); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(QuillViewComponent, "watchers", {
+        get: function () {
+            return {
+                "styles": ["updateStyle"],
+                "content": ["updateContent"]
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return QuillViewComponent;
+}());
 QuillViewComponent.style = quillViewCss;
-
-const quillViewHtmlCss = ".ql-container.quill-view-html.sc-quill-view-html{border:0}";
-
-const QuillViewHTMLComponent = class {
-    constructor(hostRef) {
+var quillViewHtmlCss = ".ql-container.quill-view-html.sc-quill-view-html{border:0}";
+var QuillViewHTMLComponent = /** @class */ (function () {
+    function QuillViewHTMLComponent(hostRef) {
         registerInstance(this, hostRef);
         this.theme = 'snow';
         this.themeClass = 'ql-snow';
     }
-    updateTheme(newValue) {
-        this.themeClass = `ql-${newValue || 'snow'}`;
-    }
-    render() {
-        const classes = `ql-container ${this.themeClass} quill-view-html`;
+    QuillViewHTMLComponent.prototype.updateTheme = function (newValue) {
+        this.themeClass = "ql-" + (newValue || 'snow');
+    };
+    QuillViewHTMLComponent.prototype.render = function () {
+        var classes = "ql-container " + this.themeClass + " quill-view-html";
         return (h("div", { class: classes }, h("div", { class: "ql-editor", innerHTML: this.content })));
-    }
-    static get watchers() { return {
-        "theme": ["updateTheme"]
-    }; }
-};
+    };
+    Object.defineProperty(QuillViewHTMLComponent, "watchers", {
+        get: function () {
+            return {
+                "theme": ["updateTheme"]
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return QuillViewHTMLComponent;
+}());
 QuillViewHTMLComponent.style = quillViewHtmlCss;
-
 export { QuillEditorComponent as quill_editor, QuillViewComponent as quill_view, QuillViewHTMLComponent as quill_view_html };

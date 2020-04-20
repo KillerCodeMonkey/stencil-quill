@@ -5,6 +5,7 @@ export class QuillViewComponent {
         this.debug = 'warn';
         this.strict = true;
         this.styles = '{}';
+        this.theme = 'snow';
         this.preserveWhitespace = false;
     }
     setEditorContent(value) {
@@ -13,7 +14,7 @@ export class QuillViewComponent {
             this.quillEditor.setContents(contents, 'api');
         }
         else if (this.format === 'text') {
-            this.quillEditor.setText(value);
+            this.quillEditor.setText(value, 'api');
         }
         else if (this.format === 'json') {
             try {
@@ -38,7 +39,7 @@ export class QuillViewComponent {
             return html;
         }
         else if (this.format === 'text') {
-            this.quillEditor.getText();
+            return text;
         }
         else if (this.format === 'json') {
             try {
@@ -205,7 +206,7 @@ export class QuillViewComponent {
                 "references": {}
             },
             "required": false,
-            "optional": false,
+            "optional": true,
             "docs": {
                 "tags": [],
                 "text": ""
@@ -264,7 +265,8 @@ export class QuillViewComponent {
                 "text": ""
             },
             "attribute": "theme",
-            "reflect": false
+            "reflect": false,
+            "defaultValue": "'snow'"
         },
         "preserveWhitespace": {
             "type": "boolean",

@@ -1,3 +1,24 @@
+'use strict';
+
+function _interopNamespace(e) {
+  if (e && e.__esModule) { return e; } else {
+    var n = {};
+    if (e) {
+      Object.keys(e).forEach(function (k) {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: function () {
+            return e[k];
+          }
+        });
+      });
+    }
+    n['default'] = e;
+    return n;
+  }
+}
+
 const NAMESPACE = 'quill-components';
 
 let scopeId;
@@ -722,10 +743,10 @@ const renderVdom = (hostRef, renderFnResults) => {
     // synchronous patch
     patch(oldVNode, rootVnode);
     {
+        // while we're moving nodes around existing nodes, temporarily disable
+        // the disconnectCallback from working
+        plt.$flags$ |= 1 /* isTmpDisconnected */;
         if (checkSlotRelocate) {
-            // while we're moving nodes around existing nodes, temporarily disable
-            // the disconnectCallback from working
-            plt.$flags$ |= 1 /* isTmpDisconnected */;
             relocateSlotContent(rootVnode.$elm$);
             let relocateData;
             let nodeToRelocate;
@@ -785,13 +806,13 @@ const renderVdom = (hostRef, renderFnResults) => {
                     }
                 }
             }
-            // done moving nodes around
-            // allow the disconnect callback to work again
-            plt.$flags$ &= ~1 /* isTmpDisconnected */;
         }
         if (checkSlotFallbackVisibility) {
             updateFallbackSlotVisibility(rootVnode.$elm$);
         }
+        // done moving nodes around
+        // allow the disconnect callback to work again
+        plt.$flags$ &= ~1 /* isTmpDisconnected */;
         // always reset
         relocateNodes.length = 0;
     }
@@ -1202,7 +1223,11 @@ const connectedCallback = (elm) => {
                 });
             }
             {
-                initializeComponent(elm, hostRef, cmpMeta);
+                // connectedCallback, taskQueue, initialLoad
+                // angular sets attribute AFTER connectCallback
+                // https://github.com/angular/angular/issues/18909
+                // https://github.com/angular/angular/issues/19940
+                nextTick(() => initializeComponent(elm, hostRef, cmpMeta));
             }
         }
         endConnected();
@@ -1245,8 +1270,10 @@ const bootstrapLazy = (lazyBundles, options = {}) => {
     let isBootstrapping = true;
     Object.assign(plt, options);
     plt.$resourcesUrl$ = new URL(options.resourcesUrl || './', doc.baseURI).href;
-    if (options.syncQueue) {
-        plt.$flags$ |= 4 /* queueSync */;
+    {
+        if (options.syncQueue) {
+            plt.$flags$ |= 4 /* queueSync */;
+        }
     }
     lazyBundles.map(lazyBundle => lazyBundle[1].map(compactMeta => {
         const cmpMeta = {
@@ -1261,7 +1288,7 @@ const bootstrapLazy = (lazyBundles, options = {}) => {
         {
             cmpMeta.$watchers$ = {};
         }
-        const tagName = cmpMeta.$tagName$;
+        const tagName =  cmpMeta.$tagName$;
         const HostElement = class extends HTMLElement {
             // StencilLazyHost
             constructor(self) {
@@ -1345,12 +1372,11 @@ const loadModule = (cmpMeta, hostRef, hmrVersionId) => {
     if (module) {
         return module[exportName];
     }
-    return import(
+    return new Promise(function (resolve) { resolve(_interopNamespace(require(
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */
-    /* webpackChunkName: "stencil-[request]" */
-    `./${bundleId}.entry.js${ ''}`).then(importedModule => {
+    `./${bundleId}.entry.js${ ''}`))); }).then(importedModule => {
         {
             cmpModules.set(bundleId, importedModule);
         }
@@ -1403,26 +1429,30 @@ const consumeTimeout = (queue, timeout) => {
     }
 };
 const flush = () => {
-    queueCongestion++;
+    {
+        queueCongestion++;
+    }
     // always force a bunch of medium callbacks to run, but still have
     // a throttle on how many can run in a certain time
     // DOM READS!!!
     consume(queueDomReads);
-    const timeout = (plt.$flags$ & 6 /* queueMask */) === 2 /* appLoaded */ ? performance.now() + 10 * Math.ceil(queueCongestion * (1.0 / 22.0)) : Infinity;
     // DOM WRITES!!!
-    consumeTimeout(queueDomWrites, timeout);
-    consumeTimeout(queueDomWritesLow, timeout);
-    if (queueDomWrites.length > 0) {
-        queueDomWritesLow.push(...queueDomWrites);
-        queueDomWrites.length = 0;
-    }
-    if ((queuePending = queueDomReads.length + queueDomWrites.length + queueDomWritesLow.length > 0)) {
-        // still more to do yet, but we've run out of time
-        // let's let this thing cool off and try again in the next tick
-        plt.raf(flush);
-    }
-    else {
-        queueCongestion = 0;
+    {
+        const timeout = (plt.$flags$ & 6 /* queueMask */) === 2 /* appLoaded */ ? performance.now() + 14 * Math.ceil(queueCongestion * (1.0 / 10.0)) : Infinity;
+        consumeTimeout(queueDomWrites, timeout);
+        consumeTimeout(queueDomWritesLow, timeout);
+        if (queueDomWrites.length > 0) {
+            queueDomWritesLow.push(...queueDomWrites);
+            queueDomWrites.length = 0;
+        }
+        if ((queuePending = queueDomReads.length + queueDomWrites.length + queueDomWritesLow.length > 0)) {
+            // still more to do yet, but we've run out of time
+            // let's let this thing cool off and try again in the next tick
+            plt.raf(flush);
+        }
+        else {
+            queueCongestion = 0;
+        }
     }
 };
 const nextTick = /*@__PURE__*/ (cb) => promiseResolve().then(cb);
@@ -1431,7 +1461,7 @@ const patchEsm = () => {
     // @ts-ignore
     if ( !(CSS && CSS.supports && CSS.supports('color', 'var(--c)'))) {
         // @ts-ignore
-        return import(/* webpackChunkName: "stencil-polyfills-css-shim" */ './css-shim-c6f94a39.js').then(() => {
+        return new Promise(function (resolve) { resolve(require(/* webpackChunkName: "polyfills-css-shim" */ './css-shim-bd1bd70a.js')); }).then(() => {
             if ((plt.$cssShim$ = win.__cssshim)) {
                 return plt.$cssShim$.i();
             }
@@ -1474,7 +1504,7 @@ const patchBrowser = () => {
         if ( !win.customElements) {
             // module support, but no custom elements support (Old Edge)
             // @ts-ignore
-            return import(/* webpackChunkName: "stencil-polyfills-dom" */ './dom-17330dd2.js').then(() => opts);
+            return new Promise(function (resolve) { resolve(require(/* webpackChunkName: "polyfills-dom" */ './dom-feee2739.js')); }).then(() => opts);
         }
     }
     return promiseResolve(opts);
@@ -1515,4 +1545,11 @@ const patchDynamicImport = (base, orgScriptElm) => {
     }
 };
 
-export { Host as H, patchEsm as a, bootstrapLazy as b, createEvent as c, getElement as g, h, patchBrowser as p, registerInstance as r };
+exports.Host = Host;
+exports.bootstrapLazy = bootstrapLazy;
+exports.createEvent = createEvent;
+exports.getElement = getElement;
+exports.h = h;
+exports.patchBrowser = patchBrowser;
+exports.patchEsm = patchEsm;
+exports.registerInstance = registerInstance;

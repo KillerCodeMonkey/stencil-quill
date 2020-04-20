@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-const index = require('./index-11029d31.js');
+const index = require('./index-21f33e66.js');
 
 const QuillEditorComponent = class {
     constructor(hostRef) {
@@ -12,6 +12,7 @@ const QuillEditorComponent = class {
         this.placeholder = 'Insert text here ...';
         this.strict = true;
         this.styles = '{}';
+        this.theme = 'snow';
         this.customToolbarPosition = 'top';
         this.preserveWhitespace = false;
         this.defaultModules = {
@@ -48,7 +49,7 @@ const QuillEditorComponent = class {
             this.quillEditor.setContents(contents, 'api');
         }
         else if (this.format === 'text') {
-            this.quillEditor.setText(value);
+            this.quillEditor.setText(value, 'api');
         }
         else if (this.format === 'json') {
             try {
@@ -73,7 +74,7 @@ const QuillEditorComponent = class {
             return html;
         }
         else if (this.format === 'text') {
-            this.quillEditor.getText();
+            return text;
         }
         else if (this.format === 'json') {
             try {
@@ -88,7 +89,7 @@ const QuillEditorComponent = class {
         }
     }
     componentDidLoad() {
-        this.editorElement = this.preserveWhitespace ? document.createElement('div') : document.createElement('p');
+        this.editorElement = this.preserveWhitespace ? document.createElement('pre') : document.createElement('div');
         this.editorElement.setAttribute('quill-editor', '');
         let modules = this.modules ? JSON.parse(this.modules) : this.defaultModules;
         const toolbarElem = this.wrapperElement.querySelector('[slot="quill-toolbar"]');
@@ -284,6 +285,7 @@ const QuillViewComponent = class {
         this.debug = 'warn';
         this.strict = true;
         this.styles = '{}';
+        this.theme = 'snow';
         this.preserveWhitespace = false;
     }
     setEditorContent(value) {
@@ -292,7 +294,7 @@ const QuillViewComponent = class {
             this.quillEditor.setContents(contents, 'api');
         }
         else if (this.format === 'text') {
-            this.quillEditor.setText(value);
+            this.quillEditor.setText(value, 'api');
         }
         else if (this.format === 'json') {
             try {
@@ -317,7 +319,7 @@ const QuillViewComponent = class {
             return html;
         }
         else if (this.format === 'text') {
-            this.quillEditor.getText();
+            return text;
         }
         else if (this.format === 'json') {
             try {
