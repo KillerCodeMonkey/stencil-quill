@@ -1,4 +1,3 @@
-
 import { newSpecPage, SpecPage } from '@stencil/core/testing';
 import { QuillEditorComponent } from './quill-editor';
 
@@ -15,15 +14,15 @@ class Quill {
   }
   root = {
     dataset: {
-      placeholder: ''
-    }
-  }
+      placeholder: '',
+    },
+  };
 
   history = {
-    clear: () => {}
+    clear: () => {},
   };
   clipboard = {
-    convert: () => {}
+    convert: () => {},
   };
   enable() {}
   setContents() {}
@@ -34,8 +33,8 @@ class Quill {
     this.eventNames.push(eventName);
     this.callbacks.push(callback);
     return {
-      removeListener: () => {}
-    }
+      removeListener: () => {},
+    };
   }
   off() {}
 }
@@ -49,7 +48,7 @@ describe('QuillEditorComponent', () => {
   beforeEach(async () => {
     page = await newSpecPage({
       components: [QuillEditorComponent],
-      html: `<quill-editor styles='{\"height\": \"200px\"}' content="<p>Test</p>" modules='{\"toolbar\":true}'></quill-editor>`
+      html: `<quill-editor styles='{\"height\": \"200px\"}' content="<p>Test</p>" modules='{\"toolbar\":true}'></quill-editor>`,
     });
 
     component = page.rootInstance;
@@ -68,19 +67,19 @@ describe('QuillEditorComponent', () => {
     expect(component.content).toBe('<p>Test</p>');
     expect(component.format).toEqual('html');
     expect(component.debug).toEqual('warn');
-    expect(component.styles).toEqual('{\"height\": \"200px\"}');
+    expect(component.styles).toEqual('{"height": "200px"}');
     expect(component.strict).toBe(true);
     expect(component.preserveWhitespace).toBe(false);
-    expect(component.modules).toEqual('{\"toolbar\":true}');
+    expect(component.modules).toEqual('{"toolbar":true}');
 
-    expect(component.quillEditor.options.modules).toEqual({toolbar: true});
+    expect(component.quillEditor.options.modules).toEqual({ toolbar: true });
     expect(component.quillEditor.options.theme).toEqual('snow');
     expect(component.quillEditor.options.debug).toEqual('warn');
     expect(component.quillEditor.options.strict).toBe(true);
   });
 
   it('renders styles changes', async () => {
-    component.styles = '{\"height\": \"300px\"}';
+    component.styles = '{"height": "300px"}';
 
     await page.waitForChanges();
 
@@ -99,13 +98,15 @@ describe('QuillEditorComponent', () => {
         const spy = spyOn(component.quillEditor, 'setContents').and.callThrough();
 
         component.format = 'json';
-        component.content = JSON.stringify([{
-          insert: 'Hallo'
-        }]);
+        component.content = JSON.stringify([
+          {
+            insert: 'Hallo',
+          },
+        ]);
 
         await page.waitForChanges();
 
-        expect(spy).toHaveBeenCalledWith([{'insert': 'Hallo'}], 'api');
+        expect(spy).toHaveBeenCalledWith([{ insert: 'Hallo' }], 'api');
       });
     });
 
@@ -119,7 +120,7 @@ describe('QuillEditorComponent', () => {
 
         await page.waitForChanges();
 
-        expect(clipboardSpy).toHaveBeenCalledWith('<p>Hallo</p>')
+        expect(clipboardSpy).toHaveBeenCalledWith('<p>Hallo</p>');
         expect(spy).toHaveBeenCalledWith('<p>Hallo</p>', 'api');
       });
     });
@@ -151,7 +152,7 @@ describe('QuillEditorComponent', () => {
       const setSpy = spyOn(component, 'setEditorContent');
       spyOn(JSON, 'stringify').and.throwError('FAIL!');
 
-      expect(component.updateContent({test: 1})).toBe(null);
+      expect(component.updateContent({ test: 1 })).toBe(null);
       expect(setSpy).not.toHaveBeenCalled();
     });
 
@@ -172,7 +173,7 @@ describe('QuillEditorComponent', () => {
 
     it('returns null if no editor', () => {
       const setSpy = spyOn(component, 'setEditorContent');
-      component.quillEditor = null
+      component.quillEditor = null;
 
       expect(component.updateContent('asdf')).toBe(undefined);
       expect(setSpy).not.toHaveBeenCalled();
@@ -183,7 +184,7 @@ describe('QuillEditorComponent', () => {
     it('does nothing if not editorElement', () => {
       const spy = spyOn(component.editorElement.style, 'setProperty');
 
-      component.editorElement = null
+      component.editorElement = null;
       component.updateStyle('', '');
       expect(spy).not.toHaveBeenCalled();
     });
@@ -219,7 +220,7 @@ describe('QuillEditorComponent', () => {
     });
 
     it('does nothing when no quillEditor', () => {
-      component.quillEditor = null
+      component.quillEditor = null;
 
       expect(component.updateReadOnly(true, false)).toBe(undefined);
     });
@@ -228,7 +229,7 @@ describe('QuillEditorComponent', () => {
       const spy = spyOn(component.quillEditor, 'enable');
 
       expect(component.updateReadOnly(false, false)).toBe(undefined);
-      expect(spy).not.toHaveBeenCalled()
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 
@@ -238,9 +239,8 @@ describe('QuillEditorComponent', () => {
       expect(component.quillEditor.root.dataset.placeholder).toEqual('new placeholder');
     });
 
-
     it('does nothing when no quillEditor', () => {
-      component.quillEditor = null
+      component.quillEditor = null;
 
       expect(component.updatePlaceholder('new placeholder', 'old placeholder')).toBe(undefined);
     });
@@ -254,13 +254,13 @@ describe('QuillEditorComponent', () => {
   describe('#setEditorContent', () => {
     describe('format: html', () => {
       it('converts html and sets content', () => {
-        spyOn(component.quillEditor.clipboard, 'convert').and.returnValue([{insert: '1'}]);
+        spyOn(component.quillEditor.clipboard, 'convert').and.returnValue([{ insert: '1' }]);
         const spy = spyOn(component.quillEditor, 'setContents');
 
         component.format = 'html';
         component.setEditorContent('');
 
-        expect(spy).toHaveBeenCalledWith([{insert: '1'}], 'api');
+        expect(spy).toHaveBeenCalledWith([{ insert: '1' }], 'api');
       });
     });
 
@@ -282,7 +282,7 @@ describe('QuillEditorComponent', () => {
         component.format = 'json';
         component.setEditorContent('{"insert":"1"}');
 
-        expect(spy).toHaveBeenCalledWith({insert: '1'}, 'api');
+        expect(spy).toHaveBeenCalledWith({ insert: '1' }, 'api');
       });
 
       it('sets value as text, if json not parsable', () => {
@@ -337,11 +337,11 @@ describe('QuillEditorComponent', () => {
 
     describe('format: json', () => {
       it('returns json', () => {
-        const spy = spyOn(component.quillEditor, 'getContents').and.returnValue([{insert: '1'}]);
+        const spy = spyOn(component.quillEditor, 'getContents').and.returnValue([{ insert: '1' }]);
 
         component.format = 'json';
 
-        expect(component.getEditorContent()).toEqual(JSON.stringify([{insert: '1'}]));
+        expect(component.getEditorContent()).toEqual(JSON.stringify([{ insert: '1' }]));
         expect(spy).toHaveBeenCalled();
       });
 
@@ -388,17 +388,14 @@ describe('QuillEditorComponent', () => {
             [{ size: ['small', false, 'large', 'huge'] }], // custom dropdown
             [{ header: [1, 2, 3, 4, 5, 6, false] }],
 
-            [
-              { color: [].slice() },
-              { background: [].slice() }
-            ], // dropdown with defaults from theme
+            [{ color: [].slice() }, { background: [].slice() }], // dropdown with defaults from theme
             [{ font: [].slice() }],
             [{ align: [].slice() }],
 
             ['clean'], // remove formatting button
 
-            ['link', 'image', 'video'] // link and image, video
-          ]
+            ['link', 'image', 'video'], // link and image, video
+          ],
         });
       });
 
@@ -411,7 +408,7 @@ describe('QuillEditorComponent', () => {
 
         expect(component.quillEditor.options.modules).toEqual({
           test: {},
-          toolbar: true
+          toolbar: true,
         });
       });
     });
@@ -446,7 +443,7 @@ describe('QuillEditorComponent', () => {
                 <option selected>Roboto</option>
               </select>
             </span>
-          </quill-editor>`
+          </quill-editor>`,
         });
 
         component = page.rootInstance;
@@ -487,7 +484,7 @@ describe('QuillEditorComponent', () => {
               <div></div>
             </div>
           </quill-editor>
-        `)
+        `);
       });
 
       it('with toolbar position bottom', async () => {
@@ -502,7 +499,7 @@ describe('QuillEditorComponent', () => {
                 <option selected>Roboto</option>
               </select>
             </span>
-          </quill-editor>`
+          </quill-editor>`,
         });
 
         component = page.rootInstance;
@@ -543,7 +540,7 @@ describe('QuillEditorComponent', () => {
               </span>
             </div>
           </quill-editor>
-        `)
+        `);
       });
     });
 
@@ -566,7 +563,7 @@ describe('QuillEditorComponent', () => {
     describe('without styles and content', () => {
       it('does nothing with styles', () => {
         component.styles = undefined;
-        const spy = spyOn(component.editorElement.style, 'setProperty')
+        const spy = spyOn(component.editorElement.style, 'setProperty');
 
         component.componentDidLoad();
 
@@ -575,7 +572,7 @@ describe('QuillEditorComponent', () => {
 
       it('does not set content if nothing there', () => {
         component.content = '';
-        const spy = spyOn(component, 'setEditorContent')
+        const spy = spyOn(component, 'setEditorContent');
 
         component.componentDidLoad();
 
@@ -607,14 +604,14 @@ describe('QuillEditorComponent', () => {
 
     it('emits init', async () => {
       const spy = spyOn(component.editorInit, 'emit');
-      jest.spyOn(global, 'setTimeout').mockImplementationOnce((cb) => {
+      jest.spyOn(global, 'setTimeout').mockImplementationOnce(cb => {
         cb();
         return 0 as any;
       });
 
       component.componentDidLoad();
 
-      expect(spy.calls.argsFor(0)[0].root).toEqual(expect.objectContaining({'dataset': {'placeholder': ''}}));
+      expect(spy.calls.argsFor(0)[0].root).toEqual(expect.objectContaining({ dataset: { placeholder: '' } }));
     });
 
     describe('editorChangeEvent', () => {
@@ -631,7 +628,7 @@ describe('QuillEditorComponent', () => {
       it('invoke as text-change event', async () => {
         const emitSpy = spyOn(component.editorChange, 'emit');
         spyOn(component.quillEditor, 'getText').and.returnValue('test');
-        spyOn(component.quillEditor, 'getContents').and.returnValue([{insert: 'test'}]);
+        spyOn(component.quillEditor, 'getContents').and.returnValue([{ insert: 'test' }]);
 
         component.quillEditor.callbacks[0]('text-change', null, null, 'api');
 
@@ -639,17 +636,17 @@ describe('QuillEditorComponent', () => {
         expect(eventObject.event).toEqual('text-change');
         expect(eventObject.text).toEqual('test');
         expect(eventObject.html).toEqual('');
-        expect(eventObject.content).toEqual([{insert: 'test'}]);
+        expect(eventObject.content).toEqual([{ insert: 'test' }]);
         expect(eventObject.oldDelta).toBe(null);
         expect(eventObject.delta).toBe(null);
         expect(eventObject.source).toEqual('api');
-        expect(eventObject.editor.root).toEqual({'dataset': {'placeholder': ''}});
+        expect(eventObject.editor.root).toEqual({ dataset: { placeholder: '' } });
       });
 
       it('invoke as text-change event with empty html content', async () => {
         const emitSpy = spyOn(component.editorChange, 'emit');
         spyOn(component.quillEditor, 'getText').and.returnValue('test');
-        spyOn(component.quillEditor, 'getContents').and.returnValue([{insert: 'test'}]);
+        spyOn(component.quillEditor, 'getContents').and.returnValue([{ insert: 'test' }]);
         component.editorElement.children[0].innerHTML = '<div><br></div>';
 
         component.quillEditor.callbacks[0]('text-change', null, null, 'api');
@@ -668,14 +665,14 @@ describe('QuillEditorComponent', () => {
         expect(eventObject.oldRange).toBe(null);
         expect(eventObject.range).toBe(null);
         expect(eventObject.source).toEqual('api');
-        expect(eventObject.editor.root).toEqual({'dataset': {'placeholder': ''}});
+        expect(eventObject.editor.root).toEqual({ dataset: { placeholder: '' } });
       });
     });
 
     describe('textChangeEvent', () => {
       beforeEach(() => {
         component.componentDidLoad();
-        component.editorElement.children[0].classList.add('ql-editor')
+        component.editorElement.children[0].classList.add('ql-editor');
       });
 
       it('add listener', async () => {
@@ -686,24 +683,24 @@ describe('QuillEditorComponent', () => {
       it('invoke as text-change event', async () => {
         const emitSpy = spyOn(component.editorContentChange, 'emit');
         spyOn(component.quillEditor, 'getText').and.returnValue('test');
-        spyOn(component.quillEditor, 'getContents').and.returnValue([{insert: 'test'}]);
+        spyOn(component.quillEditor, 'getContents').and.returnValue([{ insert: 'test' }]);
 
         component.quillEditor.callbacks[2](null, null, 'api');
 
         const eventObject = emitSpy.calls.argsFor(0)[0];
         expect(eventObject.text).toEqual('test');
         expect(eventObject.html).toEqual('');
-        expect(eventObject.content).toEqual([{insert: 'test'}]);
+        expect(eventObject.content).toEqual([{ insert: 'test' }]);
         expect(eventObject.oldDelta).toBe(null);
         expect(eventObject.delta).toBe(null);
         expect(eventObject.source).toEqual('api');
-        expect(eventObject.editor.root).toEqual({'dataset': {'placeholder': ''}});
+        expect(eventObject.editor.root).toEqual({ dataset: { placeholder: '' } });
       });
 
       it('invoke as text-change event with empty html content', async () => {
         const emitSpy = spyOn(component.editorContentChange, 'emit');
         spyOn(component.quillEditor, 'getText').and.returnValue('test');
-        spyOn(component.quillEditor, 'getContents').and.returnValue([{insert: 'test'}]);
+        spyOn(component.quillEditor, 'getContents').and.returnValue([{ insert: 'test' }]);
         component.editorElement.children[0].innerHTML = '<div><br></div>';
 
         component.quillEditor.callbacks[2](null, null, 'api');
@@ -716,7 +713,7 @@ describe('QuillEditorComponent', () => {
     describe('selectionChangeEvent', () => {
       beforeEach(() => {
         component.componentDidLoad();
-        component.editorElement.children[0].classList.add('ql-editor')
+        component.editorElement.children[0].classList.add('ql-editor');
       });
 
       it('add listener', async () => {
@@ -734,7 +731,7 @@ describe('QuillEditorComponent', () => {
         expect(eventObject.oldRange).toBe(null);
         expect(eventObject.range).toBe(null);
         expect(eventObject.source).toEqual('api');
-        expect(eventObject.editor.root).toEqual({'dataset': {'placeholder': ''}});
+        expect(eventObject.editor.root).toEqual({ dataset: { placeholder: '' } });
       });
 
       it('emits focus event when old range null', async () => {
@@ -744,7 +741,7 @@ describe('QuillEditorComponent', () => {
 
         const eventObject = emitSpy.calls.argsFor(0)[0];
         expect(eventObject.source).toEqual('api');
-        expect(eventObject.editor.root).toEqual({'dataset': {'placeholder': ''}});
+        expect(eventObject.editor.root).toEqual({ dataset: { placeholder: '' } });
       });
 
       it('emits blur event when new range null', async () => {
@@ -754,7 +751,7 @@ describe('QuillEditorComponent', () => {
 
         const eventObject = emitSpy.calls.argsFor(0)[0];
         expect(eventObject.source).toEqual('api');
-        expect(eventObject.editor.root).toEqual({'dataset': {'placeholder': ''}});
+        expect(eventObject.editor.root).toEqual({ dataset: { placeholder: '' } });
       });
 
       it('emits neither blur nor focus event when new range and old range is defined', async () => {
@@ -769,13 +766,13 @@ describe('QuillEditorComponent', () => {
     });
   });
 
-  describe('#componentDidUnload', () => {
+  describe('#disconnectedCallback', () => {
     it('removes event listeners', () => {
       const spySelection = spyOn(component.selectionChangeEvent, 'removeListener').and.callThrough();
       const spyText = spyOn(component.textChangeEvent, 'removeListener').and.callThrough();
       const spyEditor = spyOn(component.editorChangeEvent, 'removeListener').and.callThrough();
 
-      component.componentDidUnload()
+      component.disconnectedCallback();
 
       expect(spySelection).toHaveBeenCalledWith('selection-change');
       expect(spyText).toHaveBeenCalledWith('text-change');
@@ -787,7 +784,7 @@ describe('QuillEditorComponent', () => {
       component.textChangeEvent = null;
       component.editorChangeEvent = null;
 
-      expect(component.componentDidUnload()).toBe(undefined);
+      expect(component.disconnectedCallback()).toBe(undefined);
     });
   });
 });

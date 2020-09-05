@@ -1,12 +1,12 @@
 import { h, Component, ComponentDidLoad, Element, Prop, Watch } from '@stencil/core';
 
-declare const Quill: any
+declare const Quill: any;
 
 @Component({
   tag: 'quill-view',
   scoped: true,
   shadow: false,
-  styleUrl: './quill-view.css'
+  styleUrl: './quill-view.css',
 })
 export class QuillViewComponent implements ComponentDidLoad {
   @Element() wrapperElement: HTMLElement;
@@ -22,7 +22,7 @@ export class QuillViewComponent implements ComponentDidLoad {
   @Prop() preserveWhitespace: boolean = false;
 
   quillEditor: any;
-  editorElement: HTMLDivElement | HTMLPreElement;
+  editorElement: HTMLDivElement | HTMLPreElement;
 
   setEditorContent(value: any) {
     if (this.format === 'html') {
@@ -66,12 +66,14 @@ export class QuillViewComponent implements ComponentDidLoad {
   }
 
   componentDidLoad() {
-    let modules: any = this.modules ? JSON.parse(this.modules) : {
-      toolbar: false
-    };
+    let modules: any = this.modules
+      ? JSON.parse(this.modules)
+      : {
+          toolbar: false,
+        };
 
     if (modules.toolbar) {
-      modules.toolbar = false
+      modules.toolbar = false;
     }
 
     this.quillEditor = new Quill(this.editorElement, {
@@ -80,17 +82,17 @@ export class QuillViewComponent implements ComponentDidLoad {
       readOnly: true,
       theme: this.theme || 'snow',
       formats: this.formats,
-      strict: this.strict
+      strict: this.strict,
     });
 
     if (this.styles) {
-      const styles = JSON.parse(this.styles)
+      const styles = JSON.parse(this.styles);
       Object.keys(styles).forEach((key: string) => {
         this.editorElement.style.setProperty(key, styles[key]);
       });
     }
 
-    this.editorElement.classList.add('quill-view')
+    this.editorElement.classList.add('quill-view');
 
     if (this.content) {
       this.setEditorContent(this.content);
@@ -106,13 +108,13 @@ export class QuillViewComponent implements ComponentDidLoad {
     }
 
     if (oldValue) {
-      const old = JSON.parse(oldValue)
+      const old = JSON.parse(oldValue);
       Object.keys(old).forEach((key: string) => {
         this.editorElement.style.setProperty(key, '');
       });
     }
     if (newValue) {
-      const value = JSON.parse(newValue)
+      const value = JSON.parse(newValue);
       Object.keys(value).forEach((key: string) => {
         this.editorElement.style.setProperty(key, value[key]);
       });
@@ -124,25 +126,29 @@ export class QuillViewComponent implements ComponentDidLoad {
     const editorContents = this.getEditorContent();
 
     if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
-      return null
+      return null;
     } else {
-      let changed = false
+      let changed = false;
       try {
-        const newContentString = JSON.stringify(newValue)
+        const newContentString = JSON.stringify(newValue);
         changed = JSON.stringify(editorContents) !== newContentString;
       } catch {
-        return null
+        return null;
       }
 
       if (!changed) {
-        return null
+        return null;
       }
     }
 
-    this.setEditorContent(newValue)
+    this.setEditorContent(newValue);
   }
 
   render() {
-    return (this.preserveWhitespace ? <pre quill-element ref={(el: HTMLPreElement) => this.editorElement = el}></pre> : <div quill-element ref={(el: HTMLDivElement) => this.editorElement = el}></div>);
+    return this.preserveWhitespace ? (
+      <pre quill-element ref={(el: HTMLPreElement) => (this.editorElement = el)}></pre>
+    ) : (
+      <div quill-element ref={(el: HTMLDivElement) => (this.editorElement = el)}></div>
+    );
   }
 }

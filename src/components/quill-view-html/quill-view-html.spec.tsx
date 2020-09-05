@@ -1,18 +1,17 @@
 import { QuillViewHTMLComponent } from './quill-view-html';
 import { newSpecPage, SpecPage } from '@stencil/core/testing';
 
-
 describe('QuillViewHTMLComponent', () => {
   let page: SpecPage;
 
   beforeEach(async () => {
     page = await newSpecPage({
-      components: [QuillViewHTMLComponent]
+      components: [QuillViewHTMLComponent],
     });
   });
 
   it('renders and sets default snow theme class', async () => {
-    await page.setContent('<quill-view-html></quill-view-html>')
+    await page.setContent('<quill-view-html></quill-view-html>');
 
     expect(page.root).toEqualHtml(`
       <quill-view-html>
@@ -27,7 +26,7 @@ describe('QuillViewHTMLComponent', () => {
   });
 
   it('renders initial content', async () => {
-    await page.setContent('<quill-view-html content="<p>Hallo</p>"></quill-view-html>')
+    await page.setContent('<quill-view-html content="<p>Hallo</p>"></quill-view-html>');
 
     expect(page.root).toEqualHtml(`
       <quill-view-html content="<p>Hallo</p>">
@@ -45,12 +44,12 @@ describe('QuillViewHTMLComponent', () => {
   });
 
   it('renders content update', async () => {
-    await page.setContent('<quill-view-html content="<p>Hallo</p>"></quill-view-html>')
+    await page.setContent('<quill-view-html content="<p>Hallo</p>"></quill-view-html>');
 
-    const quillView = page.body.querySelector('quill-view-html')
-    quillView.content = '<p>test</p>'
+    const quillView = page.body.querySelector('quill-view-html');
+    quillView.content = '<p>test</p>';
 
-    await page.waitForChanges()
+    await page.waitForChanges();
 
     expect(page.root).toEqualHtml(`
       <quill-view-html content="<p>Hallo</p>">
@@ -63,7 +62,6 @@ describe('QuillViewHTMLComponent', () => {
         </div>
       </quill-view-html>
     `);
-
 
     expect(page.rootInstance.content).toBe('<p>test</p>');
   });

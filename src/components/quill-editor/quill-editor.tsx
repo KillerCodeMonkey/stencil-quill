@@ -1,53 +1,55 @@
-import { h, Component, ComponentDidLoad, ComponentDidUnload, Element, Event, EventEmitter, Prop, Watch, Host } from '@stencil/core';
+import { h, Component, ComponentDidLoad, Element, Event, EventEmitter, Prop, Watch, Host } from '@stencil/core';
 
-declare const Quill: any
+declare const Quill: any;
 
 @Component({
   tag: 'quill-editor',
   scoped: true,
-  shadow: false
+  shadow: false,
 })
-export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnload {
-
+export class QuillEditorComponent implements ComponentDidLoad {
   @Event() editorInit: EventEmitter<any>;
-  @Event() editorChange: EventEmitter<{
-    editor: any
-    event: 'text-change',
-    content: any
-    text: string
-    html: string
-    delta: any
-    oldDelta: any
-    source: string
-  } | {
-    editor: any
-    event: 'selection-change',
-    range: any
-    oldRange: any
-    source: string
-  }>
+  @Event() editorChange: EventEmitter<
+    | {
+        editor: any;
+        event: 'text-change';
+        content: any;
+        text: string;
+        html: string;
+        delta: any;
+        oldDelta: any;
+        source: string;
+      }
+    | {
+        editor: any;
+        event: 'selection-change';
+        range: any;
+        oldRange: any;
+        source: string;
+      }
+  >;
   @Event() editorContentChange: EventEmitter<{
-    editor: any
-    content: any
-    text: string
-    html: string
-    delta: any
-    oldDelta: any
-    source: string
+    editor: any;
+    content: any;
+    text: string;
+    html: string;
+    delta: any;
+    oldDelta: any;
+    source: string;
   }>;
   @Event() editorSelectionChange: EventEmitter<{
-    editor: any
-    range: any
-    oldRange: any
-    source: string
+    editor: any;
+    range: any;
+    oldRange: any;
+    source: string;
   }>;
   @Event() editorFocus: EventEmitter<{
-    editor: any
-    source: string
+    editor: any;
+    source: string;
   }>;
   @Event() editorBlur: EventEmitter<{
-    editor: any
-    source: string
+    editor: any;
+    source: string;
   }>;
 
   @Element() wrapperElement: HTMLElement;
@@ -64,11 +66,11 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
   @Prop() strict: boolean = true;
   @Prop() styles: string = '{}';
   @Prop() theme: string = 'snow';
-  @Prop() customToolbarPosition: 'top' | 'bottom' = 'top';
+  @Prop() customToolbarPosition: 'top' | 'bottom' = 'top';
   @Prop() preserveWhitespace: boolean = false;
 
   quillEditor: any;
-  editorElement: HTMLDivElement | HTMLPreElement;
+  editorElement: HTMLDivElement | HTMLPreElement;
   private defaultModules = {
     toolbar: [
       ['bold', 'italic', 'underline', 'strike'], // toggled buttons
@@ -83,18 +85,15 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
       [{ size: ['small', false, 'large', 'huge'] }], // custom dropdown
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
 
-      [
-        { color: [].slice() },
-        { background: [].slice() }
-      ], // dropdown with defaults from theme
+      [{ color: [].slice() }, { background: [].slice() }], // dropdown with defaults from theme
       [{ font: [].slice() }],
       [{ align: [].slice() }],
 
       ['clean'], // remove formatting button
 
-      ['link', 'image', 'video'] // link and image, video
-    ]
-  }
+      ['link', 'image', 'video'], // link and image, video
+    ],
+  };
 
   selectionChangeEvent: any;
   textChangeEvent: any;
@@ -142,23 +141,21 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
   }
 
   componentDidLoad() {
-    this.editorElement = this.preserveWhitespace ? document.createElement('pre') : document.createElement('div')
-    this.editorElement.setAttribute('quill-editor', '')
+    this.editorElement = this.preserveWhitespace ? document.createElement('pre') : document.createElement('div');
+    this.editorElement.setAttribute('quill-editor', '');
 
     let modules: any = this.modules ? JSON.parse(this.modules) : this.defaultModules;
 
-    const toolbarElem = this.wrapperElement.querySelector(
-      '[slot="quill-toolbar"]'
-    );
+    const toolbarElem = this.wrapperElement.querySelector('[slot="quill-toolbar"]');
     if (toolbarElem) {
       modules['toolbar'] = toolbarElem;
       if (this.customToolbarPosition === 'bottom') {
-        this.wrapperElement.prepend(this.editorElement)
+        this.wrapperElement.prepend(this.editorElement);
       } else {
-        this.wrapperElement.append(this.editorElement)
+        this.wrapperElement.append(this.editorElement);
       }
     } else {
-      this.wrapperElement.append(this.editorElement)
+      this.wrapperElement.append(this.editorElement);
     }
 
     this.quillEditor = new Quill(this.editorElement, {
@@ -170,11 +167,11 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
       formats: this.formats,
       bounds: this.bounds ? (this.bounds === 'self' ? this.editorElement : this.bounds) : document.body,
       strict: this.strict,
-      scrollingContainer: this.scrollingContainer
+      scrollingContainer: this.scrollingContainer,
     });
 
     if (this.styles) {
-      const styles = JSON.parse(this.styles)
+      const styles = JSON.parse(this.styles);
       Object.keys(styles).forEach((key: string) => {
         this.editorElement.style.setProperty(key, styles[key]);
       });
@@ -188,16 +185,16 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
 
     this.editorChangeEvent = this.quillEditor.on(
       'editor-change',
-      (event: 'text-change' | 'selection-change', current: any | Range | null, old: any | Range | null, source: string): void => {
+      (event: 'text-change' | 'selection-change', current: any | Range | null, old: any | Range | null, source: string): void => {
         // only emit changes emitted by user interactions
 
         if (event === 'text-change') {
-          const text = this.quillEditor.getText()
-          const content = this.quillEditor.getContents()
+          const text = this.quillEditor.getText();
+          const content = this.quillEditor.getContents();
 
-          let html: string | null = this.editorElement.querySelector('.ql-editor')!.innerHTML
+          let html: string | null = this.editorElement.querySelector('.ql-editor')!.innerHTML;
           if (html === '<p><br></p>' || html === '<div><br></div>') {
-            html = null
+            html = null;
           }
 
           this.editorChange.emit({
@@ -208,73 +205,67 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
             html,
             oldDelta: old,
             source,
-            text
-          })
+            text,
+          });
         } else {
           this.editorChange.emit({
             editor: this.quillEditor,
             event,
             oldRange: old,
             range: current,
-            source
-          })
+            source,
+          });
         }
-      }
-    )
-
-    this.selectionChangeEvent = this.quillEditor.on(
-      'selection-change',
-      (range: any, oldRange: any, source: string) => {
-        if (range === null) {
-          this.editorBlur.emit({
-            editor: this.quillEditor,
-            source
-          })
-        } else if (oldRange === null) {
-          this.editorFocus.emit({
-            editor: this.quillEditor,
-            source
-          })
-        }
-
-        this.editorSelectionChange.emit({
-          editor: this.quillEditor,
-          range,
-          oldRange,
-          source
-        });
-      }
+      },
     );
 
-    this.textChangeEvent = this.quillEditor.on(
-      'text-change',
-      (delta: any, oldDelta: any, source: string) => {
-        const text = this.quillEditor.getText();
-        const content = this.quillEditor.getContents();
-
-        let html: string | null = this.editorElement.querySelector('.ql-editor').innerHTML;
-        if (html === '<p><br></p>' || html === '<div><br></div>') {
-          html = null;
-        }
-
-        this.editorContentChange.emit({
+    this.selectionChangeEvent = this.quillEditor.on('selection-change', (range: any, oldRange: any, source: string) => {
+      if (range === null) {
+        this.editorBlur.emit({
           editor: this.quillEditor,
-          content,
-          delta,
-          html,
-          oldDelta,
           source,
-          text
+        });
+      } else if (oldRange === null) {
+        this.editorFocus.emit({
+          editor: this.quillEditor,
+          source,
         });
       }
-    );
+
+      this.editorSelectionChange.emit({
+        editor: this.quillEditor,
+        range,
+        oldRange,
+        source,
+      });
+    });
+
+    this.textChangeEvent = this.quillEditor.on('text-change', (delta: any, oldDelta: any, source: string) => {
+      const text = this.quillEditor.getText();
+      const content = this.quillEditor.getContents();
+
+      let html: string | null = this.editorElement.querySelector('.ql-editor').innerHTML;
+      if (html === '<p><br></p>' || html === '<div><br></div>') {
+        html = null;
+      }
+
+      this.editorContentChange.emit({
+        editor: this.quillEditor,
+        content,
+        delta,
+        html,
+        oldDelta,
+        source,
+        text,
+      });
+    });
 
     setTimeout(() => {
       this.editorInit.emit(this.quillEditor);
-    })
+    });
   }
 
-  componentDidUnload() {
+  disconnectedCallback() {
     if (this.selectionChangeEvent) {
       this.selectionChangeEvent.removeListener('selection-change');
     }
@@ -289,27 +280,27 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
   @Watch('content')
   updateContent(newValue: any): void {
     if (!this.quillEditor) {
-      return
+      return;
     }
     const editorContents = this.getEditorContent();
 
     if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
-      return null
+      return null;
     } else {
-      let changed = false
+      let changed = false;
       try {
-        const newContentString = JSON.stringify(newValue)
+        const newContentString = JSON.stringify(newValue);
         changed = JSON.stringify(editorContents) !== newContentString;
       } catch {
-        return null
+        return null;
       }
 
       if (!changed) {
-        return null
+        return null;
       }
     }
 
-    this.setEditorContent(newValue)
+    this.setEditorContent(newValue);
   }
 
   @Watch('readOnly')
@@ -339,13 +330,13 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
     }
 
     if (oldValue) {
-      const old = JSON.parse(oldValue)
+      const old = JSON.parse(oldValue);
       Object.keys(old).forEach((key: string) => {
         this.editorElement.style.setProperty(key, '');
       });
     }
     if (newValue) {
-      const value = JSON.parse(newValue)
+      const value = JSON.parse(newValue);
       Object.keys(value).forEach((key: string) => {
         this.editorElement.style.setProperty(key, value[key]);
       });
@@ -355,6 +346,6 @@ export class QuillEditorComponent implements ComponentDidLoad, ComponentDidUnloa
   render() {
     <Host>
       <slot name="quill-toolbar" quill-toolbar="" />
-    </Host>
+    </Host>;
   }
 }

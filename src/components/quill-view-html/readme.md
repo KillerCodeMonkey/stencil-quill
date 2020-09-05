@@ -1,7 +1,5 @@
 # quill-view-html
 
-
-
 <!-- Auto Generated Below -->
 
 

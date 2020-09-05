@@ -1,4 +1,3 @@
-
 import { newSpecPage, SpecPage } from '@stencil/core/testing';
 import { QuillViewComponent } from './quill-view';
 
@@ -13,10 +12,10 @@ class Quill {
   }
 
   history = {
-    clear: () => {}
+    clear: () => {},
   };
   clipboard = {
-    convert: () => {}
+    convert: () => {},
   };
   setContents() {}
   setText() {}
@@ -33,7 +32,7 @@ describe('QuillViewComponent', () => {
   beforeEach(async () => {
     page = await newSpecPage({
       components: [QuillViewComponent],
-      html: `<quill-view styles='{\"height\": \"200px\"}' content="<p>Test</p>" modules='{\"toolbar\":true}'></quill-view>`
+      html: `<quill-view styles='{\"height\": \"200px\"}' content="<p>Test</p>" modules='{\"toolbar\":true}'></quill-view>`,
     });
 
     component = await page.rootInstance;
@@ -52,12 +51,12 @@ describe('QuillViewComponent', () => {
     expect(component.content).toBe('<p>Test</p>');
     expect(component.format).toEqual('html');
     expect(component.debug).toEqual('warn');
-    expect(component.styles).toEqual('{\"height\": \"200px\"}');
+    expect(component.styles).toEqual('{"height": "200px"}');
     expect(component.strict).toBe(true);
     expect(component.preserveWhitespace).toBe(false);
-    expect(component.modules).toEqual('{\"toolbar\":true}');
+    expect(component.modules).toEqual('{"toolbar":true}');
 
-    expect(component.quillEditor.options).toEqual({debug: 'warn', formats: undefined, modules: {toolbar: false}, readOnly: true, strict: true, theme: 'snow'});
+    expect(component.quillEditor.options).toEqual({ debug: 'warn', formats: undefined, modules: { toolbar: false }, readOnly: true, strict: true, theme: 'snow' });
   });
 
   it('renders pre tag if preserve whitespace', async () => {
@@ -73,7 +72,7 @@ describe('QuillViewComponent', () => {
   });
 
   it('renders styles changes', async () => {
-    component.styles = '{\"height\": \"300px\"}';
+    component.styles = '{"height": "300px"}';
 
     await page.waitForChanges();
 
@@ -92,13 +91,15 @@ describe('QuillViewComponent', () => {
         const spy = spyOn(component.quillEditor, 'setContents').and.callThrough();
 
         component.format = 'json';
-        component.content = JSON.stringify([{
-          insert: 'Hallo'
-        }]);
+        component.content = JSON.stringify([
+          {
+            insert: 'Hallo',
+          },
+        ]);
 
         await page.waitForChanges();
 
-        expect(spy).toHaveBeenCalledWith([{'insert': 'Hallo'}], 'api');
+        expect(spy).toHaveBeenCalledWith([{ insert: 'Hallo' }], 'api');
       });
     });
 
@@ -112,7 +113,7 @@ describe('QuillViewComponent', () => {
 
         await page.waitForChanges();
 
-        expect(clipboardSpy).toHaveBeenCalledWith('<p>Hallo</p>')
+        expect(clipboardSpy).toHaveBeenCalledWith('<p>Hallo</p>');
         expect(spy).toHaveBeenCalledWith('<p>Hallo</p>', 'api');
       });
     });
@@ -144,7 +145,7 @@ describe('QuillViewComponent', () => {
       const setSpy = spyOn(component, 'setEditorContent');
       spyOn(JSON, 'stringify').and.throwError('FAIL!');
 
-      expect(component.updateContent({test: 1})).toBe(null);
+      expect(component.updateContent({ test: 1 })).toBe(null);
       expect(setSpy).not.toHaveBeenCalled();
     });
 
@@ -168,7 +169,7 @@ describe('QuillViewComponent', () => {
     it('does nothing if not editorElement', () => {
       const spy = spyOn(component.editorElement.style, 'setProperty');
 
-      component.editorElement = null
+      component.editorElement = null;
       component.updateStyle('', '');
       expect(spy).not.toHaveBeenCalled();
     });
@@ -191,13 +192,13 @@ describe('QuillViewComponent', () => {
   describe('#setEditorContent', () => {
     describe('format: html', () => {
       it('converts html and sets content', () => {
-        spyOn(component.quillEditor.clipboard, 'convert').and.returnValue([{insert: '1'}]);
+        spyOn(component.quillEditor.clipboard, 'convert').and.returnValue([{ insert: '1' }]);
         const spy = spyOn(component.quillEditor, 'setContents');
 
         component.format = 'html';
         component.setEditorContent('');
 
-        expect(spy).toHaveBeenCalledWith([{insert: '1'}], 'api');
+        expect(spy).toHaveBeenCalledWith([{ insert: '1' }], 'api');
       });
     });
 
@@ -219,7 +220,7 @@ describe('QuillViewComponent', () => {
         component.format = 'json';
         component.setEditorContent('{"insert":"1"}');
 
-        expect(spy).toHaveBeenCalledWith({insert: '1'}, 'api');
+        expect(spy).toHaveBeenCalledWith({ insert: '1' }, 'api');
       });
 
       it('sets value as text, if json not parsable', () => {
@@ -274,11 +275,11 @@ describe('QuillViewComponent', () => {
 
     describe('format: json', () => {
       it('returns json', () => {
-        const spy = spyOn(component.quillEditor, 'getContents').and.returnValue([{insert: '1'}]);
+        const spy = spyOn(component.quillEditor, 'getContents').and.returnValue([{ insert: '1' }]);
 
         component.format = 'json';
 
-        expect(component.getEditorContent()).toEqual(JSON.stringify([{insert: '1'}]));
+        expect(component.getEditorContent()).toEqual(JSON.stringify([{ insert: '1' }]));
         expect(spy).toHaveBeenCalled();
       });
 
@@ -312,7 +313,7 @@ describe('QuillViewComponent', () => {
         component.componentDidLoad();
 
         expect(component.quillEditor.options.modules).toEqual({
-          toolbar: false
+          toolbar: false,
         });
       });
 
@@ -325,7 +326,7 @@ describe('QuillViewComponent', () => {
 
         expect(component.quillEditor.options.modules).toEqual({
           test: {},
-          toolbar: false
+          toolbar: false,
         });
       });
     });
@@ -347,7 +348,7 @@ describe('QuillViewComponent', () => {
 
         expect(component.quillEditor.options.modules).toEqual({
           test: {},
-          toolbar: false
+          toolbar: false,
         });
       });
     });
@@ -355,7 +356,7 @@ describe('QuillViewComponent', () => {
     describe('without styles and content', () => {
       it('does nothing with styles', () => {
         component.styles = undefined;
-        const spy = spyOn(component.editorElement.style, 'setProperty')
+        const spy = spyOn(component.editorElement.style, 'setProperty');
 
         component.componentDidLoad();
 
@@ -364,7 +365,7 @@ describe('QuillViewComponent', () => {
 
       it('does not set content if nothing there', () => {
         component.content = '';
-        const spy = spyOn(component, 'setEditorContent')
+        const spy = spyOn(component, 'setEditorContent');
 
         component.componentDidLoad();
 

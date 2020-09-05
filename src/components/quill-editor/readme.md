@@ -1,7 +1,5 @@
 # quill-editor
 
-
-
 <!-- Auto Generated Below -->
 
 
@@ -22,7 +20,7 @@
 | `scrollingContainer`    | `scrolling-container`     |             | `HTMLElement \| string`      | `undefined`              |
 | `strict`                | `strict`                  |             | `boolean`                    | `true`                   |
 | `styles`                | `styles`                  |             | `string`                     | `'{}'`                   |
-| `theme`                 | `theme`                   |             | `string`                     | `undefined`              |
+| `theme`                 | `theme`                   |             | `string`                     | `'snow'`                 |
 
 
 ## Events
