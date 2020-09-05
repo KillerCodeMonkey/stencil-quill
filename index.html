@@ -1,164 +1,162 @@
 <!DOCTYPE html>
 <html dir="ltr" lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
-  <title>Stencil Quill</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
+    <title>Stencil Quill</title>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js"></script>
-  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-  <script>
-    // Quill custom word count component
-    Quill.register('modules/counter', function(quill, options) {
-      var container = document.querySelector('#counter');
-      quill.on('text-change', function() {
-        var text = quill.getText();
-        // There are a couple issues with counting words
-        // this way but we'll fix these later
-        container.innerText = text.split(/\s+/).length;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+      // Quill custom word count component
+      Quill.register('modules/counter', function (quill, options) {
+        var container = document.querySelector('#counter');
+        quill.on('text-change', function () {
+          var text = quill.getText();
+          // There are a couple issues with counting words
+          // this way but we'll fix these later
+          container.innerText = text.split(/\s+/).length;
+        });
       });
-    });
 
-    // register custom fonts
-    const font = Quill.import('formats/font')
-    // We do not add Aref Ruqaa since it is the default
-    font.whitelist = ['mirza', 'roboto', 'aref', 'serif', 'sansserif', 'monospace']
-    Quill.register(font, true)
-  </script>
+      // register custom fonts
+      const font = Quill.import('formats/font');
+      // We do not add Aref Ruqaa since it is the default
+      font.whitelist = ['mirza', 'roboto', 'aref', 'serif', 'sansserif', 'monospace'];
+      Quill.register(font, true);
+    </script>
 
-  <link href="https://fonts.googleapis.com/css?family=Aref+Ruqaa|Mirza|Roboto" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css">
-  <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.bubble.css">
-  <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css">
+    <link href="https://fonts.googleapis.com/css?family=Aref+Ruqaa|Mirza|Roboto" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" />
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.bubble.css" />
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css" />
 
-  <style>
-    /* Set default font-family */
-    [quill-element] {
-      font-family: "Roboto";
-    }
+    <style>
+      /* Set default font-family */
+      [quill-element] {
+        font-family: 'Roboto';
+      }
 
-    /* Set dropdown font-families */
-    [slot="quill-toolbar"] .ql-font span[data-label="Aref Ruqaa"]::before {
-      font-family: "Aref Ruqaa";
-    }
-    [slot="quill-toolbar"] .ql-font span[data-label="Mirza"]::before {
-      font-family: "Mirza";
-    }
-    [slot="quill-toolbar"] .ql-font span[data-label="Roboto"]::before {
-      font-family: "Roboto";
-    }
+      /* Set dropdown font-families */
+      [slot='quill-toolbar'] .ql-font span[data-label='Aref Ruqaa']::before {
+        font-family: 'Aref Ruqaa';
+      }
+      [slot='quill-toolbar'] .ql-font span[data-label='Mirza']::before {
+        font-family: 'Mirza';
+      }
+      [slot='quill-toolbar'] .ql-font span[data-label='Roboto']::before {
+        font-family: 'Roboto';
+      }
 
-    /* Set content font-families */
-    .ql-font-mirza {
-      font-family: "Mirza";
-    }
-    .ql-font-aref {
-      font-family: "Aref Ruqaa";
-    }
-    /* We do not set Aref Ruqaa since it is the default font */
-  </style>
-  <script type="module" src="/build/quill-components.esm.js"></script>
-  <script nomodule src="/build/quill-components.js"></script>
-  <script type="module" src="/stencil-quill/esm/quill-components.mjs"></script>
-  <script nomodule src="/stencil-quill/quill-components.js"></script>
-</head>
-<body>
-  <h3>Default Editor</h3>
-  <button id="readOnly">Set Readonly</button>
-  <button id="placeholder">Set Placeholder</button>
-  <button id="text">Set Text</button>
-  <button id="backgroundColor">Toggle BackgroundColor</button>
-  <quill-editor id="quill-editor" styles='{"background-color": "red"}' format="json" content=""></quill-editor>
+      /* Set content font-families */
+      .ql-font-mirza {
+        font-family: 'Mirza';
+      }
+      .ql-font-aref {
+        font-family: 'Aref Ruqaa';
+      }
+      /* We do not set Aref Ruqaa since it is the default font */
+    </style>
+    <script type="module" src="/build/quill-components.esm.js"></script>
+    <script nomodule src="/build/quill-components.js"></script>
+    <script type="module" src="/stencil-quill/esm/quill-components.js"></script>
+    <script nomodule src="/stencil-quill/cjs/quill-components.cjs.js"></script>
+  </head>
+  <body>
+    <h3>Default Editor</h3>
+    <button id="readOnly">Set Readonly</button>
+    <button id="placeholder">Set Placeholder</button>
+    <button id="text">Set Text</button>
+    <button id="backgroundColor">Toggle BackgroundColor</button>
+    <quill-editor id="quill-editor" styles='{"background-color": "red"}' format="json" content=""></quill-editor>
 
-  <h3>Custom HTML Toolbar + PreserveWhitespace</h3>
-  <quill-editor modules='{ "counter": true }' custom-toolbar-position="bottom" preserve-whitespace="true" content="test" format="html">
-    <div slot="quill-toolbar">
-      <span class="ql-formats">
-        <select class="ql-font">
-          <option value="aref">Aref Ruqaa</option>
-          <option value="mirza">Mirza</option>
-          <option selected>Roboto</option>
-        </select>
-        <select class="ql-align" title="Aligment">
-          <option selected></option>
-          <option value="center"></option>
-          <option value="right"></option>
-          <option value="justify"></option>
-        </select>
-        <select class="ql-align" title="Aligment2">
-          <option selected></option>
-          <option value="center"></option>
-          <option value="right"></option>
-          <option value="justify"></option>
-        </select>
-      </span>
-      <span class="ql-formats">
-        <div id="counter"></div>
-      </span>
-    </div>
-  </quill-editor>
+    <h3>Custom HTML Toolbar + PreserveWhitespace</h3>
+    <quill-editor modules='{ "counter": true }' custom-toolbar-position="bottom" preserve-whitespace="true" content="test" format="html">
+      <div slot="quill-toolbar">
+        <span class="ql-formats">
+          <select class="ql-font">
+            <option value="aref">Aref Ruqaa</option>
+            <option value="mirza">Mirza</option>
+            <option selected>Roboto</option>
+          </select>
+          <select class="ql-align" title="Aligment">
+            <option selected></option>
+            <option value="center"></option>
+            <option value="right"></option>
+            <option value="justify"></option>
+          </select>
+          <select class="ql-align" title="Aligment2">
+            <option selected></option>
+            <option value="center"></option>
+            <option value="right"></option>
+            <option value="justify"></option>
+          </select>
+        </span>
+        <span class="ql-formats">
+          <div id="counter"></div>
+        </span>
+      </div>
+    </quill-editor>
 
-  <h3>QuillViewHtml - Present html</h3>
-  <quill-view-html id="htmlView" theme="snow" content="<ul><li>Hallo</li></ul>">
-  </quill-view-html>
+    <h3>QuillViewHtml - Present html</h3>
+    <quill-view-html id="htmlView" theme="snow" content="<ul><li>Hallo</li></ul>"> </quill-view-html>
 
-  <h3>QuillView - Present json <small>connected to default editor</small></h3>
-  <quill-view id="view" theme="snow" format="json" preserve-whitespaces="true" content="">
-  </quill-view>
-  <script>
-    const quillEditor = document.getElementById('quill-editor')
-    const quillView = document.getElementById('view')
-    const quillViewHTML = document.getElementById('htmlView')
+    <h3>QuillView - Present json <small>connected to default editor</small></h3>
+    <quill-view id="view" theme="snow" format="json" preserve-whitespaces="true" content=""> </quill-view>
+    <script>
+      const quillEditor = document.getElementById('quill-editor');
+      const quillView = document.getElementById('view');
+      const quillViewHTML = document.getElementById('htmlView');
 
-    const readOnlyButton = document.getElementById('readOnly')
-    readOnlyButton.onclick = () => {
-      quillEditor.readOnly = !quillEditor.readOnly
-    }
+      const readOnlyButton = document.getElementById('readOnly');
+      readOnlyButton.onclick = () => {
+        quillEditor.readOnly = !quillEditor.readOnly;
+      };
 
-    const placeholderButton = document.getElementById('placeholder')
-    placeholderButton.onclick = () => {
-      quillEditor.placeholder = quillEditor.placeholder + '!'
-    }
+      const placeholderButton = document.getElementById('placeholder');
+      placeholderButton.onclick = () => {
+        quillEditor.placeholder = quillEditor.placeholder + '!';
+      };
 
-    const textButton = document.getElementById('text')
-    textButton.onclick = () => {
-      quillEditor.content = JSON.stringify({ ops: [{ insert: 'test!!!\n' }] })
-    }
+      const textButton = document.getElementById('text');
+      textButton.onclick = () => {
+        quillEditor.content = JSON.stringify({ ops: [{ insert: 'test!!!\n' }] });
+      };
 
-    const backgroundColorButton = document.getElementById('backgroundColor')
-    backgroundColorButton.onclick = () => {
-      quillEditor.styles = !JSON.parse(quillEditor.styles)['background-color'] ? JSON.stringify({ 'background-color': 'grey' }) : '{}'
-    }
+      const backgroundColorButton = document.getElementById('backgroundColor');
+      backgroundColorButton.onclick = () => {
+        quillEditor.styles = !JSON.parse(quillEditor.styles)['background-color'] ? JSON.stringify({ 'background-color': 'grey' }) : '{}';
+      };
 
-    quillEditor.addEventListener('editorInit', (event) => {
-      console.log('editorInit', event.detail)
-      quillEditor.content = JSON.stringify({ ops: [{ insert: 'hallo' }] })
-      quillView.content = JSON.stringify({ ops: [{ insert: 'hallo' }] })
-    });
+      quillEditor.addEventListener('editorInit', event => {
+        console.log('editorInit', event.detail);
+        quillEditor.content = JSON.stringify({ ops: [{ insert: 'hallo' }] });
+        quillView.content = JSON.stringify({ ops: [{ insert: 'hallo' }] });
+      });
 
-    quillEditor.addEventListener('editorContentChange', (event) => {
-      console.log('editorContentChange', event.detail)
-      quillView.content = JSON.stringify(event.detail.content)
-    });
+      quillEditor.addEventListener('editorContentChange', event => {
+        console.log('editorContentChange', event.detail);
+        quillView.content = JSON.stringify(event.detail.content);
+      });
 
-    quillEditor.addEventListener('editorChange', (event) => {
-      console.log('editorChange', event.detail)
-    });
+      quillEditor.addEventListener('editorChange', event => {
+        console.log('editorChange', event.detail);
+      });
 
-    quillEditor.addEventListener('editorSelectionChange', (event) => {
-      console.log('editorSelectionChange', event.detail)
-    });
+      quillEditor.addEventListener('editorSelectionChange', event => {
+        console.log('editorSelectionChange', event.detail);
+      });
 
-    quillEditor.addEventListener('editorFocus', (event) => {
-      console.log('editorFocus', event.detail)
-    });
+      quillEditor.addEventListener('editorFocus', event => {
+        console.log('editorFocus', event.detail);
+      });
 
-    quillEditor.addEventListener('editorBlur', (event) => {
-      console.log('editorBlur', event.detail)
-    });
-  </script>
-</body>
+      quillEditor.addEventListener('editorBlur', event => {
+        console.log('editorBlur', event.detail);
+      });
+    </script>
+  </body>
 </html>

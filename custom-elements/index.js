@@ -1,18 +1,16 @@
-'use strict';
+import { createEvent, h, Host, proxyCustomElement } from '@stencil/core/internal/client';
+export { setAssetPath } from '@stencil/core/internal/client';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
-const index = require('./index-0066f6a7.js');
-
-const QuillEditorComponent = class {
-  constructor(hostRef) {
-    index.registerInstance(this, hostRef);
-    this.editorInit = index.createEvent(this, "editorInit", 7);
-    this.editorChange = index.createEvent(this, "editorChange", 7);
-    this.editorContentChange = index.createEvent(this, "editorContentChange", 7);
-    this.editorSelectionChange = index.createEvent(this, "editorSelectionChange", 7);
-    this.editorFocus = index.createEvent(this, "editorFocus", 7);
-    this.editorBlur = index.createEvent(this, "editorBlur", 7);
+const QuillEditorComponent = class extends HTMLElement {
+  constructor() {
+    super();
+    this.__registerHost();
+    this.editorInit = createEvent(this, "editorInit", 7);
+    this.editorChange = createEvent(this, "editorChange", 7);
+    this.editorContentChange = createEvent(this, "editorContentChange", 7);
+    this.editorSelectionChange = createEvent(this, "editorSelectionChange", 7);
+    this.editorFocus = createEvent(this, "editorFocus", 7);
+    this.editorBlur = createEvent(this, "editorBlur", 7);
     this.format = 'html';
     this.debug = 'warn';
     this.placeholder = 'Insert text here ...';
@@ -262,9 +260,9 @@ const QuillEditorComponent = class {
     }
   }
   render() {
-    index.h(index.Host, null, index.h("slot", { name: "quill-toolbar", "quill-toolbar": "" }));
+    h(Host, null, h("slot", { name: "quill-toolbar", "quill-toolbar": "" }));
   }
-  get wrapperElement() { return index.getElement(this); }
+  get wrapperElement() { return this; }
   static get watchers() { return {
     "content": ["updateContent"],
     "readOnly": ["updateReadOnly"],
@@ -275,9 +273,10 @@ const QuillEditorComponent = class {
 
 const quillViewCss = ".ql-container.quill-view.sc-quill-view{border:0}";
 
-const QuillViewComponent = class {
-  constructor(hostRef) {
-    index.registerInstance(this, hostRef);
+const QuillViewComponent = class extends HTMLElement {
+  constructor() {
+    super();
+    this.__registerHost();
     this.format = 'html';
     this.debug = 'warn';
     this.strict = true;
@@ -397,21 +396,22 @@ const QuillViewComponent = class {
     this.setEditorContent(newValue);
   }
   render() {
-    return this.preserveWhitespace ? (index.h("pre", { "quill-element": true, ref: (el) => (this.editorElement = el) })) : (index.h("div", { "quill-element": true, ref: (el) => (this.editorElement = el) }));
+    return this.preserveWhitespace ? (h("pre", { "quill-element": true, ref: (el) => (this.editorElement = el) })) : (h("div", { "quill-element": true, ref: (el) => (this.editorElement = el) }));
   }
-  get wrapperElement() { return index.getElement(this); }
+  get wrapperElement() { return this; }
   static get watchers() { return {
     "styles": ["updateStyle"],
     "content": ["updateContent"]
   }; }
+  static get style() { return quillViewCss; }
 };
-QuillViewComponent.style = quillViewCss;
 
 const quillViewHtmlCss = ".ql-container.quill-view-html.sc-quill-view-html{border:0}";
 
-const QuillViewHTMLComponent = class {
-  constructor(hostRef) {
-    index.registerInstance(this, hostRef);
+const QuillViewHTMLComponent = class extends HTMLElement {
+  constructor() {
+    super();
+    this.__registerHost();
     this.theme = 'snow';
     this.themeClass = 'ql-snow';
   }
@@ -420,14 +420,29 @@ const QuillViewHTMLComponent = class {
   }
   render() {
     const classes = `ql-container ${this.themeClass} quill-view-html`;
-    return (index.h("div", { class: classes }, index.h("div", { class: "ql-editor", innerHTML: this.content })));
+    return (h("div", { class: classes }, h("div", { class: "ql-editor", innerHTML: this.content })));
   }
   static get watchers() { return {
     "theme": ["updateTheme"]
   }; }
+  static get style() { return quillViewHtmlCss; }
 };
-QuillViewHTMLComponent.style = quillViewHtmlCss;
 
-exports.quill_editor = QuillEditorComponent;
-exports.quill_view = QuillViewComponent;
-exports.quill_view_html = QuillViewHTMLComponent;
+const QuillEditor = /*@__PURE__*/proxyCustomElement(QuillEditorComponent, [6,"quill-editor",{"format":[1],"bounds":[1],"content":[1],"debug":[1],"formats":[16],"modules":[1],"placeholder":[1],"readOnly":[4,"read-only"],"scrollingContainer":[1,"scrolling-container"],"strict":[4],"styles":[1],"theme":[1],"customToolbarPosition":[1,"custom-toolbar-position"],"preserveWhitespace":[4,"preserve-whitespace"]}]);
+const QuillView = /*@__PURE__*/proxyCustomElement(QuillViewComponent, [2,"quill-view",{"format":[1],"content":[1],"debug":[1],"formats":[16],"modules":[1],"strict":[4],"styles":[1],"theme":[1],"preserveWhitespace":[4,"preserve-whitespace"]}]);
+const QuillViewHtml = /*@__PURE__*/proxyCustomElement(QuillViewHTMLComponent, [2,"quill-view-html",{"content":[1],"theme":[1]}]);
+const defineCustomElements = (opts) => {
+  if (typeof customElements !== 'undefined') {
+    [
+      QuillEditor,
+  QuillView,
+  QuillViewHtml
+    ].forEach(cmp => {
+      if (!customElements.get(cmp.is)) {
+        customElements.define(cmp.is, cmp, opts);
+      }
+    });
+  }
+};
+
+export { QuillEditor, QuillView, QuillViewHtml, defineCustomElements };

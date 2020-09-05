@@ -1,6 +1,4 @@
-'use strict';
-
-const index = require('./index-0066f6a7.js');
+import { p as plt, w as win, d as doc, N as NAMESPACE, a as promiseResolve, b as bootstrapLazy } from './index-ac3691aa.js';
 
 /*
  Stencil Client Patch Browser v2.0.3 | MIT Licensed | https://stenciljs.com
@@ -9,10 +7,10 @@ const getDynamicImportFunction = (namespace) => `__sc_import_${namespace.replace
 const patchBrowser = () => {
     {
         // shim css vars
-        index.plt.$cssShim$ = index.win.__cssshim;
+        plt.$cssShim$ = win.__cssshim;
     }
     // @ts-ignore
-    const scriptElm =  Array.from(index.doc.querySelectorAll('script')).find(s => new RegExp(`\/${index.NAMESPACE}(\\.esm)?\\.js($|\\?|#)`).test(s.src) || s.getAttribute('data-stencil-namespace') === index.NAMESPACE)
+    const scriptElm =  Array.from(doc.querySelectorAll('script')).find(s => new RegExp(`\/${NAMESPACE}(\\.esm)?\\.js($|\\?|#)`).test(s.src) || s.getAttribute('data-stencil-namespace') === NAMESPACE)
         ;
     const opts =  {};
     if ( 'onbeforeload' in scriptElm && !history.scrollRestoration /* IS_ESM_BUILD */) {
@@ -30,48 +28,48 @@ const patchBrowser = () => {
         };
     }
     {
-        opts.resourcesUrl = new URL('.', new URL(scriptElm.getAttribute('data-resources-url') || scriptElm.src, index.win.location.href)).href;
+        opts.resourcesUrl = new URL('.', new URL(scriptElm.getAttribute('data-resources-url') || scriptElm.src, win.location.href)).href;
         {
             patchDynamicImport(opts.resourcesUrl, scriptElm);
         }
-        if ( !index.win.customElements) {
+        if ( !win.customElements) {
             // module support, but no custom elements support (Old Edge)
             // @ts-ignore
-            return Promise.resolve().then(function () { return require(/* webpackChunkName: "polyfills-dom" */ './dom-3a349c0e.js'); }).then(() => opts);
+            return import(/* webpackChunkName: "polyfills-dom" */ './dom-3484e571.js').then(() => opts);
         }
     }
-    return index.promiseResolve(opts);
+    return promiseResolve(opts);
 };
 const patchDynamicImport = (base, orgScriptElm) => {
-    const importFunctionName = getDynamicImportFunction(index.NAMESPACE);
+    const importFunctionName = getDynamicImportFunction(NAMESPACE);
     try {
         // test if this browser supports dynamic imports
         // There is a caching issue in V8, that breaks using import() in Function
         // By generating a random string, we can workaround it
         // Check https://bugs.chromium.org/p/chromium/issues/detail?id=990810 for more info
-        index.win[importFunctionName] = new Function('w', `return import(w);//${Math.random()}`);
+        win[importFunctionName] = new Function('w', `return import(w);//${Math.random()}`);
     }
     catch (e) {
         // this shim is specifically for browsers that do support "esm" imports
         // however, they do NOT support "dynamic" imports
         // basically this code is for old Edge, v18 and below
         const moduleMap = new Map();
-        index.win[importFunctionName] = (src) => {
+        win[importFunctionName] = (src) => {
             const url = new URL(src, base).href;
             let mod = moduleMap.get(url);
             if (!mod) {
-                const script = index.doc.createElement('script');
+                const script = doc.createElement('script');
                 script.type = 'module';
                 script.crossOrigin = orgScriptElm.crossOrigin;
                 script.src = URL.createObjectURL(new Blob([`import * as m from '${url}'; window.${importFunctionName}.m = m;`], { type: 'application/javascript' }));
                 mod = new Promise(resolve => {
                     script.onload = () => {
-                        resolve(index.win[importFunctionName].m);
+                        resolve(win[importFunctionName].m);
                         script.remove();
                     };
                 });
                 moduleMap.set(url, mod);
-                index.doc.head.appendChild(script);
+                doc.head.appendChild(script);
             }
             return mod;
         };
@@ -79,5 +77,5 @@ const patchDynamicImport = (base, orgScriptElm) => {
 };
 
 patchBrowser().then(options => {
-  return index.bootstrapLazy([["quill-editor_3.cjs",[[6,"quill-editor",{"format":[1],"bounds":[1],"content":[1],"debug":[1],"formats":[16],"modules":[1],"placeholder":[1],"readOnly":[4,"read-only"],"scrollingContainer":[1,"scrolling-container"],"strict":[4],"styles":[1],"theme":[1],"customToolbarPosition":[1,"custom-toolbar-position"],"preserveWhitespace":[4,"preserve-whitespace"]}],[2,"quill-view",{"format":[1],"content":[1],"debug":[1],"formats":[16],"modules":[1],"strict":[4],"styles":[1],"theme":[1],"preserveWhitespace":[4,"preserve-whitespace"]}],[2,"quill-view-html",{"content":[1],"theme":[1]}]]]], options);
+  return bootstrapLazy([["quill-editor_3",[[6,"quill-editor",{"format":[1],"bounds":[1],"content":[1],"debug":[1],"formats":[16],"modules":[1],"placeholder":[1],"readOnly":[4,"read-only"],"scrollingContainer":[1,"scrolling-container"],"strict":[4],"styles":[1],"theme":[1],"customToolbarPosition":[1,"custom-toolbar-position"],"preserveWhitespace":[4,"preserve-whitespace"]}],[2,"quill-view",{"format":[1],"content":[1],"debug":[1],"formats":[16],"modules":[1],"strict":[4],"styles":[1],"theme":[1],"preserveWhitespace":[4,"preserve-whitespace"]}],[2,"quill-view-html",{"content":[1],"theme":[1]}]]]], options);
 });

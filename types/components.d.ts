@@ -9,9 +9,9 @@ export namespace Components {
     interface QuillEditor {
         "bounds": HTMLElement | string;
         "content": string;
-        "customToolbarPosition": "top" | "bottom";
+        "customToolbarPosition": 'top' | 'bottom';
         "debug": string;
-        "format": "html" | "text" | "json";
+        "format": 'html' | 'text' | 'json';
         "formats": string[];
         "modules"?: string;
         "placeholder": string;
@@ -25,7 +25,7 @@ export namespace Components {
     interface QuillView {
         "content": string;
         "debug": string;
-        "format": "html" | "text" | "json";
+        "format": 'html' | 'text' | 'json';
         "formats": string[];
         "modules"?: string;
         "preserveWhitespace": boolean;
@@ -67,51 +67,52 @@ declare namespace LocalJSX {
     interface QuillEditor {
         "bounds"?: HTMLElement | string;
         "content"?: string;
-        "customToolbarPosition"?: "top" | "bottom";
+        "customToolbarPosition"?: 'top' | 'bottom';
         "debug"?: string;
-        "format"?: "html" | "text" | "json";
+        "format"?: 'html' | 'text' | 'json';
         "formats"?: string[];
         "modules"?: string;
         "onEditorBlur"?: (event: CustomEvent<{
-            editor: any;
-            source: string;
-        }>) => void;
-        "onEditorChange"?: (event: CustomEvent<{
-            editor: any;
-            event: "text-change";
-            content: any;
-            text: string;
-            html: string;
-            delta: any;
-            oldDelta: any;
-            source: string;
-        } | {
-            editor: any;
-            event: "selection-change";
-            range: any;
-            oldRange: any;
-            source: string;
-        }>) => void;
+    editor: any;
+    source: string;
+  }>) => void;
+        "onEditorChange"?: (event: CustomEvent<| {
+        editor: any;
+        event: 'text-change';
+        content: any;
+        text: string;
+        html: string;
+        delta: any;
+        oldDelta: any;
+        source: string;
+      }
+    | {
+        editor: any;
+        event: 'selection-change';
+        range: any;
+        oldRange: any;
+        source: string;
+      }>) => void;
         "onEditorContentChange"?: (event: CustomEvent<{
-            editor: any;
-            content: any;
-            text: string;
-            html: string;
-            delta: any;
-            oldDelta: any;
-            source: string;
-        }>) => void;
+    editor: any;
+    content: any;
+    text: string;
+    html: string;
+    delta: any;
+    oldDelta: any;
+    source: string;
+  }>) => void;
         "onEditorFocus"?: (event: CustomEvent<{
-            editor: any;
-            source: string;
-        }>) => void;
+    editor: any;
+    source: string;
+  }>) => void;
         "onEditorInit"?: (event: CustomEvent<any>) => void;
         "onEditorSelectionChange"?: (event: CustomEvent<{
-            editor: any;
-            range: any;
-            oldRange: any;
-            source: string;
-        }>) => void;
+    editor: any;
+    range: any;
+    oldRange: any;
+    source: string;
+  }>) => void;
         "placeholder"?: string;
         "preserveWhitespace"?: boolean;
         "readOnly"?: boolean;
@@ -123,7 +124,7 @@ declare namespace LocalJSX {
     interface QuillView {
         "content"?: string;
         "debug"?: string;
-        "format"?: "html" | "text" | "json";
+        "format"?: 'html' | 'text' | 'json';
         "formats"?: string[];
         "modules"?: string;
         "preserveWhitespace"?: boolean;

@@ -43,10 +43,6 @@ export interface ComponentOptions {
      * Array of relative links to folders of assets required by the component.
      */
     assetsDirs?: string[];
-    /**
-     * @deprecated Use `assetsDirs` instead
-     */
-    assetsDir?: string;
 }
 export interface ShadowRootOptions {
     /**
@@ -81,14 +77,6 @@ export interface PropOptions {
      * In this case you can set the `reflect` option to `true`, since it defaults to `false`:
      */
     reflect?: boolean;
-    /** @deprecated: "attr" has been deprecated, please use "attribute" instead. */
-    attr?: string;
-    /** @deprecated "context" has been deprecated. */
-    context?: string;
-    /** @deprecated "connect" has been deprecated, please use ES modules and/or dynamic imports instead. */
-    connect?: string;
-    /** @deprecated "reflectToAttr" has been deprecated, please use "reflect" instead. */
-    reflectToAttr?: boolean;
 }
 export interface MethodDecorator {
     (opts?: MethodOptions): CustomMethodDecorator<any>;
@@ -145,7 +133,7 @@ export interface ListenOptions {
      */
     passive?: boolean;
 }
-export declare type ListenTargetOptions = 'parent' | 'body' | 'document' | 'window';
+export declare type ListenTargetOptions = 'body' | 'document' | 'window';
 export interface StateDecorator {
     (): PropertyDecorator;
 }
@@ -230,9 +218,24 @@ export declare const setMode: (handler: ResolutionHandler) => void;
  */
 export declare function getMode<T = string | undefined>(ref: any): T;
 /**
- * getAssetPath
+ * Get the base path to where the assets can be found. Use `setAssetPath(path)`
+ * if the path needs to be customized.
  */
 export declare function getAssetPath(path: string): string;
+/**
+ * Used to manually set the base path where assets can be found. For lazy-loaded
+ * builds the asset path is automatically set and assets copied to the correct
+ * build directory. However, for custom elements builds, the `setAssetPath(path)` could
+ * be used to customize the asset path depending on how the script file is consumed.
+ * If the script is used as "module", it's recommended to use "import.meta.url", such
+ * as `setAssetPath(import.meta.url)`. Other options include
+ * `setAssetPath(document.currentScript.src)`, or using a bundler's replace plugin to
+ * dynamically set the path at build time, such as `setAssetPath(process.env.ASSET_PATH)`.
+ * But do note that this configuration depends on how your script is bundled, or lack of
+ * bunding, and where your assets can be loaded from. Additionally custom bundling
+ * will have to ensure the static assets are copied to its build directory.
+ */
+export declare function setAssetPath(path: string): string;
 /**
  * getElement
  */
@@ -249,8 +252,6 @@ export declare function forceUpdate(ref: any): void;
 export declare function getRenderingRef(): any;
 export interface HTMLStencilElement extends HTMLElement {
     componentOnReady(): Promise<this>;
-    /** @deprecated */
-    forceUpdate(): void;
 }
 /**
  * Schedules a DOM-write task. The provided callback will be executed
@@ -316,13 +317,6 @@ export interface ComponentDidUpdate {
      */
     componentDidUpdate(): void;
 }
-export interface ComponentDidUnload {
-    /**
-     * The component did unload and the element
-     * will be destroyed.
-     */
-    componentDidUnload(): void;
-}
 export interface ComponentInterface {
     connectedCallback?(): void;
     disconnectedCallback?(): void;
@@ -347,6 +341,15 @@ export interface ComponentInterface {
      * componentDidLoad will only be called once.
      */
     componentDidLoad?(): void;
+    /**
+     * A `@Prop` or `@State` property changed and a rerender is about to be requested.
+     *
+     * Called multiple times throughout the life of
+     * the component as its properties change.
+     *
+     * componentShouldUpdate is not called on the first render.
+     */
+    componentShouldUpdate?(newVal: any, oldVal: any, propName: string): boolean | void;
     /**
      * The component is about to update and re-render.
      *
@@ -417,6 +420,10 @@ export interface ChildNode {
  * For further information: https://stenciljs.com/docs/host-element
  */
 export declare const Host: FunctionalComponent<HostAttributes>;
+/**
+ * Fragment
+ */
+export declare const Fragment: FunctionalComponent<{}>;
 /**
  * The "h" namespace is used to import JSX types for elements and attributes.
  * It is imported in order to avoid conflicting global JSX issues.
@@ -697,6 +704,7 @@ export declare namespace JSXBase {
     }
     interface DetailsHTMLAttributes<T> extends HTMLAttributes<T> {
         open?: boolean;
+        onToggle?: (event: Event) => void;
     }
     interface DelHTMLAttributes<T> extends HTMLAttributes<T> {
         cite?: string;
@@ -784,8 +792,8 @@ export declare namespace JSXBase {
         accept?: string;
         allowdirs?: boolean;
         alt?: string;
-        autoCapitalize?: string;
-        autocapitalize?: string;
+        autoCapitalize?: any;
+        autocapitalize?: any;
         autoComplete?: string;
         autocomplete?: string;
         autoFocus?: boolean;
@@ -861,6 +869,7 @@ export declare namespace JSXBase {
         value?: string | string[] | number;
     }
     interface LinkHTMLAttributes<T> extends HTMLAttributes<T> {
+        as?: string;
         href?: string;
         hrefLang?: string;
         hreflang?: string;
@@ -997,6 +1006,8 @@ export declare namespace JSXBase {
         name?: string;
         required?: boolean;
         size?: number;
+        autoComplete?: string;
+        autocomplete?: string;
     }
     interface SourceHTMLAttributes<T> extends HTMLAttributes<T> {
         media?: string;
@@ -1043,6 +1054,7 @@ export declare namespace JSXBase {
         rowSpan?: number;
     }
     interface ThHTMLAttributes<T> extends HTMLAttributes<T> {
+        abbr?: string;
         colSpan?: number;
         headers?: string;
         rowSpan?: number;
@@ -1082,8 +1094,7 @@ export declare namespace JSXBase {
         hidden?: boolean;
         id?: string;
         lang?: string;
-        spellCheck?: boolean;
-        spellcheck?: boolean | string;
+        spellcheck?: 'true' | 'false' | any;
         style?: {
             [key: string]: string | undefined;
         };
@@ -1106,8 +1117,8 @@ export declare namespace JSXBase {
         resource?: string;
         typeof?: string;
         vocab?: string;
-        autoCapitalize?: string;
-        autocapitalize?: string;
+        autoCapitalize?: any;
+        autocapitalize?: any;
         autoCorrect?: string;
         autocorrect?: string;
         autoSave?: string;
@@ -1291,8 +1302,8 @@ export declare namespace JSXBase {
         'primitiveUnits'?: number | string;
         'r'?: number | string;
         'radius'?: number | string;
-        'ref-x'?: number | string;
-        'ref-y'?: number | string;
+        'refX'?: number | string;
+        'refY'?: number | string;
         'rendering-intent'?: number | string;
         'repeatCount'?: number | string;
         'repeatDur'?: number | string;
@@ -1393,6 +1404,7 @@ export declare namespace JSXBase {
         ref?: (elm?: T) => void;
         slot?: string;
         part?: string;
+        exportparts?: string;
         onCopy?: (event: ClipboardEvent) => void;
         onCopyCapture?: (event: ClipboardEvent) => void;
         onCut?: (event: ClipboardEvent) => void;
@@ -1407,6 +1419,10 @@ export declare namespace JSXBase {
         onCompositionUpdateCapture?: (event: CompositionEvent) => void;
         onFocus?: (event: FocusEvent) => void;
         onFocusCapture?: (event: FocusEvent) => void;
+        onFocusIn?: (event: FocusEvent) => void;
+        onFocusInCapture?: (event: FocusEvent) => void;
+        onFocusOut?: (event: FocusEvent) => void;
+        onFocusOutCapture?: (event: FocusEvent) => void;
         onBlur?: (event: FocusEvent) => void;
         onBlurCapture?: (event: FocusEvent) => void;
         onChange?: (event: Event) => void;
@@ -1505,4 +1521,15 @@ export declare namespace JSXBase {
         onTransitionEnd?: (event: TransitionEvent) => void;
         onTransitionEndCapture?: (event: TransitionEvent) => void;
     }
+}
+export interface CustomElementsDefineOptions {
+    exclude?: string[];
+    resourcesUrl?: string;
+    syncQueue?: boolean;
+    transformTagName?: (tagName: string) => string;
+    jmp?: (c: Function) => any;
+    raf?: (c: FrameRequestCallback) => number;
+    ael?: (el: EventTarget, eventName: string, listener: EventListenerOrEventListenerObject, options: boolean | AddEventListenerOptions) => void;
+    rel?: (el: EventTarget, eventName: string, listener: EventListenerOrEventListenerObject, options: boolean | AddEventListenerOptions) => void;
+    ce?: (eventName: string, opts?: any) => CustomEvent;
 }
