@@ -1,8 +1,11 @@
-import { h, Component, Element, Prop, Watch } from '@stencil/core';
+import { h } from '@stencil/core';
 export class QuillViewComponent {
   constructor() {
     this.format = 'html';
+    this.content = undefined;
     this.debug = 'warn';
+    this.formats = undefined;
+    this.modules = undefined;
     this.strict = true;
     this.styles = '{}';
     this.theme = 'snow';
@@ -124,177 +127,186 @@ export class QuillViewComponent {
   }
   static get is() { return "quill-view"; }
   static get encapsulation() { return "scoped"; }
-  static get originalStyleUrls() { return {
-    "$": ["./quill-view.css"]
-  }; }
-  static get styleUrls() { return {
-    "$": ["quill-view.css"]
-  }; }
-  static get properties() { return {
-    "format": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "'html' | 'text' | 'json'",
-        "resolved": "\"html\" | \"json\" | \"text\"",
-        "references": {}
+  static get originalStyleUrls() {
+    return {
+      "$": ["./quill-view.css"]
+    };
+  }
+  static get styleUrls() {
+    return {
+      "$": ["quill-view.css"]
+    };
+  }
+  static get properties() {
+    return {
+      "format": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "'html' | 'text' | 'json'",
+          "resolved": "\"html\" | \"json\" | \"text\"",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "format",
+        "reflect": false,
+        "defaultValue": "'html'"
       },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
+      "content": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "string",
+          "resolved": "string",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "content",
+        "reflect": false
       },
-      "attribute": "format",
-      "reflect": false,
-      "defaultValue": "'html'"
-    },
-    "content": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "string",
-        "resolved": "string",
-        "references": {}
+      "debug": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "string",
+          "resolved": "string",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "debug",
+        "reflect": false,
+        "defaultValue": "'warn'"
       },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
+      "formats": {
+        "type": "unknown",
+        "mutable": false,
+        "complexType": {
+          "original": "string[]",
+          "resolved": "string[]",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        }
       },
-      "attribute": "content",
-      "reflect": false
-    },
-    "debug": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "string",
-        "resolved": "string",
-        "references": {}
+      "modules": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "string",
+          "resolved": "string",
+          "references": {}
+        },
+        "required": false,
+        "optional": true,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "modules",
+        "reflect": false
       },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
+      "strict": {
+        "type": "boolean",
+        "mutable": false,
+        "complexType": {
+          "original": "boolean",
+          "resolved": "boolean",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "strict",
+        "reflect": false,
+        "defaultValue": "true"
       },
-      "attribute": "debug",
-      "reflect": false,
-      "defaultValue": "'warn'"
-    },
-    "formats": {
-      "type": "unknown",
-      "mutable": false,
-      "complexType": {
-        "original": "string[]",
-        "resolved": "string[]",
-        "references": {}
+      "styles": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "string",
+          "resolved": "string",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "styles",
+        "reflect": false,
+        "defaultValue": "'{}'"
       },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
+      "theme": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "string",
+          "resolved": "string",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "theme",
+        "reflect": false,
+        "defaultValue": "'snow'"
+      },
+      "preserveWhitespace": {
+        "type": "boolean",
+        "mutable": false,
+        "complexType": {
+          "original": "boolean",
+          "resolved": "boolean",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "preserve-whitespace",
+        "reflect": false,
+        "defaultValue": "false"
       }
-    },
-    "modules": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "string",
-        "resolved": "string",
-        "references": {}
-      },
-      "required": false,
-      "optional": true,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "modules",
-      "reflect": false
-    },
-    "strict": {
-      "type": "boolean",
-      "mutable": false,
-      "complexType": {
-        "original": "boolean",
-        "resolved": "boolean",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "strict",
-      "reflect": false,
-      "defaultValue": "true"
-    },
-    "styles": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "string",
-        "resolved": "string",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "styles",
-      "reflect": false,
-      "defaultValue": "'{}'"
-    },
-    "theme": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "string",
-        "resolved": "string",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "theme",
-      "reflect": false,
-      "defaultValue": "'snow'"
-    },
-    "preserveWhitespace": {
-      "type": "boolean",
-      "mutable": false,
-      "complexType": {
-        "original": "boolean",
-        "resolved": "boolean",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "preserve-whitespace",
-      "reflect": false,
-      "defaultValue": "false"
-    }
-  }; }
+    };
+  }
   static get elementRef() { return "wrapperElement"; }
-  static get watchers() { return [{
-      "propName": "styles",
-      "methodName": "updateStyle"
-    }, {
-      "propName": "content",
-      "methodName": "updateContent"
-    }]; }
+  static get watchers() {
+    return [{
+        "propName": "styles",
+        "methodName": "updateStyle"
+      }, {
+        "propName": "content",
+        "methodName": "updateContent"
+      }];
+  }
 }
+//# sourceMappingURL=quill-view.js.map

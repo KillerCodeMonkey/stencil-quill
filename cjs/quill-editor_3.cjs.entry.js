@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-const index = require('./index-0066f6a7.js');
+const index = require('./index-ce7ecc23.js');
 
 const QuillEditorComponent = class {
   constructor(hostRef) {
@@ -13,14 +13,6 @@ const QuillEditorComponent = class {
     this.editorSelectionChange = index.createEvent(this, "editorSelectionChange", 7);
     this.editorFocus = index.createEvent(this, "editorFocus", 7);
     this.editorBlur = index.createEvent(this, "editorBlur", 7);
-    this.format = 'html';
-    this.debug = 'warn';
-    this.placeholder = 'Insert text here ...';
-    this.strict = true;
-    this.styles = '{}';
-    this.theme = 'snow';
-    this.customToolbarPosition = 'top';
-    this.preserveWhitespace = false;
     this.defaultModules = {
       toolbar: [
         ['bold', 'italic', 'underline', 'strike'],
@@ -36,9 +28,23 @@ const QuillEditorComponent = class {
         [{ font: [].slice() }],
         [{ align: [].slice() }],
         ['clean'],
-        ['link', 'image', 'video'],
+        ['link', 'image', 'video'], // link and image, video
       ],
     };
+    this.format = 'html';
+    this.bounds = undefined;
+    this.content = undefined;
+    this.debug = 'warn';
+    this.formats = undefined;
+    this.modules = undefined;
+    this.placeholder = 'Insert text here ...';
+    this.readOnly = undefined;
+    this.scrollingContainer = undefined;
+    this.strict = true;
+    this.styles = '{}';
+    this.theme = 'snow';
+    this.customToolbarPosition = 'top';
+    this.preserveWhitespace = false;
   }
   setEditorContent(value) {
     if (this.format === 'html') {
@@ -279,7 +285,10 @@ const QuillViewComponent = class {
   constructor(hostRef) {
     index.registerInstance(this, hostRef);
     this.format = 'html';
+    this.content = undefined;
     this.debug = 'warn';
+    this.formats = undefined;
+    this.modules = undefined;
     this.strict = true;
     this.styles = '{}';
     this.theme = 'snow';
@@ -412,8 +421,9 @@ const quillViewHtmlCss = ".ql-container.quill-view-html.sc-quill-view-html{borde
 const QuillViewHTMLComponent = class {
   constructor(hostRef) {
     index.registerInstance(this, hostRef);
-    this.theme = 'snow';
     this.themeClass = 'ql-snow';
+    this.content = undefined;
+    this.theme = 'snow';
   }
   updateTheme(newValue) {
     this.themeClass = `ql-${newValue || 'snow'}`;
@@ -431,3 +441,5 @@ QuillViewHTMLComponent.style = quillViewHtmlCss;
 exports.quill_editor = QuillEditorComponent;
 exports.quill_view = QuillViewComponent;
 exports.quill_view_html = QuillViewHTMLComponent;
+
+//# sourceMappingURL=quill-editor_3.cjs.entry.js.map

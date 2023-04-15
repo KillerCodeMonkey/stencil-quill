@@ -1,14 +1,6 @@
-import { h, Component, Element, Event, Prop, Watch, Host } from '@stencil/core';
+import { h, Host } from '@stencil/core';
 export class QuillEditorComponent {
   constructor() {
-    this.format = 'html';
-    this.debug = 'warn';
-    this.placeholder = 'Insert text here ...';
-    this.strict = true;
-    this.styles = '{}';
-    this.theme = 'snow';
-    this.customToolbarPosition = 'top';
-    this.preserveWhitespace = false;
     this.defaultModules = {
       toolbar: [
         ['bold', 'italic', 'underline', 'strike'],
@@ -24,9 +16,23 @@ export class QuillEditorComponent {
         [{ font: [].slice() }],
         [{ align: [].slice() }],
         ['clean'],
-        ['link', 'image', 'video'],
+        ['link', 'image', 'video'], // link and image, video
       ],
     };
+    this.format = 'html';
+    this.bounds = undefined;
+    this.content = undefined;
+    this.debug = 'warn';
+    this.formats = undefined;
+    this.modules = undefined;
+    this.placeholder = 'Insert text here ...';
+    this.readOnly = undefined;
+    this.scrollingContainer = undefined;
+    this.strict = true;
+    this.styles = '{}';
+    this.theme = 'snow';
+    this.customToolbarPosition = 'top';
+    this.preserveWhitespace = false;
   }
   setEditorContent(value) {
     if (this.format === 'html') {
@@ -250,368 +256,374 @@ export class QuillEditorComponent {
     }
   }
   render() {
-    h(Host, null,
-      h("slot", { name: "quill-toolbar", "quill-toolbar": "" }));
+    h(Host, null, h("slot", { name: "quill-toolbar", "quill-toolbar": "" }));
   }
   static get is() { return "quill-editor"; }
   static get encapsulation() { return "scoped"; }
-  static get properties() { return {
-    "format": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "'html' | 'text' | 'json'",
-        "resolved": "\"html\" | \"json\" | \"text\"",
-        "references": {}
+  static get properties() {
+    return {
+      "format": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "'html' | 'text' | 'json'",
+          "resolved": "\"html\" | \"json\" | \"text\"",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "format",
+        "reflect": false,
+        "defaultValue": "'html'"
       },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "format",
-      "reflect": false,
-      "defaultValue": "'html'"
-    },
-    "bounds": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "HTMLElement | string",
-        "resolved": "HTMLElement | string",
-        "references": {
-          "HTMLElement": {
-            "location": "global"
+      "bounds": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "HTMLElement | string",
+          "resolved": "HTMLElement | string",
+          "references": {
+            "HTMLElement": {
+              "location": "global"
+            }
           }
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "bounds",
+        "reflect": false
+      },
+      "content": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "string",
+          "resolved": "string",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "content",
+        "reflect": false
+      },
+      "debug": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "string",
+          "resolved": "string",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "debug",
+        "reflect": false,
+        "defaultValue": "'warn'"
+      },
+      "formats": {
+        "type": "unknown",
+        "mutable": false,
+        "complexType": {
+          "original": "string[]",
+          "resolved": "string[]",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
         }
       },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
+      "modules": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "string",
+          "resolved": "string",
+          "references": {}
+        },
+        "required": false,
+        "optional": true,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "modules",
+        "reflect": false
       },
-      "attribute": "bounds",
-      "reflect": false
-    },
-    "content": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "string",
-        "resolved": "string",
-        "references": {}
+      "placeholder": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "string",
+          "resolved": "string",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "placeholder",
+        "reflect": false,
+        "defaultValue": "'Insert text here ...'"
       },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
+      "readOnly": {
+        "type": "boolean",
+        "mutable": false,
+        "complexType": {
+          "original": "boolean",
+          "resolved": "boolean",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "read-only",
+        "reflect": false
       },
-      "attribute": "content",
-      "reflect": false
-    },
-    "debug": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "string",
-        "resolved": "string",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "debug",
-      "reflect": false,
-      "defaultValue": "'warn'"
-    },
-    "formats": {
-      "type": "unknown",
-      "mutable": false,
-      "complexType": {
-        "original": "string[]",
-        "resolved": "string[]",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      }
-    },
-    "modules": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "string",
-        "resolved": "string",
-        "references": {}
-      },
-      "required": false,
-      "optional": true,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "modules",
-      "reflect": false
-    },
-    "placeholder": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "string",
-        "resolved": "string",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "placeholder",
-      "reflect": false,
-      "defaultValue": "'Insert text here ...'"
-    },
-    "readOnly": {
-      "type": "boolean",
-      "mutable": false,
-      "complexType": {
-        "original": "boolean",
-        "resolved": "boolean",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "read-only",
-      "reflect": false
-    },
-    "scrollingContainer": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "HTMLElement | string",
-        "resolved": "HTMLElement | string",
-        "references": {
-          "HTMLElement": {
-            "location": "global"
+      "scrollingContainer": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "HTMLElement | string",
+          "resolved": "HTMLElement | string",
+          "references": {
+            "HTMLElement": {
+              "location": "global"
+            }
           }
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "scrolling-container",
+        "reflect": false
+      },
+      "strict": {
+        "type": "boolean",
+        "mutable": false,
+        "complexType": {
+          "original": "boolean",
+          "resolved": "boolean",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "strict",
+        "reflect": false,
+        "defaultValue": "true"
+      },
+      "styles": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "string",
+          "resolved": "string",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "styles",
+        "reflect": false,
+        "defaultValue": "'{}'"
+      },
+      "theme": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "string",
+          "resolved": "string",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "theme",
+        "reflect": false,
+        "defaultValue": "'snow'"
+      },
+      "customToolbarPosition": {
+        "type": "string",
+        "mutable": false,
+        "complexType": {
+          "original": "'top' | 'bottom'",
+          "resolved": "\"bottom\" | \"top\"",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "custom-toolbar-position",
+        "reflect": false,
+        "defaultValue": "'top'"
+      },
+      "preserveWhitespace": {
+        "type": "boolean",
+        "mutable": false,
+        "complexType": {
+          "original": "boolean",
+          "resolved": "boolean",
+          "references": {}
+        },
+        "required": false,
+        "optional": false,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "attribute": "preserve-whitespace",
+        "reflect": false,
+        "defaultValue": "false"
+      }
+    };
+  }
+  static get events() {
+    return [{
+        "method": "editorInit",
+        "name": "editorInit",
+        "bubbles": true,
+        "cancelable": true,
+        "composed": true,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "complexType": {
+          "original": "any",
+          "resolved": "any",
+          "references": {}
         }
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "scrolling-container",
-      "reflect": false
-    },
-    "strict": {
-      "type": "boolean",
-      "mutable": false,
-      "complexType": {
-        "original": "boolean",
-        "resolved": "boolean",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "strict",
-      "reflect": false,
-      "defaultValue": "true"
-    },
-    "styles": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "string",
-        "resolved": "string",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "styles",
-      "reflect": false,
-      "defaultValue": "'{}'"
-    },
-    "theme": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "string",
-        "resolved": "string",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "theme",
-      "reflect": false,
-      "defaultValue": "'snow'"
-    },
-    "customToolbarPosition": {
-      "type": "string",
-      "mutable": false,
-      "complexType": {
-        "original": "'top' | 'bottom'",
-        "resolved": "\"bottom\" | \"top\"",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "custom-toolbar-position",
-      "reflect": false,
-      "defaultValue": "'top'"
-    },
-    "preserveWhitespace": {
-      "type": "boolean",
-      "mutable": false,
-      "complexType": {
-        "original": "boolean",
-        "resolved": "boolean",
-        "references": {}
-      },
-      "required": false,
-      "optional": false,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "attribute": "preserve-whitespace",
-      "reflect": false,
-      "defaultValue": "false"
-    }
-  }; }
-  static get events() { return [{
-      "method": "editorInit",
-      "name": "editorInit",
-      "bubbles": true,
-      "cancelable": true,
-      "composed": true,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "complexType": {
-        "original": "any",
-        "resolved": "any",
-        "references": {}
-      }
-    }, {
-      "method": "editorChange",
-      "name": "editorChange",
-      "bubbles": true,
-      "cancelable": true,
-      "composed": true,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "complexType": {
-        "original": "| {\n        editor: any;\n        event: 'text-change';\n        content: any;\n        text: string;\n        html: string;\n        delta: any;\n        oldDelta: any;\n        source: string;\n      }\n    | {\n        editor: any;\n        event: 'selection-change';\n        range: any;\n        oldRange: any;\n        source: string;\n      }",
-        "resolved": "{ editor: any; event: \"selection-change\"; range: any; oldRange: any; source: string; } | { editor: any; event: \"text-change\"; content: any; text: string; html: string; delta: any; oldDelta: any; source: string; }",
-        "references": {}
-      }
-    }, {
-      "method": "editorContentChange",
-      "name": "editorContentChange",
-      "bubbles": true,
-      "cancelable": true,
-      "composed": true,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "complexType": {
-        "original": "{\n    editor: any;\n    content: any;\n    text: string;\n    html: string;\n    delta: any;\n    oldDelta: any;\n    source: string;\n  }",
-        "resolved": "{ editor: any; content: any; text: string; html: string; delta: any; oldDelta: any; source: string; }",
-        "references": {}
-      }
-    }, {
-      "method": "editorSelectionChange",
-      "name": "editorSelectionChange",
-      "bubbles": true,
-      "cancelable": true,
-      "composed": true,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "complexType": {
-        "original": "{\n    editor: any;\n    range: any;\n    oldRange: any;\n    source: string;\n  }",
-        "resolved": "{ editor: any; range: any; oldRange: any; source: string; }",
-        "references": {}
-      }
-    }, {
-      "method": "editorFocus",
-      "name": "editorFocus",
-      "bubbles": true,
-      "cancelable": true,
-      "composed": true,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "complexType": {
-        "original": "{\n    editor: any;\n    source: string;\n  }",
-        "resolved": "{ editor: any; source: string; }",
-        "references": {}
-      }
-    }, {
-      "method": "editorBlur",
-      "name": "editorBlur",
-      "bubbles": true,
-      "cancelable": true,
-      "composed": true,
-      "docs": {
-        "tags": [],
-        "text": ""
-      },
-      "complexType": {
-        "original": "{\n    editor: any;\n    source: string;\n  }",
-        "resolved": "{ editor: any; source: string; }",
-        "references": {}
-      }
-    }]; }
+      }, {
+        "method": "editorChange",
+        "name": "editorChange",
+        "bubbles": true,
+        "cancelable": true,
+        "composed": true,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "complexType": {
+          "original": "| {\n        editor: any;\n        event: 'text-change';\n        content: any;\n        text: string;\n        html: string;\n        delta: any;\n        oldDelta: any;\n        source: string;\n      }\n    | {\n        editor: any;\n        event: 'selection-change';\n        range: any;\n        oldRange: any;\n        source: string;\n      }",
+          "resolved": "{ editor: any; event: \"selection-change\"; range: any; oldRange: any; source: string; } | { editor: any; event: \"text-change\"; content: any; text: string; html: string; delta: any; oldDelta: any; source: string; }",
+          "references": {}
+        }
+      }, {
+        "method": "editorContentChange",
+        "name": "editorContentChange",
+        "bubbles": true,
+        "cancelable": true,
+        "composed": true,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "complexType": {
+          "original": "{\n    editor: any;\n    content: any;\n    text: string;\n    html: string;\n    delta: any;\n    oldDelta: any;\n    source: string;\n  }",
+          "resolved": "{ editor: any; content: any; text: string; html: string; delta: any; oldDelta: any; source: string; }",
+          "references": {}
+        }
+      }, {
+        "method": "editorSelectionChange",
+        "name": "editorSelectionChange",
+        "bubbles": true,
+        "cancelable": true,
+        "composed": true,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "complexType": {
+          "original": "{\n    editor: any;\n    range: any;\n    oldRange: any;\n    source: string;\n  }",
+          "resolved": "{ editor: any; range: any; oldRange: any; source: string; }",
+          "references": {}
+        }
+      }, {
+        "method": "editorFocus",
+        "name": "editorFocus",
+        "bubbles": true,
+        "cancelable": true,
+        "composed": true,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "complexType": {
+          "original": "{\n    editor: any;\n    source: string;\n  }",
+          "resolved": "{ editor: any; source: string; }",
+          "references": {}
+        }
+      }, {
+        "method": "editorBlur",
+        "name": "editorBlur",
+        "bubbles": true,
+        "cancelable": true,
+        "composed": true,
+        "docs": {
+          "tags": [],
+          "text": ""
+        },
+        "complexType": {
+          "original": "{\n    editor: any;\n    source: string;\n  }",
+          "resolved": "{ editor: any; source: string; }",
+          "references": {}
+        }
+      }];
+  }
   static get elementRef() { return "wrapperElement"; }
-  static get watchers() { return [{
-      "propName": "content",
-      "methodName": "updateContent"
-    }, {
-      "propName": "readOnly",
-      "methodName": "updateReadOnly"
-    }, {
-      "propName": "placeholder",
-      "methodName": "updatePlaceholder"
-    }, {
-      "propName": "styles",
-      "methodName": "updateStyle"
-    }]; }
+  static get watchers() {
+    return [{
+        "propName": "content",
+        "methodName": "updateContent"
+      }, {
+        "propName": "readOnly",
+        "methodName": "updateReadOnly"
+      }, {
+        "propName": "placeholder",
+        "methodName": "updatePlaceholder"
+      }, {
+        "propName": "styles",
+        "methodName": "updateStyle"
+      }];
+  }
 }
+//# sourceMappingURL=quill-editor.js.map

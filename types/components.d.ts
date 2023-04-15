@@ -38,6 +38,10 @@ export namespace Components {
         "theme": string;
     }
 }
+export interface QuillEditorCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLQuillEditorElement;
+}
 declare global {
     interface HTMLQuillEditorElement extends Components.QuillEditor, HTMLStencilElement {
     }
@@ -72,11 +76,11 @@ declare namespace LocalJSX {
         "format"?: 'html' | 'text' | 'json';
         "formats"?: string[];
         "modules"?: string;
-        "onEditorBlur"?: (event: CustomEvent<{
+        "onEditorBlur"?: (event: QuillEditorCustomEvent<{
     editor: any;
     source: string;
   }>) => void;
-        "onEditorChange"?: (event: CustomEvent<| {
+        "onEditorChange"?: (event: QuillEditorCustomEvent<| {
         editor: any;
         event: 'text-change';
         content: any;
@@ -93,7 +97,7 @@ declare namespace LocalJSX {
         oldRange: any;
         source: string;
       }>) => void;
-        "onEditorContentChange"?: (event: CustomEvent<{
+        "onEditorContentChange"?: (event: QuillEditorCustomEvent<{
     editor: any;
     content: any;
     text: string;
@@ -102,12 +106,12 @@ declare namespace LocalJSX {
     oldDelta: any;
     source: string;
   }>) => void;
-        "onEditorFocus"?: (event: CustomEvent<{
+        "onEditorFocus"?: (event: QuillEditorCustomEvent<{
     editor: any;
     source: string;
   }>) => void;
-        "onEditorInit"?: (event: CustomEvent<any>) => void;
-        "onEditorSelectionChange"?: (event: CustomEvent<{
+        "onEditorInit"?: (event: QuillEditorCustomEvent<any>) => void;
+        "onEditorSelectionChange"?: (event: QuillEditorCustomEvent<{
     editor: any;
     range: any;
     oldRange: any;
