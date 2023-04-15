@@ -8,7 +8,7 @@ export const config: Config = {
       esmLoaderPath: '../loader',
     },
     {
-      type: 'dist-custom-elements-bundle',
+      type: 'dist-custom-elements',
     },
     {
       type: 'docs-readme',
@@ -19,12 +19,6 @@ export const config: Config = {
     },
   ],
   buildEs5: 'prod',
-  extras: {
-    cssVarsShim: true,
-    dynamicImportShim: true,
-    safari10: true,
-    shadowDomShim: true,
-  },
   testing: {
     collectCoverage: true,
     coverageThreshold: {
