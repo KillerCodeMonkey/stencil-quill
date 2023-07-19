@@ -14,6 +14,9 @@
     "dist/",
     "loader/"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "stencil build --docs",
     "build:deploy": "stencil build && cp ./src/index.html ./dist && gh-pages -d ./dist",
