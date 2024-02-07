@@ -1,4 +1,5 @@
 const NAMESPACE = 'quill-components';
+const BUILD = /* quill-components */ { allRenderFn: true, appendChildSlotFix: false, asyncLoading: true, asyncQueue: false, attachStyles: true, cloneNodeFix: false, cmpDidLoad: true, cmpDidRender: false, cmpDidUnload: false, cmpDidUpdate: false, cmpShouldUpdate: false, cmpWillLoad: false, cmpWillRender: false, cmpWillUpdate: false, connectedCallback: false, constructableCSS: true, cssAnnotations: true, devTools: false, disconnectedCallback: true, element: false, event: true, experimentalScopedSlotChanges: false, experimentalSlotFixes: false, formAssociated: false, hasRenderFn: true, hostListener: false, hostListenerTarget: false, hostListenerTargetBody: false, hostListenerTargetDocument: false, hostListenerTargetParent: false, hostListenerTargetWindow: false, hotModuleReplacement: false, hydrateClientSide: false, hydrateServerSide: false, hydratedAttribute: false, hydratedClass: true, initializeNextTick: false, invisiblePrehydration: true, isDebug: false, isDev: false, isTesting: false, lazyLoad: true, lifecycle: true, lifecycleDOMEvents: false, member: true, method: false, mode: false, observeAttribute: true, profile: false, prop: true, propBoolean: true, propMutable: false, propNumber: false, propString: true, reflect: false, scoped: true, scopedSlotTextContentFix: false, scriptDataOpts: false, shadowDelegatesFocus: false, shadowDom: false, slot: true, slotChildNodesFix: false, slotRelocation: true, state: false, style: true, svg: false, taskQueue: true, transformTagName: false, updatable: true, vdomAttribute: true, vdomClass: true, vdomFunctional: false, vdomKey: true, vdomListener: false, vdomPropOrAttr: true, vdomRef: true, vdomRender: true, vdomStyle: false, vdomText: false, vdomXlink: false, watchCallback: true };
 
 /**
  * Virtual DOM patching algorithm based on Snabbdom by
@@ -31,6 +32,13 @@ const uniqueTime = (key, measureText) => {
     }
 };
 const HYDRATED_CSS = '{visibility:hidden}.hydrated{visibility:inherit}';
+/**
+ * Constant for styles to be globally applied to `slot-fb` elements for pseudo-slot behavior.
+ *
+ * Two cascading rules must be used instead of a `:not()` selector due to Stencil browser
+ * support as of Stencil v4.
+ */
+const SLOT_FB_CSS = 'slot-fb{display:contents}slot-fb[hidden]{display:none}';
 /**
  * Default style mode id
  */
@@ -76,6 +84,7 @@ function queryNonceMetaTagContent(doc) {
 // export function h(nodeName: string | d.FunctionalComponent, vnodeData: d.PropsType, ...children: d.ChildType[]): d.VNode;
 const h = (nodeName, vnodeData, ...children) => {
     let child = null;
+    let key = null;
     let slotName = null;
     let simple = false;
     let lastSimple = false;
@@ -104,9 +113,13 @@ const h = (nodeName, vnodeData, ...children) => {
     };
     walk(children);
     if (vnodeData) {
+        if (vnodeData.key) {
+            key = vnodeData.key;
+        }
         if (vnodeData.name) {
             slotName = vnodeData.name;
         }
+        // normalize class / className attributes
         {
             const classData = vnodeData.className || vnodeData.class;
             if (classData) {
@@ -123,6 +136,9 @@ const h = (nodeName, vnodeData, ...children) => {
     vnode.$attrs$ = vnodeData;
     if (vNodeChildren.length > 0) {
         vnode.$children$ = vNodeChildren;
+    }
+    {
+        vnode.$key$ = key;
     }
     {
         vnode.$name$ = slotName;
@@ -147,6 +163,9 @@ const newVNode = (tag, text) => {
     };
     {
         vnode.$attrs$ = null;
+    }
+    {
+        vnode.$key$ = null;
     }
     {
         vnode.$name$ = null;
@@ -247,9 +266,9 @@ const registerStyle = (scopeId, cssText, allowCS) => {
     }
     styles.set(scopeId, style);
 };
-const addStyle = (styleContainerNode, cmpMeta, mode, hostElm) => {
+const addStyle = (styleContainerNode, cmpMeta, mode) => {
     var _a;
-    let scopeId = getScopeId(cmpMeta);
+    const scopeId = getScopeId(cmpMeta);
     const style = styles.get(scopeId);
     // if an element is NOT connected then getRootNode() will return the wrong root node
     // so the fallback is to always use the document for the root node in those cases
@@ -264,17 +283,18 @@ const addStyle = (styleContainerNode, cmpMeta, mode, hostElm) => {
             }
             if (!appliedStyles.has(scopeId)) {
                 {
-                    // TODO(STENCIL-659): Remove code implementing the CSS variable shim
-                    {
-                        styleElm = doc.createElement('style');
-                        styleElm.innerHTML = style;
-                    }
+                    styleElm = doc.createElement('style');
+                    styleElm.innerHTML = style;
                     // Apply CSP nonce to the style tag if it exists
                     const nonce = (_a = plt.$nonce$) !== null && _a !== void 0 ? _a : queryNonceMetaTagContent(doc);
                     if (nonce != null) {
                         styleElm.setAttribute('nonce', nonce);
                     }
                     styleContainerNode.insertBefore(styleElm, styleContainerNode.querySelector('link'));
+                }
+                // Add styles for `slot-fb` elements if we're using slots outside the Shadow DOM
+                if (cmpMeta.$flags$ & 4 /* CMP_FLAGS.hasSlotRelocation */) {
+                    styleElm.innerHTML += SLOT_FB_CSS;
                 }
                 if (appliedStyles) {
                     appliedStyles.add(scopeId);
@@ -293,7 +313,6 @@ const attachStyles = (hostRef) => {
     const flags = cmpMeta.$flags$;
     const endAttachStyles = createTime('attachStyles', cmpMeta.$tagName$);
     const scopeId = addStyle(elm.getRootNode(), cmpMeta);
-    // TODO(STENCIL-662): Remove code related to deprecated shadowDomShim field
     if (flags & 10 /* CMP_FLAGS.needsScopedEncapsulation */) {
         // only required when we're NOT using native shadow dom (slot)
         // or this browser doesn't support native shadow dom
@@ -319,6 +338,21 @@ const getScopeId = (cmp, mode) => 'sc-' + (cmp.$tagName$);
  *
  * Modified for Stencil's compiler and vdom
  */
+/**
+ * When running a VDom render set properties present on a VDom node onto the
+ * corresponding HTML element.
+ *
+ * Note that this function has special functionality for the `class`,
+ * `style`, `key`, and `ref` attributes, as well as event handlers (like
+ * `onClick`, etc). All others are just passed through as-is.
+ *
+ * @param elm the HTMLElement onto which attributes should be set
+ * @param memberName the name of the attribute to set
+ * @param oldValue the old value for the attribute
+ * @param newValue the new value for the attribute
+ * @param isSvg whether we're in an svg context or not
+ * @param flags bitflags for Vdom variables
+ */
 const setAccessor = (elm, memberName, oldValue, newValue, isSvg, flags) => {
     if (oldValue !== newValue) {
         let isProp = isMemberInElement(elm, memberName);
@@ -330,6 +364,8 @@ const setAccessor = (elm, memberName, oldValue, newValue, isSvg, flags) => {
             classList.remove(...oldClasses.filter((c) => c && !newClasses.includes(c)));
             classList.add(...newClasses.filter((c) => c && !oldClasses.includes(c)));
         }
+        else if (memberName === 'key')
+            ;
         else if (memberName === 'ref') {
             // minifier will clean this up
             if (newValue) {
@@ -355,7 +391,11 @@ const setAccessor = (elm, memberName, oldValue, newValue, isSvg, flags) => {
                         elm[memberName] = newValue;
                     }
                 }
-                catch (e) { }
+                catch (e) {
+                    /**
+                     * in case someone tries to set a read-only property, e.g. "namespaceURI", we just ignore it
+                     */
+                }
             }
             if (newValue == null || newValue === false) {
                 if (newValue !== false || elm.getAttribute(memberName) === '') {
@@ -374,6 +414,11 @@ const setAccessor = (elm, memberName, oldValue, newValue, isSvg, flags) => {
     }
 };
 const parseClassListRegex = /\s/;
+/**
+ * Parsed a string of classnames into an array
+ * @param value className string, e.g. "foo bar baz"
+ * @returns list of classes, e.g. ["foo", "bar", "baz"]
+ */
 const parseClassList = (value) => (!value ? [] : value.split(parseClassListRegex));
 const updateElement = (oldVnode, newVnode, isSvgMode, memberName) => {
     // if the element passed in is a shadow root, which is a document fragment
@@ -460,8 +505,10 @@ const createElm = (oldParentVNode, newParentVNode, childIndex, parentElm) => {
             }
         }
     }
+    // This needs to always happen so we can hide nodes that are projected
+    // to another component but don't end up in a slot
+    elm['s-hn'] = hostTagName;
     {
-        elm['s-hn'] = hostTagName;
         if (newVNode.$flags$ & (2 /* VNODE_FLAGS.isSlotFallback */ | 1 /* VNODE_FLAGS.isSlotReference */)) {
             // remember the content reference comment
             elm['s-sr'] = true;
@@ -472,9 +519,11 @@ const createElm = (oldParentVNode, newParentVNode, childIndex, parentElm) => {
             // check if we've got an old vnode for this slot
             oldVNode = oldParentVNode && oldParentVNode.$children$ && oldParentVNode.$children$[childIndex];
             if (oldVNode && oldVNode.$tag$ === newVNode.$tag$ && oldParentVNode.$elm$) {
-                // we've got an old slot vnode and the wrapper is being replaced
-                // so let's move the old slot content back to it's original location
-                putBackInOriginalLocation(oldParentVNode.$elm$, false);
+                {
+                    // we've got an old slot vnode and the wrapper is being replaced
+                    // so let's move the old slot content back to its original location
+                    putBackInOriginalLocation(oldParentVNode.$elm$, false);
+                }
             }
         }
     }
@@ -486,16 +535,15 @@ const putBackInOriginalLocation = (parentElm, recursive) => {
     for (let i = oldSlotChildNodes.length - 1; i >= 0; i--) {
         const childNode = oldSlotChildNodes[i];
         if (childNode['s-hn'] !== hostTagName && childNode['s-ol']) {
-            // // this child node in the old element is from another component
-            // // remove this node from the old slot's parent
-            // childNode.remove();
             // and relocate it back to it's original location
             parentReferenceNode(childNode).insertBefore(childNode, referenceNode(childNode));
             // remove the old original location comment entirely
             // later on the patch function will know what to do
-            // and move this to the correct spot in need be
+            // and move this to the correct spot if need be
             childNode['s-ol'].remove();
             childNode['s-ol'] = undefined;
+            // Reset so we can correctly move the node around again.
+            childNode['s-sh'] = undefined;
             checkSlotRelocate = true;
         }
         if (recursive) {
@@ -542,30 +590,31 @@ const addVnodes = (parentElm, before, parentVNode, vnodes, startIdx, endIdx) => 
  * @param vnodes a list of virtual DOM nodes to remove
  * @param startIdx the index at which to start removing nodes (inclusive)
  * @param endIdx the index at which to stop removing nodes (inclusive)
- * @param vnode a VNode
- * @param elm an element
  */
-const removeVnodes = (vnodes, startIdx, endIdx, vnode, elm) => {
-    for (; startIdx <= endIdx; ++startIdx) {
-        if ((vnode = vnodes[startIdx])) {
-            elm = vnode.$elm$;
-            callNodeRefs(vnode);
-            {
-                // we're removing this element
-                // so it's possible we need to show slot fallback content now
-                checkSlotFallbackVisibility = true;
-                if (elm['s-ol']) {
-                    // remove the original location comment
-                    elm['s-ol'].remove();
+const removeVnodes = (vnodes, startIdx, endIdx) => {
+    for (let index = startIdx; index <= endIdx; ++index) {
+        const vnode = vnodes[index];
+        if (vnode) {
+            const elm = vnode.$elm$;
+            nullifyVNodeRefs(vnode);
+            if (elm) {
+                {
+                    // we're removing this element
+                    // so it's possible we need to show slot fallback content now
+                    checkSlotFallbackVisibility = true;
+                    if (elm['s-ol']) {
+                        // remove the original location comment
+                        elm['s-ol'].remove();
+                    }
+                    else {
+                        // it's possible that child nodes of the node
+                        // that's being removed are slot nodes
+                        putBackInOriginalLocation(elm, true);
+                    }
                 }
-                else {
-                    // it's possible that child nodes of the node
-                    // that's being removed are slot nodes
-                    putBackInOriginalLocation(elm, true);
-                }
+                // remove the vnode's element from the dom
+                elm.remove();
             }
-            // remove the vnode's element from the dom
-            elm.remove();
         }
     }
 };
@@ -636,10 +685,13 @@ const removeVnodes = (vnodes, startIdx, endIdx, vnode, elm) => {
  * @param oldCh the old children of the parent node
  * @param newVNode the new VNode which will replace the parent
  * @param newCh the new children of the parent node
+ * @param isInitialRender whether or not this is the first render of the vdom
  */
-const updateChildren = (parentElm, oldCh, newVNode, newCh) => {
+const updateChildren = (parentElm, oldCh, newVNode, newCh, isInitialRender = false) => {
     let oldStartIdx = 0;
     let newStartIdx = 0;
+    let idxInOld = 0;
+    let i = 0;
     let oldEndIdx = oldCh.length - 1;
     let oldStartVnode = oldCh[0];
     let oldEndVnode = oldCh[oldEndIdx];
@@ -647,6 +699,7 @@ const updateChildren = (parentElm, oldCh, newVNode, newCh) => {
     let newStartVnode = newCh[0];
     let newEndVnode = newCh[newEndIdx];
     let node;
+    let elmToMove;
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
         if (oldStartVnode == null) {
             // VNode might have been moved left
@@ -661,24 +714,24 @@ const updateChildren = (parentElm, oldCh, newVNode, newCh) => {
         else if (newEndVnode == null) {
             newEndVnode = newCh[--newEndIdx];
         }
-        else if (isSameVnode(oldStartVnode, newStartVnode)) {
+        else if (isSameVnode(oldStartVnode, newStartVnode, isInitialRender)) {
             // if the start nodes are the same then we should patch the new VNode
             // onto the old one, and increment our `newStartIdx` and `oldStartIdx`
             // indices to reflect that. We don't need to move any DOM Nodes around
             // since things are matched up in order.
-            patch(oldStartVnode, newStartVnode);
+            patch(oldStartVnode, newStartVnode, isInitialRender);
             oldStartVnode = oldCh[++oldStartIdx];
             newStartVnode = newCh[++newStartIdx];
         }
-        else if (isSameVnode(oldEndVnode, newEndVnode)) {
+        else if (isSameVnode(oldEndVnode, newEndVnode, isInitialRender)) {
             // likewise, if the end nodes are the same we patch new onto old and
             // decrement our end indices, and also likewise in this case we don't
             // need to move any DOM Nodes.
-            patch(oldEndVnode, newEndVnode);
+            patch(oldEndVnode, newEndVnode, isInitialRender);
             oldEndVnode = oldCh[--oldEndIdx];
             newEndVnode = newCh[--newEndIdx];
         }
-        else if (isSameVnode(oldStartVnode, newEndVnode)) {
+        else if (isSameVnode(oldStartVnode, newEndVnode, isInitialRender)) {
             // case: "Vnode moved right"
             //
             // We've found that the last node in our window on the new children is
@@ -696,7 +749,7 @@ const updateChildren = (parentElm, oldCh, newVNode, newCh) => {
             if ((oldStartVnode.$tag$ === 'slot' || newEndVnode.$tag$ === 'slot')) {
                 putBackInOriginalLocation(oldStartVnode.$elm$.parentNode, false);
             }
-            patch(oldStartVnode, newEndVnode);
+            patch(oldStartVnode, newEndVnode, isInitialRender);
             // We need to move the element for `oldStartVnode` into a position which
             // will be appropriate for `newEndVnode`. For this we can use
             // `.insertBefore` and `oldEndVnode.$elm$.nextSibling`. If there is a
@@ -718,7 +771,7 @@ const updateChildren = (parentElm, oldCh, newVNode, newCh) => {
             oldStartVnode = oldCh[++oldStartIdx];
             newEndVnode = newCh[--newEndIdx];
         }
-        else if (isSameVnode(oldEndVnode, newStartVnode)) {
+        else if (isSameVnode(oldEndVnode, newStartVnode, isInitialRender)) {
             // case: "Vnode moved left"
             //
             // We've found that the first node in our window on the new children is
@@ -737,7 +790,7 @@ const updateChildren = (parentElm, oldCh, newVNode, newCh) => {
             if ((oldStartVnode.$tag$ === 'slot' || newEndVnode.$tag$ === 'slot')) {
                 putBackInOriginalLocation(oldEndVnode.$elm$.parentNode, false);
             }
-            patch(oldEndVnode, newStartVnode);
+            patch(oldEndVnode, newStartVnode, isInitialRender);
             // We've already checked above if `oldStartVnode` and `newStartVnode` are
             // the same node, so since we're here we know that they are not. Thus we
             // can move the element for `oldEndVnode` _before_ the element for
@@ -748,7 +801,41 @@ const updateChildren = (parentElm, oldCh, newVNode, newCh) => {
             newStartVnode = newCh[++newStartIdx];
         }
         else {
+            // Here we do some checks to match up old and new nodes based on the
+            // `$key$` attribute, which is set by putting a `key="my-key"` attribute
+            // in the JSX for a DOM element in the implementation of a Stencil
+            // component.
+            //
+            // First we check to see if there are any nodes in the array of old
+            // children which have the same key as the first node in the new
+            // children.
+            idxInOld = -1;
             {
+                for (i = oldStartIdx; i <= oldEndIdx; ++i) {
+                    if (oldCh[i] && oldCh[i].$key$ !== null && oldCh[i].$key$ === newStartVnode.$key$) {
+                        idxInOld = i;
+                        break;
+                    }
+                }
+            }
+            if (idxInOld >= 0) {
+                // We found a node in the old children which matches up with the first
+                // node in the new children! So let's deal with that
+                elmToMove = oldCh[idxInOld];
+                if (elmToMove.$tag$ !== newStartVnode.$tag$) {
+                    // the tag doesn't match so we'll need a new DOM element
+                    node = createElm(oldCh && oldCh[newStartIdx], newVNode, idxInOld, parentElm);
+                }
+                else {
+                    patch(elmToMove, newStartVnode, isInitialRender);
+                    // invalidate the matching old node so that we won't try to update it
+                    // again later on
+                    oldCh[idxInOld] = undefined;
+                    node = elmToMove.$elm$;
+                }
+                newStartVnode = newCh[++newStartIdx];
+            }
+            else {
                 // We either didn't find an element in the old children that matches
                 // the key of the first new child OR the build is not using `key`
                 // attributes at all. In either case we need to create a new element
@@ -791,14 +878,23 @@ const updateChildren = (parentElm, oldCh, newVNode, newCh) => {
  *
  * @param leftVNode the first VNode to check
  * @param rightVNode the second VNode to check
+ * @param isInitialRender whether or not this is the first render of the vdom
  * @returns whether they're equal or not
  */
-const isSameVnode = (leftVNode, rightVNode) => {
+const isSameVnode = (leftVNode, rightVNode, isInitialRender = false) => {
     // compare if two vnode to see if they're "technically" the same
     // need to have the same element tag, and same key to be the same
     if (leftVNode.$tag$ === rightVNode.$tag$) {
         if (leftVNode.$tag$ === 'slot') {
             return leftVNode.$name$ === rightVNode.$name$;
+        }
+        // this will be set if JSX tags in the build have `key` attrs set on them
+        // we only want to check this if we're not on the first render since on
+        // first render `leftVNode.$key$` will always be `null`, so we can be led
+        // astray and, for instance, accidentally delete a DOM node that we want to
+        // keep around.
+        if (!isInitialRender) {
+            return leftVNode.$key$ === rightVNode.$key$;
         }
         return true;
     }
@@ -819,16 +915,16 @@ const parentReferenceNode = (node) => (node['s-ol'] ? node['s-ol'] : node).paren
  *
  * @param oldVNode an old VNode whose DOM element and children we want to update
  * @param newVNode a new VNode representing an updated version of the old one
+ * @param isInitialRender whether or not this is the first render of the vdom
  */
-const patch = (oldVNode, newVNode) => {
+const patch = (oldVNode, newVNode, isInitialRender = false) => {
     const elm = (newVNode.$elm$ = oldVNode.$elm$);
     const oldChildren = oldVNode.$children$;
     const newChildren = newVNode.$children$;
     const tag = newVNode.$tag$;
     {
         {
-            if (tag === 'slot')
-                ;
+            if (tag === 'slot' && !useNativeShadowDom) ;
             else {
                 // either this is the first render of an element OR it's an update
                 // AND we already know it's possible it could have changed
@@ -839,7 +935,7 @@ const patch = (oldVNode, newVNode) => {
         if (oldChildren !== null && newChildren !== null) {
             // looks like there's child vnodes for both the old and new vnodes
             // so we need to call `updateChildren` to reconcile them
-            updateChildren(elm, oldChildren, newVNode, newChildren);
+            updateChildren(elm, oldChildren, newVNode, newChildren, isInitialRender);
         }
         else if (newChildren !== null) {
             // add the new vnode children
@@ -851,42 +947,53 @@ const patch = (oldVNode, newVNode) => {
         }
     }
 };
+/**
+ * Adjust the `.hidden` property as-needed on any nodes in a DOM subtree which
+ * are slot fallbacks nodes.
+ *
+ * A slot fallback node should be visible by default. Then, it should be
+ * conditionally hidden if:
+ *
+ * - it has a sibling with a `slot` property set to its slot name or if
+ * - it is a default fallback slot node, in which case we hide if it has any
+ *   content
+ *
+ * @param elm the element of interest
+ */
 const updateFallbackSlotVisibility = (elm) => {
-    // tslint:disable-next-line: prefer-const
     const childNodes = elm.childNodes;
-    let childNode;
-    let i;
-    let ilen;
-    let j;
-    let slotNameAttr;
-    let nodeType;
-    for (i = 0, ilen = childNodes.length; i < ilen; i++) {
-        childNode = childNodes[i];
+    for (const childNode of childNodes) {
         if (childNode.nodeType === 1 /* NODE_TYPE.ElementNode */) {
             if (childNode['s-sr']) {
                 // this is a slot fallback node
                 // get the slot name for this slot reference node
-                slotNameAttr = childNode['s-sn'];
+                const slotName = childNode['s-sn'];
                 // by default always show a fallback slot node
                 // then hide it if there are other slots in the light dom
                 childNode.hidden = false;
-                for (j = 0; j < ilen; j++) {
-                    nodeType = childNodes[j].nodeType;
-                    if (childNodes[j]['s-hn'] !== childNode['s-hn'] || slotNameAttr !== '') {
-                        // this sibling node is from a different component OR is a named fallback slot node
-                        if (nodeType === 1 /* NODE_TYPE.ElementNode */ && slotNameAttr === childNodes[j].getAttribute('slot')) {
-                            childNode.hidden = true;
-                            break;
+                // we need to check all of its sibling nodes in order to see if
+                // `childNode` should be hidden
+                for (const siblingNode of childNodes) {
+                    // Don't check the node against itself
+                    if (siblingNode !== childNode) {
+                        if (siblingNode['s-hn'] !== childNode['s-hn'] || slotName !== '') {
+                            // this sibling node is from a different component OR is a named
+                            // fallback slot node
+                            if (siblingNode.nodeType === 1 /* NODE_TYPE.ElementNode */ &&
+                                (slotName === siblingNode.getAttribute('slot') || slotName === siblingNode['s-sn'])) {
+                                childNode.hidden = true;
+                                break;
+                            }
                         }
-                    }
-                    else {
-                        // this is a default fallback slot node
-                        // any element or text node (with content)
-                        // should hide the default fallback slot node
-                        if (nodeType === 1 /* NODE_TYPE.ElementNode */ ||
-                            (nodeType === 3 /* NODE_TYPE.TextNode */ && childNodes[j].textContent.trim() !== '')) {
-                            childNode.hidden = true;
-                            break;
+                        else {
+                            // this is a default fallback slot node
+                            // any element or text node (with content)
+                            // should hide the default fallback slot node
+                            if (siblingNode.nodeType === 1 /* NODE_TYPE.ElementNode */ ||
+                                (siblingNode.nodeType === 3 /* NODE_TYPE.TextNode */ && siblingNode.textContent.trim() !== '')) {
+                                childNode.hidden = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -896,45 +1003,67 @@ const updateFallbackSlotVisibility = (elm) => {
         }
     }
 };
+/**
+ * Component-global information about nodes which are either currently being
+ * relocated or will be shortly.
+ */
 const relocateNodes = [];
-const relocateSlotContent = (elm) => {
+/**
+ * Mark the contents of a slot for relocation via adding references to them to
+ * the {@link relocateNodes} data structure. The actual work of relocating them
+ * will then be handled in {@link renderVdom}.
+ *
+ * @param elm a render node whose child nodes need to be relocated
+ */
+const markSlotContentForRelocation = (elm) => {
     // tslint:disable-next-line: prefer-const
-    let childNode;
     let node;
     let hostContentNodes;
-    let slotNameAttr;
-    let relocateNodeData;
     let j;
-    let i = 0;
-    const childNodes = elm.childNodes;
-    const ilen = childNodes.length;
-    for (; i < ilen; i++) {
-        childNode = childNodes[i];
+    for (const childNode of elm.childNodes) {
+        // we need to find child nodes which are slot references so we can then try
+        // to match them up with nodes that need to be relocated
         if (childNode['s-sr'] && (node = childNode['s-cr']) && node.parentNode) {
-            // first got the content reference comment node
-            // then we got it's parent, which is where all the host content is in now
+            // first get the content reference comment node ('s-cr'), then we get
+            // its parent, which is where all the host content is now
             hostContentNodes = node.parentNode.childNodes;
-            slotNameAttr = childNode['s-sn'];
+            const slotName = childNode['s-sn'];
+            // iterate through all the nodes under the location where the host was
+            // originally rendered
             for (j = hostContentNodes.length - 1; j >= 0; j--) {
                 node = hostContentNodes[j];
-                if (!node['s-cn'] && !node['s-nr'] && node['s-hn'] !== childNode['s-hn']) {
-                    // let's do some relocating to its new home
-                    // but never relocate a content reference node
-                    // that is suppose to always represent the original content location
-                    if (isNodeLocatedInSlot(node, slotNameAttr)) {
+                // check that the node is not a content reference node or a node
+                // reference and then check that the host name does not match that of
+                // childNode.
+                // In addition, check that the slot either has not already been relocated, or
+                // that its current location's host is not childNode's host. This is essentially
+                // a check so that we don't try to relocate (and then hide) a node that is already
+                // where it should be.
+                if (!node['s-cn'] &&
+                    !node['s-nr'] &&
+                    node['s-hn'] !== childNode['s-hn'] &&
+                    (!BUILD.experimentalSlotFixes  )) {
+                    // if `node` is located in the slot that `childNode` refers to (via the
+                    // `'s-sn'` property) then we need to relocate it from it's current spot
+                    // (under the host element parent) to the right slot location
+                    if (isNodeLocatedInSlot(node, slotName)) {
                         // it's possible we've already decided to relocate this node
-                        relocateNodeData = relocateNodes.find((r) => r.$nodeToRelocate$ === node);
+                        let relocateNodeData = relocateNodes.find((r) => r.$nodeToRelocate$ === node);
                         // made some changes to slots
                         // let's make sure we also double check
                         // fallbacks are correctly hidden or shown
                         checkSlotFallbackVisibility = true;
-                        node['s-sn'] = node['s-sn'] || slotNameAttr;
+                        // ensure that the slot-name attr is correct
+                        node['s-sn'] = node['s-sn'] || slotName;
                         if (relocateNodeData) {
-                            // previously we never found a slot home for this node
-                            // but turns out we did, so let's remember it now
+                            relocateNodeData.$nodeToRelocate$['s-sh'] = childNode['s-hn'];
+                            // we marked this node for relocation previously but didn't find
+                            // out the slot reference node to which it needs to be relocated
+                            // so write it down now!
                             relocateNodeData.$slotRefNode$ = childNode;
                         }
                         else {
+                            node['s-sh'] = childNode['s-hn'];
                             // add to our list of nodes to relocate
                             relocateNodes.push({
                                 $slotRefNode$: childNode,
@@ -953,8 +1082,10 @@ const relocateSlotContent = (elm) => {
                         }
                     }
                     else if (!relocateNodes.some((r) => r.$nodeToRelocate$ === node)) {
-                        // so far this element does not have a slot home, not setting slotRefNode on purpose
-                        // if we never find a home for this element then we'll need to hide it
+                        // the node is not found within the slot (`childNode`) that we're
+                        // currently looking at, so we stick it into `relocateNodes` to
+                        // handle later. If we never find a home for this element then
+                        // we'll need to hide it
                         relocateNodes.push({
                             $nodeToRelocate$: node,
                         });
@@ -962,30 +1093,48 @@ const relocateSlotContent = (elm) => {
                 }
             }
         }
+        // if we're dealing with any type of element (capable of itself being a
+        // slot reference or containing one) then we recur
         if (childNode.nodeType === 1 /* NODE_TYPE.ElementNode */) {
-            relocateSlotContent(childNode);
+            markSlotContentForRelocation(childNode);
         }
     }
 };
-const isNodeLocatedInSlot = (nodeToRelocate, slotNameAttr) => {
+/**
+ * Check whether a node is located in a given named slot.
+ *
+ * @param nodeToRelocate the node of interest
+ * @param slotName the slot name to check
+ * @returns whether the node is located in the slot or not
+ */
+const isNodeLocatedInSlot = (nodeToRelocate, slotName) => {
     if (nodeToRelocate.nodeType === 1 /* NODE_TYPE.ElementNode */) {
-        if (nodeToRelocate.getAttribute('slot') === null && slotNameAttr === '') {
+        if (nodeToRelocate.getAttribute('slot') === null && slotName === '') {
+            // if the node doesn't have a slot attribute, and the slot we're checking
+            // is not a named slot, then we assume the node should be within the slot
             return true;
         }
-        if (nodeToRelocate.getAttribute('slot') === slotNameAttr) {
+        if (nodeToRelocate.getAttribute('slot') === slotName) {
             return true;
         }
         return false;
     }
-    if (nodeToRelocate['s-sn'] === slotNameAttr) {
+    if (nodeToRelocate['s-sn'] === slotName) {
         return true;
     }
-    return slotNameAttr === '';
+    return slotName === '';
 };
-const callNodeRefs = (vNode) => {
+/**
+ * 'Nullify' any VDom `ref` callbacks on a VDom node or its children by calling
+ * them with `null`. This signals that the DOM element corresponding to the VDom
+ * node has been removed from the DOM.
+ *
+ * @param vNode a virtual DOM node
+ */
+const nullifyVNodeRefs = (vNode) => {
     {
         vNode.$attrs$ && vNode.$attrs$.ref && vNode.$attrs$.ref(null);
-        vNode.$children$ && vNode.$children$.map(callNodeRefs);
+        vNode.$children$ && vNode.$children$.map(nullifyVNodeRefs);
     }
 };
 /**
@@ -999,13 +1148,41 @@ const callNodeRefs = (vNode) => {
  * @param hostRef data needed to root and render the virtual DOM tree, such as
  * the DOM node into which it should be rendered.
  * @param renderFnResults the virtual DOM nodes to be rendered
+ * @param isInitialLoad whether or not this is the first call after page load
  */
-const renderVdom = (hostRef, renderFnResults) => {
+const renderVdom = (hostRef, renderFnResults, isInitialLoad = false) => {
+    var _a, _b, _c, _d;
     const hostElm = hostRef.$hostElement$;
     const cmpMeta = hostRef.$cmpMeta$;
     const oldVNode = hostRef.$vnode$ || newVNode(null, null);
+    // if `renderFnResults` is a Host node then we can use it directly. If not,
+    // we need to call `h` again to wrap the children of our component in a
+    // 'dummy' Host node (well, an empty vnode) since `renderVdom` assumes
+    // implicitly that the top-level vdom node is 1) an only child and 2)
+    // contains attrs that need to be set on the host element.
     const rootVnode = isHost(renderFnResults) ? renderFnResults : h(null, null, renderFnResults);
     hostTagName = hostElm.tagName;
+    // On the first render and *only* on the first render we want to check for
+    // any attributes set on the host element which are also set on the vdom
+    // node. If we find them, we override the value on the VDom node attrs with
+    // the value from the host element, which allows developers building apps
+    // with Stencil components to override e.g. the `role` attribute on a
+    // component even if it's already set on the `Host`.
+    if (isInitialLoad && rootVnode.$attrs$) {
+        for (const key of Object.keys(rootVnode.$attrs$)) {
+            // We have a special implementation in `setAccessor` for `style` and
+            // `class` which reconciles values coming from the VDom with values
+            // already present on the DOM element, so we don't want to override those
+            // attributes on the VDom tree with values from the host element if they
+            // are present.
+            //
+            // Likewise, `ref` and `key` are special internal values for the Stencil
+            // runtime and we don't want to override those either.
+            if (hostElm.hasAttribute(key) && !['key', 'ref', 'style', 'class'].includes(key)) {
+                rootVnode.$attrs$[key] = hostElm[key];
+            }
+        }
+    }
     rootVnode.$tag$ = null;
     rootVnode.$flags$ |= 4 /* VNODE_FLAGS.isHost */;
     hostRef.$vnode$ = rootVnode;
@@ -1013,56 +1190,61 @@ const renderVdom = (hostRef, renderFnResults) => {
     {
         scopeId = hostElm['s-sc'];
     }
+    useNativeShadowDom = (cmpMeta.$flags$ & 1 /* CMP_FLAGS.shadowDomEncapsulation */) !== 0;
     {
         contentRef = hostElm['s-cr'];
-        useNativeShadowDom = (cmpMeta.$flags$ & 1 /* CMP_FLAGS.shadowDomEncapsulation */) !== 0;
         // always reset
         checkSlotFallbackVisibility = false;
     }
     // synchronous patch
-    patch(oldVNode, rootVnode);
+    patch(oldVNode, rootVnode, isInitialLoad);
     {
         // while we're moving nodes around existing nodes, temporarily disable
         // the disconnectCallback from working
         plt.$flags$ |= 1 /* PLATFORM_FLAGS.isTmpDisconnected */;
         if (checkSlotRelocate) {
-            relocateSlotContent(rootVnode.$elm$);
-            let relocateData;
-            let nodeToRelocate;
-            let orgLocationNode;
-            let parentNodeRef;
-            let insertBeforeNode;
-            let refNode;
-            let i = 0;
-            for (; i < relocateNodes.length; i++) {
-                relocateData = relocateNodes[i];
-                nodeToRelocate = relocateData.$nodeToRelocate$;
+            markSlotContentForRelocation(rootVnode.$elm$);
+            for (const relocateData of relocateNodes) {
+                const nodeToRelocate = relocateData.$nodeToRelocate$;
                 if (!nodeToRelocate['s-ol']) {
                     // add a reference node marking this node's original location
                     // keep a reference to this node for later lookups
-                    orgLocationNode =
-                        doc.createTextNode('');
+                    const orgLocationNode = doc.createTextNode('');
                     orgLocationNode['s-nr'] = nodeToRelocate;
                     nodeToRelocate.parentNode.insertBefore((nodeToRelocate['s-ol'] = orgLocationNode), nodeToRelocate);
                 }
             }
-            for (i = 0; i < relocateNodes.length; i++) {
-                relocateData = relocateNodes[i];
-                nodeToRelocate = relocateData.$nodeToRelocate$;
-                if (relocateData.$slotRefNode$) {
-                    // by default we're just going to insert it directly
-                    // after the slot reference node
-                    parentNodeRef = relocateData.$slotRefNode$.parentNode;
-                    insertBeforeNode = relocateData.$slotRefNode$.nextSibling;
-                    orgLocationNode = nodeToRelocate['s-ol'];
-                    while ((orgLocationNode = orgLocationNode.previousSibling)) {
-                        refNode = orgLocationNode['s-nr'];
-                        if (refNode && refNode['s-sn'] === nodeToRelocate['s-sn'] && parentNodeRef === refNode.parentNode) {
-                            refNode = refNode.nextSibling;
-                            if (!refNode || !refNode['s-nr']) {
-                                insertBeforeNode = refNode;
-                                break;
+            for (const relocateData of relocateNodes) {
+                const nodeToRelocate = relocateData.$nodeToRelocate$;
+                const slotRefNode = relocateData.$slotRefNode$;
+                if (slotRefNode) {
+                    const parentNodeRef = slotRefNode.parentNode;
+                    // When determining where to insert content, the most simple case would be
+                    // to relocate the node immediately following the slot reference node. We do this
+                    // by getting a reference to the node immediately following the slot reference node
+                    // since we will use `insertBefore` to manipulate the DOM.
+                    //
+                    // If there is no node immediately following the slot reference node, then we will just
+                    // end up appending the node as the last child of the parent.
+                    let insertBeforeNode = slotRefNode.nextSibling;
+                    // If the node we're currently planning on inserting the new node before is an element,
+                    // we need to do some additional checks to make sure we're inserting the node in the correct order.
+                    // The use case here would be that we have multiple nodes being relocated to the same slot. So, we want
+                    // to make sure they get inserted into their new how in the same order they were declared in their original location.
+                    //
+                    // TODO(STENCIL-914): Remove `experimentalSlotFixes` check
+                    {
+                        let orgLocationNode = (_a = nodeToRelocate['s-ol']) === null || _a === void 0 ? void 0 : _a.previousSibling;
+                        while (orgLocationNode) {
+                            let refNode = (_b = orgLocationNode['s-nr']) !== null && _b !== void 0 ? _b : null;
+                            if (refNode && refNode['s-sn'] === nodeToRelocate['s-sn'] && parentNodeRef === refNode.parentNode) {
+                                refNode = refNode.nextSibling;
+                                if (!refNode || !refNode['s-nr']) {
+                                    insertBeforeNode = refNode;
+                                    break;
+                                }
                             }
+                            orgLocationNode = orgLocationNode.previousSibling;
                         }
                     }
                     if ((!insertBeforeNode && parentNodeRef !== nodeToRelocate.parentNode) ||
@@ -1072,17 +1254,32 @@ const renderVdom = (hostRef, renderFnResults) => {
                         // has a different next sibling or parent relocated
                         if (nodeToRelocate !== insertBeforeNode) {
                             if (!nodeToRelocate['s-hn'] && nodeToRelocate['s-ol']) {
-                                // probably a component in the index.html that doesn't have it's hostname set
+                                // probably a component in the index.html that doesn't have its hostname set
                                 nodeToRelocate['s-hn'] = nodeToRelocate['s-ol'].parentNode.nodeName;
                             }
-                            // add it back to the dom but in its new home
+                            // Add it back to the dom but in its new home
+                            // If we get to this point and `insertBeforeNode` is `null`, that means
+                            // we're just going to append the node as the last child of the parent. Passing
+                            // `null` as the second arg here will trigger that behavior.
                             parentNodeRef.insertBefore(nodeToRelocate, insertBeforeNode);
+                            // Reset the `hidden` value back to what it was defined as originally
+                            // This solves a problem where a `slot` is dynamically rendered and `hidden` may have
+                            // been set on content originally, but now it has a slot to go to so it should have
+                            // the value it was defined as having in the DOM, not what we overrode it to.
+                            if (nodeToRelocate.nodeType === 1 /* NODE_TYPE.ElementNode */) {
+                                nodeToRelocate.hidden = (_c = nodeToRelocate['s-ih']) !== null && _c !== void 0 ? _c : false;
+                            }
                         }
                     }
                 }
                 else {
                     // this node doesn't have a slot home to go to, so let's hide it
                     if (nodeToRelocate.nodeType === 1 /* NODE_TYPE.ElementNode */) {
+                        // Store the initial value of `hidden` so we can reset it later when
+                        // moving nodes around.
+                        if (isInitialLoad) {
+                            nodeToRelocate['s-ih'] = (_d = nodeToRelocate.hidden) !== null && _d !== void 0 ? _d : false;
+                        }
                         nodeToRelocate.hidden = true;
                     }
                 }
@@ -1097,6 +1294,8 @@ const renderVdom = (hostRef, renderFnResults) => {
         // always reset
         relocateNodes.length = 0;
     }
+    // Clear the content ref so we don't create a memory leak
+    contentRef = undefined;
 };
 const attachToAncestor = (hostRef, ancestorComponent) => {
     if (ancestorComponent && !hostRef.$onRenderResolve$ && ancestorComponent['s-p']) {
@@ -1118,15 +1317,76 @@ const scheduleUpdate = (hostRef, isInitialLoad) => {
     const dispatch = () => dispatchHooks(hostRef, isInitialLoad);
     return writeTask(dispatch) ;
 };
+/**
+ * Dispatch initial-render and update lifecycle hooks, enqueuing calls to
+ * component lifecycle methods like `componentWillLoad` as well as
+ * {@link updateComponent}, which will kick off the virtual DOM re-render.
+ *
+ * @param hostRef a reference to a host DOM node
+ * @param isInitialLoad whether we're on the initial load or not
+ * @returns an empty Promise which is used to enqueue a series of operations for
+ * the component
+ */
 const dispatchHooks = (hostRef, isInitialLoad) => {
     const endSchedule = createTime('scheduleUpdate', hostRef.$cmpMeta$.$tagName$);
     const instance = hostRef.$lazyInstance$ ;
-    let promise;
+    // We're going to use this variable together with `enqueue` to implement a
+    // little promise-based queue. We start out with it `undefined`. When we add
+    // the first function to the queue we'll set this variable to be that
+    // function's return value. When we attempt to add subsequent values to the
+    // queue we'll check that value and, if it was a `Promise`, we'll then chain
+    // the new function off of that `Promise` using `.then()`. This will give our
+    // queue two nice properties:
+    //
+    // 1. If all functions added to the queue are synchronous they'll be called
+    //    synchronously right away.
+    // 2. If all functions added to the queue are asynchronous they'll all be
+    //    called in order after `dispatchHooks` exits.
+    let maybePromise;
     endSchedule();
-    return then(promise, () => updateComponent(hostRef, instance, isInitialLoad));
+    return enqueue(maybePromise, () => updateComponent(hostRef, instance, isInitialLoad));
 };
+/**
+ * This function uses a Promise to implement a simple first-in, first-out queue
+ * of functions to be called.
+ *
+ * The queue is ordered on the basis of the first argument. If it's
+ * `undefined`, then nothing is on the queue yet, so the provided function can
+ * be called synchronously (although note that this function may return a
+ * `Promise`). The idea is that then the return value of that enqueueing
+ * operation is kept around, so that if it was a `Promise` then subsequent
+ * functions can be enqueued by calling this function again with that `Promise`
+ * as the first argument.
+ *
+ * @param maybePromise either a `Promise` which should resolve before the next function is called or an 'empty' sentinel
+ * @param fn a function to enqueue
+ * @returns either a `Promise` or the return value of the provided function
+ */
+const enqueue = (maybePromise, fn) => isPromisey(maybePromise) ? maybePromise.then(fn) : fn();
+/**
+ * Check that a value is a `Promise`. To check, we first see if the value is an
+ * instance of the `Promise` global. In a few circumstances, in particular if
+ * the global has been overwritten, this is could be misleading, so we also do
+ * a little 'duck typing' check to see if the `.then` property of the value is
+ * defined and a function.
+ *
+ * @param maybePromise it might be a promise!
+ * @returns whether it is or not
+ */
+const isPromisey = (maybePromise) => maybePromise instanceof Promise ||
+    (maybePromise && maybePromise.then && typeof maybePromise.then === 'function');
+/**
+ * Update a component given reference to its host elements and so on.
+ *
+ * @param hostRef an object containing references to the element's host node,
+ * VDom nodes, and other metadata
+ * @param instance a reference to the underlying host element where it will be
+ * rendered
+ * @param isInitialLoad whether or not this function is being called as part of
+ * the first render cycle
+ */
 const updateComponent = async (hostRef, instance, isInitialLoad) => {
-    // updateComponent
+    var _a;
     const elm = hostRef.$hostElement$;
     const endUpdate = createTime('update', hostRef.$cmpMeta$.$tagName$);
     const rc = elm['s-rc'];
@@ -1136,7 +1396,7 @@ const updateComponent = async (hostRef, instance, isInitialLoad) => {
     }
     const endRender = createTime('render', hostRef.$cmpMeta$.$tagName$);
     {
-        callRender(hostRef, instance);
+        callRender(hostRef, instance, elm, isInitialLoad);
     }
     if (rc) {
         // ok, so turns out there are some child host elements
@@ -1148,7 +1408,7 @@ const updateComponent = async (hostRef, instance, isInitialLoad) => {
     endRender();
     endUpdate();
     {
-        const childrenPromises = elm['s-p'];
+        const childrenPromises = (_a = elm['s-p']) !== null && _a !== void 0 ? _a : [];
         const postUpdate = () => postUpdateComponent(hostRef);
         if (childrenPromises.length === 0) {
             postUpdate();
@@ -1160,8 +1420,24 @@ const updateComponent = async (hostRef, instance, isInitialLoad) => {
         }
     }
 };
-const callRender = (hostRef, instance, elm) => {
+/**
+ * Handle making the call to the VDom renderer with the proper context given
+ * various build variables
+ *
+ * @param hostRef an object containing references to the element's host node,
+ * VDom nodes, and other metadata
+ * @param instance a reference to the underlying host element where it will be
+ * rendered
+ * @param elm the Host element for the component
+ * @param isInitialLoad whether or not this function is being called as part of
+ * @returns an empty promise
+ */
+const callRender = (hostRef, instance, elm, isInitialLoad) => {
     try {
+        /**
+         * minification optimization: `allRenderFn` is `true` if all components have a `render`
+         * method, so we can call the method immediately. If not, check before calling it.
+         */
         instance = instance.render() ;
         {
             hostRef.$flags$ &= ~16 /* HOST_FLAGS.isQueuedForUpdate */;
@@ -1175,7 +1451,7 @@ const callRender = (hostRef, instance, elm) => {
                 // or we need to update the css class/attrs on the host element
                 // DOM WRITE!
                 {
-                    renderVdom(hostRef, instance);
+                    renderVdom(hostRef, instance, isInitialLoad);
                 }
             }
         }
@@ -1235,6 +1511,16 @@ const appDidLoad = (who) => {
     }
     nextTick(() => emitEvent(win, 'appload', { detail: { namespace: NAMESPACE } }));
 };
+/**
+ * Allows to safely call a method, e.g. `componentDidLoad`, on an instance,
+ * e.g. custom element node. If a build figures out that e.g. no component
+ * has a `componentDidLoad` method, the instance method gets removed from the
+ * output bundle and this function returns `undefined`.
+ * @param instance any object that may or may not contain methods
+ * @param method method name
+ * @param arg single arbitrary argument
+ * @returns result of method call if it exists, otherwise `undefined`
+ */
 const safeCall = (instance, method, arg) => {
     if (instance && instance[method]) {
         try {
@@ -1245,9 +1531,6 @@ const safeCall = (instance, method, arg) => {
         }
     }
     return undefined;
-};
-const then = (promise, thenFn) => {
-    return promise && promise.then ? promise.then(thenFn) : thenFn();
 };
 const addHydratedFlag = (elm) => elm.classList.add('hydrated')
     ;
@@ -1305,13 +1588,14 @@ const setValue = (ref, propName, newVal, cmpMeta) => {
  * @returns a reference to the same constructor passed in (but now mutated)
  */
 const proxyComponent = (Cstr, cmpMeta, flags) => {
+    var _a;
+    const prototype = Cstr.prototype;
     if (cmpMeta.$members$) {
         if (Cstr.watchers) {
             cmpMeta.$watchers$ = Cstr.watchers;
         }
         // It's better to have a const than two Object.entries()
         const members = Object.entries(cmpMeta.$members$);
-        const prototype = Cstr.prototype;
         members.map(([memberName, [memberFlags]]) => {
             if ((memberFlags & 31 /* MEMBER_FLAGS.Prop */ ||
                     ((flags & 2 /* PROXY_FLAGS.proxyState */) && memberFlags & 32 /* MEMBER_FLAGS.State */))) {
@@ -1332,8 +1616,9 @@ const proxyComponent = (Cstr, cmpMeta, flags) => {
         });
         if ((flags & 1 /* PROXY_FLAGS.isElementConstructor */)) {
             const attrNameToPropName = new Map();
-            prototype.attributeChangedCallback = function (attrName, _oldValue, newValue) {
+            prototype.attributeChangedCallback = function (attrName, oldValue, newValue) {
                 plt.jmp(() => {
+                    var _a;
                     const propName = attrNameToPropName.get(attrName);
                     //  In a web component lifecycle the attributeChangedCallback runs prior to connectedCallback
                     //  in the case where an attribute was set inline.
@@ -1355,12 +1640,12 @@ const proxyComponent = (Cstr, cmpMeta, flags) => {
                     //      customElements.define('my-component', MyComponent);
                     //    </script>
                     //  ```
-                    //  In this case if we do not unshadow here and use the value of the shadowing property, attributeChangedCallback
+                    //  In this case if we do not un-shadow here and use the value of the shadowing property, attributeChangedCallback
                     //  will be called with `newValue = "some-value"` and will set the shadowed property (this.someAttribute = "another-value")
                     //  to the value that was set inline i.e. "some-value" from above example. When
-                    //  the connectedCallback attempts to unshadow it will use "some-value" as the initial value rather than "another-value"
+                    //  the connectedCallback attempts to un-shadow it will use "some-value" as the initial value rather than "another-value"
                     //
-                    //  The case where the attribute was NOT set inline but was not set programmatically shall be handled/unshadowed
+                    //  The case where the attribute was NOT set inline but was not set programmatically shall be handled/un-shadowed
                     //  by connectedCallback as this attributeChangedCallback will not fire.
                     //
                     //  https://developers.google.com/web/fundamentals/web-components/best-practices#lazy-properties
@@ -1380,28 +1665,68 @@ const proxyComponent = (Cstr, cmpMeta, flags) => {
                         // `propName` to be converted to a `DOMString`, which may not be what we want for other primitive props.
                         return;
                     }
+                    else if (propName == null) {
+                        // At this point we should know this is not a "member", so we can treat it like watching an attribute
+                        // on a vanilla web component
+                        const hostRef = getHostRef(this);
+                        const flags = hostRef === null || hostRef === void 0 ? void 0 : hostRef.$flags$;
+                        // We only want to trigger the callback(s) if:
+                        // 1. The instance is ready
+                        // 2. The watchers are ready
+                        // 3. The value has changed
+                        if (flags &&
+                            !(flags & 8 /* HOST_FLAGS.isConstructingInstance */) &&
+                            flags & 128 /* HOST_FLAGS.isWatchReady */ &&
+                            newValue !== oldValue) {
+                            const instance = hostRef.$lazyInstance$ ;
+                            const entry = (_a = cmpMeta.$watchers$) === null || _a === void 0 ? void 0 : _a[attrName];
+                            entry === null || entry === void 0 ? void 0 : entry.forEach((callbackName) => {
+                                if (instance[callbackName] != null) {
+                                    instance[callbackName].call(instance, newValue, oldValue, attrName);
+                                }
+                            });
+                        }
+                        return;
+                    }
                     this[propName] = newValue === null && typeof this[propName] === 'boolean' ? false : newValue;
                 });
             };
-            // create an array of attributes to observe
-            // and also create a map of html attribute name to js property name
-            Cstr.observedAttributes = members
-                .filter(([_, m]) => m[0] & 15 /* MEMBER_FLAGS.HasAttribute */) // filter to only keep props that should match attributes
-                .map(([propName, m]) => {
-                const attrName = m[1] || propName;
-                attrNameToPropName.set(attrName, propName);
-                return attrName;
-            });
+            // Create an array of attributes to observe
+            // This list in comprised of all strings used within a `@Watch()` decorator
+            // on a component as well as any Stencil-specific "members" (`@Prop()`s and `@State()`s).
+            // As such, there is no way to guarantee type-safety here that a user hasn't entered
+            // an invalid attribute.
+            Cstr.observedAttributes = Array.from(new Set([
+                ...Object.keys((_a = cmpMeta.$watchers$) !== null && _a !== void 0 ? _a : {}),
+                ...members
+                    .filter(([_, m]) => m[0] & 15 /* MEMBER_FLAGS.HasAttribute */)
+                    .map(([propName, m]) => {
+                    const attrName = m[1] || propName;
+                    attrNameToPropName.set(attrName, propName);
+                    return attrName;
+                }),
+            ]));
         }
     }
     return Cstr;
 };
-const initializeComponent = async (elm, hostRef, cmpMeta, hmrVersionId, Cstr) => {
+/**
+ * Initialize a Stencil component given a reference to its host element, its
+ * runtime bookkeeping data structure, runtime metadata about the component,
+ * and (optionally) an HMR version ID.
+ *
+ * @param elm a host element
+ * @param hostRef the element's runtime bookkeeping object
+ * @param cmpMeta runtime metadata for the Stencil component
+ * @param hmrVersionId an (optional) HMR version ID
+ */
+const initializeComponent = async (elm, hostRef, cmpMeta, hmrVersionId) => {
+    let Cstr;
     // initializeComponent
     if ((hostRef.$flags$ & 32 /* HOST_FLAGS.hasInitializedComponent */) === 0) {
+        // Let the runtime know that the component has been initialized
+        hostRef.$flags$ |= 32 /* HOST_FLAGS.hasInitializedComponent */;
         {
-            // we haven't initialized this element yet
-            hostRef.$flags$ |= 32 /* HOST_FLAGS.hasInitializedComponent */;
             // lazy loaded components
             // request the component's implementation to be
             // wired up with the host element
@@ -1474,6 +1799,8 @@ const initializeComponent = async (elm, hostRef, cmpMeta, hmrVersionId, Cstr) =>
         schedule();
     }
 };
+const fireConnectedCallback = (instance) => {
+};
 const connectedCallback = (elm) => {
     if ((plt.$flags$ & 1 /* PLATFORM_FLAGS.isTmpDisconnected */) === 0) {
         const hostRef = getHostRef(elm);
@@ -1487,7 +1814,7 @@ const connectedCallback = (elm) => {
                 // if the slot polyfill is required we'll need to put some nodes
                 // in here to act as original content anchors as we move nodes around
                 // host element has been connected to the DOM
-                if ((// TODO(STENCIL-662): Remove code related to deprecated shadowDomShim field
+                if ((// TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
                         cmpMeta.$flags$ & (4 /* CMP_FLAGS.hasSlotRelocation */ | 8 /* CMP_FLAGS.needsShadowDomShim */))) {
                     setContentReference(elm);
                 }
@@ -1522,6 +1849,13 @@ const connectedCallback = (elm) => {
                 initializeComponent(elm, hostRef, cmpMeta);
             }
         }
+        else {
+            // fire off connectedCallback() on component instance
+            if (hostRef === null || hostRef === void 0 ? void 0 : hostRef.$lazyInstance$) ;
+            else if (hostRef === null || hostRef === void 0 ? void 0 : hostRef.$onReadyPromise$) {
+                hostRef.$onReadyPromise$.then(() => fireConnectedCallback());
+            }
+        }
         endConnected();
     }
 };
@@ -1536,12 +1870,19 @@ const setContentReference = (elm) => {
     contentRefElm['s-cn'] = true;
     elm.insertBefore(contentRefElm, elm.firstChild);
 };
-const disconnectedCallback = (elm) => {
+const disconnectInstance = (instance) => {
+    {
+        safeCall(instance, 'disconnectedCallback');
+    }
+};
+const disconnectedCallback = async (elm) => {
     if ((plt.$flags$ & 1 /* PLATFORM_FLAGS.isTmpDisconnected */) === 0) {
         const hostRef = getHostRef(elm);
-        const instance = hostRef.$lazyInstance$ ;
-        {
-            safeCall(instance, 'disconnectedCallback');
+        if (hostRef === null || hostRef === void 0 ? void 0 : hostRef.$lazyInstance$) {
+            disconnectInstance(hostRef.$lazyInstance$);
+        }
+        else if (hostRef === null || hostRef === void 0 ? void 0 : hostRef.$onReadyPromise$) {
+            hostRef.$onReadyPromise$.then(() => disconnectInstance(hostRef.$lazyInstance$));
         }
     }
 };
@@ -1553,25 +1894,32 @@ const bootstrapLazy = (lazyBundles, options = {}) => {
     const customElements = win.customElements;
     const head = doc.head;
     const metaCharset = /*@__PURE__*/ head.querySelector('meta[charset]');
-    const visibilityStyle = /*@__PURE__*/ doc.createElement('style');
+    const dataStyles = /*@__PURE__*/ doc.createElement('style');
     const deferredConnectedCallbacks = [];
     let appLoadFallback;
     let isBootstrapping = true;
     Object.assign(plt, options);
     plt.$resourcesUrl$ = new URL(options.resourcesUrl || './', doc.baseURI).href;
+    let hasSlotRelocation = false;
     lazyBundles.map((lazyBundle) => {
         lazyBundle[1].map((compactMeta) => {
+            var _a;
             const cmpMeta = {
                 $flags$: compactMeta[0],
                 $tagName$: compactMeta[1],
                 $members$: compactMeta[2],
                 $listeners$: compactMeta[3],
             };
+            // Check if we are using slots outside the shadow DOM in this component.
+            // We'll use this information later to add styles for `slot-fb` elements
+            if (cmpMeta.$flags$ & 4 /* CMP_FLAGS.hasSlotRelocation */) {
+                hasSlotRelocation = true;
+            }
             {
                 cmpMeta.$members$ = compactMeta[2];
             }
             {
-                cmpMeta.$watchers$ = {};
+                cmpMeta.$watchers$ = (_a = compactMeta[4]) !== null && _a !== void 0 ? _a : {};
             }
             const tagName = cmpMeta.$tagName$;
             const HostElement = class extends HTMLElement {
@@ -1609,15 +1957,29 @@ const bootstrapLazy = (lazyBundles, options = {}) => {
             }
         });
     });
-    {
-        visibilityStyle.innerHTML = cmpTags + HYDRATED_CSS;
-        visibilityStyle.setAttribute('data-styles', '');
-        // Apply CSP nonce to the style tag if it exists
-        const nonce = (_a = plt.$nonce$) !== null && _a !== void 0 ? _a : queryNonceMetaTagContent(doc);
-        if (nonce != null) {
-            visibilityStyle.setAttribute('nonce', nonce);
+    // Only bother generating CSS if we have components
+    // TODO(STENCIL-1118): Add test cases for CSS content based on conditionals
+    if (cmpTags.length > 0) {
+        // Add styles for `slot-fb` elements if any of our components are using slots outside the Shadow DOM
+        if (hasSlotRelocation) {
+            dataStyles.innerHTML += SLOT_FB_CSS;
         }
-        head.insertBefore(visibilityStyle, metaCharset ? metaCharset.nextSibling : head.firstChild);
+        // Add hydration styles
+        {
+            dataStyles.innerHTML += cmpTags + HYDRATED_CSS;
+        }
+        // If we have styles, add them to the DOM
+        if (dataStyles.innerHTML.length) {
+            dataStyles.setAttribute('data-styles', '');
+            // Apply CSP nonce to the style tag if it exists
+            const nonce = (_a = plt.$nonce$) !== null && _a !== void 0 ? _a : queryNonceMetaTagContent(doc);
+            if (nonce != null) {
+                dataStyles.setAttribute('nonce', nonce);
+            }
+            // Insert the styles into the document head
+            // NOTE: this _needs_ to happen last so we can ensure the nonce (and other attributes) are applied
+            head.insertBefore(dataStyles, metaCharset ? metaCharset.nextSibling : head.firstChild);
+        }
     }
     // Process deferred connectedCallbacks now all components have been registered
     isBootstrapping = false;
@@ -1639,22 +2001,60 @@ const bootstrapLazy = (lazyBundles, options = {}) => {
  * @returns void
  */
 const setNonce = (nonce) => (plt.$nonce$ = nonce);
-const hostRefs = /*@__PURE__*/ new WeakMap();
+/**
+ * A WeakMap mapping runtime component references to their corresponding host reference
+ * instances.
+ *
+ * **Note**: If we're in an HMR context we need to store a reference to this
+ * value on `window` in order to maintain the mapping of {@link d.RuntimeRef}
+ * to {@link d.HostRef} across HMR updates.
+ *
+ * This is necessary because when HMR updates for a component are processed by
+ * the browser-side dev server client the JS bundle for that component is
+ * re-fetched. Since the module containing {@link hostRefs} is included in
+ * that bundle, if we do not store a reference to it the new iteration of the
+ * component will not have access to the previous hostRef map, leading to a
+ * bug where the new version of the component cannot properly initialize.
+ */
+const hostRefs = new WeakMap();
+/**
+ * Given a {@link d.RuntimeRef} retrieve the corresponding {@link d.HostRef}
+ *
+ * @param ref the runtime ref of interest
+ * @returns the Host reference (if found) or undefined
+ */
 const getHostRef = (ref) => hostRefs.get(ref);
+/**
+ * Register a lazy instance with the {@link hostRefs} object so it's
+ * corresponding {@link d.HostRef} can be retrieved later.
+ *
+ * @param lazyInstance the lazy instance of interest
+ * @param hostRef that instances `HostRef` object
+ * @returns a reference to the host ref WeakMap
+ */
 const registerInstance = (lazyInstance, hostRef) => hostRefs.set((hostRef.$lazyInstance$ = lazyInstance), hostRef);
-const registerHost = (elm, cmpMeta) => {
+/**
+ * Register a host element for a Stencil component, setting up various metadata
+ * and callbacks based on {@link BUILD} flags as well as the component's runtime
+ * metadata.
+ *
+ * @param hostElement the host element to register
+ * @param cmpMeta runtime metadata for that component
+ * @returns a reference to the host ref WeakMap
+ */
+const registerHost = (hostElement, cmpMeta) => {
     const hostRef = {
         $flags$: 0,
-        $hostElement$: elm,
+        $hostElement$: hostElement,
         $cmpMeta$: cmpMeta,
         $instanceValues$: new Map(),
     };
     {
         hostRef.$onReadyPromise$ = new Promise((r) => (hostRef.$onReadyResolve$ = r));
-        elm['s-p'] = [];
-        elm['s-rc'] = [];
+        hostElement['s-p'] = [];
+        hostElement['s-rc'] = [];
     }
-    return hostRefs.set(elm, hostRef);
+    return hostRefs.set(hostElement, hostRef);
 };
 const isMemberInElement = (elm, memberName) => memberName in elm;
 const consoleError = (e, el) => (0, console.error)(e, el);
@@ -1742,9 +2142,9 @@ const flush = () => {
         }
     }
 };
-const nextTick = /*@__PURE__*/ (cb) => promiseResolve().then(cb);
+const nextTick = (cb) => promiseResolve().then(cb);
 const writeTask = /*@__PURE__*/ queueTask(queueDomWrites, true);
 
 export { Host as H, bootstrapLazy as b, createEvent as c, getElement as g, h, promiseResolve as p, registerInstance as r, setNonce as s };
 
-//# sourceMappingURL=index-dfdbd7d1.js.map
+//# sourceMappingURL=index-abb158ce.js.map
