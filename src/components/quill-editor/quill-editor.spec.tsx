@@ -70,14 +70,12 @@ describe('QuillEditorComponent', () => {
     expect(component.format).toEqual('html');
     expect(component.debug).toEqual('warn');
     expect(component.styles).toEqual('{"height": "200px"}');
-    expect(component.strict).toBe(true);
     expect(component.preserveWhitespace).toBe(false);
     expect(component.modules).toEqual('{"toolbar":true}');
 
     expect(component.quillEditor.options.modules).toEqual({ toolbar: true });
     expect(component.quillEditor.options.theme).toEqual('snow');
     expect(component.quillEditor.options.debug).toEqual('warn');
-    expect(component.quillEditor.options.strict).toBe(true);
   });
 
   it('renders styles changes', async () => {

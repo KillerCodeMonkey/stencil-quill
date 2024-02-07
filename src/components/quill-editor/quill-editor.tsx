@@ -62,8 +62,6 @@ export class QuillEditorComponent implements ComponentDidLoad {
   @Prop() modules?: string;
   @Prop() placeholder: string = 'Insert text here ...';
   @Prop() readOnly: boolean;
-  @Prop() scrollingContainer: HTMLElement | string;
-  @Prop() strict: boolean = true;
   @Prop() styles: string = '{}';
   @Prop() theme: string = 'snow';
   @Prop() customToolbarPosition: 'top' | 'bottom' = 'top';
@@ -165,9 +163,7 @@ export class QuillEditorComponent implements ComponentDidLoad {
       readOnly: this.readOnly || false,
       theme: this.theme || 'snow',
       formats: this.formats,
-      bounds: this.bounds ? (this.bounds === 'self' ? this.editorElement : this.bounds) : document.body,
-      strict: this.strict,
-      scrollingContainer: this.scrollingContainer,
+      bounds: this.bounds ? (this.bounds === 'self' ? this.editorElement : this.bounds) : document.body
     });
 
     if (this.styles) {

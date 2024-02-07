@@ -69,8 +69,6 @@ PayPal: [PayPal.Me/bengtler](https://paypal.me/bengtler)
 - styles - set a styles object, e.g. `styles="{height: '250px'}"`
 - placeholder - placeholder text, default is `Insert text here ...`
 - bounds - boundary of the editor, default `document.body`, pass 'self' to attach the editor element
-- strict - default: true, sets editor in strict mode
-- scrollingContainer - default '.ql-editor', allows to set scrolling container
 - possbility to create a custom toolbar via a custom slot `quill-toolbar`:
 
 ```

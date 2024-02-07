@@ -17,8 +17,6 @@ export namespace Components {
         "placeholder": string;
         "preserveWhitespace": boolean;
         "readOnly": boolean;
-        "scrollingContainer": HTMLElement | string;
-        "strict": boolean;
         "styles": string;
         "theme": string;
     }
@@ -171,8 +169,6 @@ declare namespace LocalJSX {
         "placeholder"?: string;
         "preserveWhitespace"?: boolean;
         "readOnly"?: boolean;
-        "scrollingContainer"?: HTMLElement | string;
-        "strict"?: boolean;
         "styles"?: string;
         "theme"?: string;
     }

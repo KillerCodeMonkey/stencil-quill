@@ -17,8 +17,6 @@
 | `placeholder`           | `placeholder`             |             | `string`                     | `'Insert text here ...'` |
 | `preserveWhitespace`    | `preserve-whitespace`     |             | `boolean`                    | `false`                  |
 | `readOnly`              | `read-only`               |             | `boolean`                    | `undefined`              |
-| `scrollingContainer`    | `scrolling-container`     |             | `HTMLElement \| string`      | `undefined`              |
-| `strict`                | `strict`                  |             | `boolean`                    | `true`                   |
 | `styles`                | `styles`                  |             | `string`                     | `'{}'`                   |
 | `theme`                 | `theme`                   |             | `string`                     | `'snow'`                 |
 

@@ -13,7 +13,6 @@
 | `formats`            | --                    |             | `string[]`                   | `undefined` |
 | `modules`            | `modules`             |             | `string`                     | `undefined` |
 | `preserveWhitespace` | `preserve-whitespace` |             | `boolean`                    | `false`     |
-| `strict`             | `strict`              |             | `boolean`                    | `true`      |
 | `styles`             | `styles`              |             | `string`                     | `'{}'`      |
 | `theme`              | `theme`               |             | `string`                     | `'snow'`    |
 
