@@ -54,6 +54,8 @@ describe('QuillEditorComponent', () => {
     component = page.rootInstance;
   });
 
+  afterEach(() => jest.restoreAllMocks())
+
   it('renders and sets default snow theme class', () => {
     expect(page.root).toEqualHtml(`
       <quill-editor content="<p>Test</p>" modules="{&quot;toolbar&quot;:true}" styles="{&quot;height&quot;: &quot;200px&quot;}">
@@ -95,7 +97,7 @@ describe('QuillEditorComponent', () => {
   describe('Formats', () => {
     describe('json', () => {
       it('renders json string', async () => {
-        const spy = spyOn(component.quillEditor, 'setContents').and.callThrough();
+        const spy = jest.spyOn(component.quillEditor, 'setContents');
 
         component.format = 'json';
         component.content = JSON.stringify([
@@ -112,8 +114,8 @@ describe('QuillEditorComponent', () => {
 
     describe('html', () => {
       it('renders html string', async () => {
-        const spy = spyOn(component.quillEditor, 'setContents').and.callThrough();
-        const clipboardSpy = spyOn(component.quillEditor.clipboard, 'convert').and.returnValue('<p>Hallo</p>');
+        const spy = jest.spyOn(component.quillEditor, 'setContents');
+        const clipboardSpy = jest.spyOn(component.quillEditor.clipboard, 'convert').mockReturnValue('<p>Hallo</p>');
 
         component.format = 'html';
         component.content = '<p>Hallo</p>';
@@ -127,7 +129,7 @@ describe('QuillEditorComponent', () => {
 
     describe('text', () => {
       it('renders plain text', async () => {
-        const spy = spyOn(component.quillEditor, 'setText').and.callThrough();
+        const spy = jest.spyOn(component.quillEditor, 'setText');
 
         component.format = 'text';
         component.content = 'Hallo';
@@ -141,38 +143,38 @@ describe('QuillEditorComponent', () => {
 
   describe('#updateContent', () => {
     it('returns null if known format but no content change', () => {
-      spyOn(component, 'getEditorContent').and.returnValue('');
-      const setSpy = spyOn(component, 'setEditorContent');
+      jest.spyOn(component, 'getEditorContent').mockReturnValue('');
+      const setSpy = jest.spyOn(component, 'setEditorContent');
 
       expect(component.updateContent('')).toBe(null);
       expect(setSpy).not.toHaveBeenCalled();
     });
 
     it('returns null if JSON.stringify of new value failes', () => {
-      const setSpy = spyOn(component, 'setEditorContent');
-      spyOn(JSON, 'stringify').and.throwError('FAIL!');
+      const setSpy = jest.spyOn(component, 'setEditorContent');
+      jest.spyOn(JSON, 'stringify').mockImplementation(() => {throw 'FAIL!'});
 
       expect(component.updateContent({ test: 1 })).toBe(null);
       expect(setSpy).not.toHaveBeenCalled();
     });
 
     it('returns null if JSON.stringify of new value is the same as the current', () => {
-      const setSpy = spyOn(component, 'setEditorContent');
-      spyOn(JSON, 'stringify').and.returnValue('');
+      const setSpy = jest.spyOn(component, 'setEditorContent');
+      jest.spyOn(JSON, 'stringify').mockReturnValue('');
 
       expect(component.updateContent('asdf')).toBe(null);
       expect(setSpy).not.toHaveBeenCalled();
     });
 
     it('calls setContent if everything is fine', () => {
-      const setSpy = spyOn(component, 'setEditorContent');
+      const setSpy = jest.spyOn(component, 'setEditorContent');
 
       expect(component.updateContent('asdf')).toBe(undefined);
       expect(setSpy).toHaveBeenCalledWith('asdf');
     });
 
     it('returns null if no editor', () => {
-      const setSpy = spyOn(component, 'setEditorContent');
+      const setSpy = jest.spyOn(component, 'setEditorContent');
       component.quillEditor = null;
 
       expect(component.updateContent('asdf')).toBe(undefined);
@@ -182,7 +184,7 @@ describe('QuillEditorComponent', () => {
 
   describe('#updateStyles', () => {
     it('does nothing if not editorElement', () => {
-      const spy = spyOn(component.editorElement.style, 'setProperty');
+      const spy = jest.spyOn(component.editorElement.style, 'setProperty');
 
       component.editorElement = null;
       component.updateStyle('', '');
@@ -190,14 +192,14 @@ describe('QuillEditorComponent', () => {
     });
 
     it('removes old styles', () => {
-      const spy = spyOn(component.editorElement.style, 'setProperty');
+      const spy = jest.spyOn(component.editorElement.style, 'setProperty');
 
       component.updateStyle('', '{"height": "12px"}');
       expect(spy).toHaveBeenCalledWith('height', '');
     });
 
     it('adds new styles', () => {
-      const spy = spyOn(component.editorElement.style, 'setProperty');
+      const spy = jest.spyOn(component.editorElement.style, 'setProperty');
 
       component.updateStyle('{"height": "12px"}', '');
       expect(spy).toHaveBeenCalledWith('height', '12px');
@@ -206,14 +208,14 @@ describe('QuillEditorComponent', () => {
 
   describe('#updateReadOnly', () => {
     it('disables editor', () => {
-      const spy = spyOn(component.quillEditor, 'enable');
+      const spy = jest.spyOn(component.quillEditor, 'enable');
 
       component.updateReadOnly(false, true);
       expect(spy).toHaveBeenCalledWith(true);
     });
 
     it('enables editor', () => {
-      const spy = spyOn(component.quillEditor, 'enable');
+      const spy = jest.spyOn(component.quillEditor, 'enable');
 
       component.updateReadOnly(true, false);
       expect(spy).toHaveBeenCalledWith(false);
@@ -226,7 +228,7 @@ describe('QuillEditorComponent', () => {
     });
 
     it('does nothing when value not changed', () => {
-      const spy = spyOn(component.quillEditor, 'enable');
+      const spy = jest.spyOn(component.quillEditor, 'enable');
 
       expect(component.updateReadOnly(false, false)).toBe(undefined);
       expect(spy).not.toHaveBeenCalled();
@@ -254,8 +256,8 @@ describe('QuillEditorComponent', () => {
   describe('#setEditorContent', () => {
     describe('format: html', () => {
       it('converts html and sets content', () => {
-        spyOn(component.quillEditor.clipboard, 'convert').and.returnValue([{ insert: '1' }]);
-        const spy = spyOn(component.quillEditor, 'setContents');
+        jest.spyOn(component.quillEditor.clipboard, 'convert').mockReturnValue([{ insert: '1' }]);
+        const spy = jest.spyOn(component.quillEditor, 'setContents');
 
         component.format = 'html';
         component.setEditorContent('');
@@ -266,7 +268,7 @@ describe('QuillEditorComponent', () => {
 
     describe('format: text', () => {
       it('sets text', () => {
-        const spy = spyOn(component.quillEditor, 'setText');
+        const spy = jest.spyOn(component.quillEditor, 'setText');
 
         component.format = 'text';
         component.setEditorContent('test');
@@ -277,7 +279,7 @@ describe('QuillEditorComponent', () => {
 
     describe('format: json', () => {
       it('sets json', () => {
-        const spy = spyOn(component.quillEditor, 'setContents');
+        const spy = jest.spyOn(component.quillEditor, 'setContents');
 
         component.format = 'json';
         component.setEditorContent('{"insert":"1"}');
@@ -286,7 +288,7 @@ describe('QuillEditorComponent', () => {
       });
 
       it('sets value as text, if json not parsable', () => {
-        const spy = spyOn(component.quillEditor, 'setText');
+        const spy = jest.spyOn(component.quillEditor, 'setText');
 
         component.format = 'json';
         component.setEditorContent('{"insert":');
@@ -297,7 +299,7 @@ describe('QuillEditorComponent', () => {
 
     describe('unkown format', () => {
       it('sets text', () => {
-        const spy = spyOn(component.quillEditor, 'setText');
+        const spy = jest.spyOn(component.quillEditor, 'setText');
 
         component.format = 'test' as any;
         component.setEditorContent('test');
@@ -326,7 +328,7 @@ describe('QuillEditorComponent', () => {
 
     describe('format: text', () => {
       it('returns text', () => {
-        const spy = spyOn(component.quillEditor, 'getText').and.returnValue('test');
+        const spy = jest.spyOn(component.quillEditor, 'getText').mockReturnValue('test');
 
         component.format = 'text';
 
@@ -337,7 +339,7 @@ describe('QuillEditorComponent', () => {
 
     describe('format: json', () => {
       it('returns json', () => {
-        const spy = spyOn(component.quillEditor, 'getContents').and.returnValue([{ insert: '1' }]);
+        const spy = jest.spyOn(component.quillEditor, 'getContents').mockReturnValue([{ insert: '1' }]);
 
         component.format = 'json';
 
@@ -346,8 +348,8 @@ describe('QuillEditorComponent', () => {
       });
 
       it('returns value as text, if json not parsable', () => {
-        const spy = spyOn(component.quillEditor, 'getText').and.returnValue('test');
-        spyOn(JSON, 'stringify').and.throwError('FAIL!');
+        const spy = jest.spyOn(component.quillEditor, 'getText').mockReturnValue('test');
+        jest.spyOn(JSON, 'stringify').mockImplementation(() => {throw 'FAIL!'});
 
         component.format = 'json';
 
@@ -358,7 +360,7 @@ describe('QuillEditorComponent', () => {
 
     describe('unkown format', () => {
       it('returns text', () => {
-        const spy = spyOn(component.quillEditor, 'getText').and.returnValue('test');
+        const spy = jest.spyOn(component.quillEditor, 'getText').mockReturnValue('test');
 
         component.format = 'test' as any;
 
@@ -563,7 +565,7 @@ describe('QuillEditorComponent', () => {
     describe('without styles and content', () => {
       it('does nothing with styles', () => {
         component.styles = undefined;
-        const spy = spyOn(component.editorElement.style, 'setProperty');
+        const spy = jest.spyOn(component.editorElement.style, 'setProperty');
 
         component.componentDidLoad();
 
@@ -572,7 +574,7 @@ describe('QuillEditorComponent', () => {
 
       it('does not set content if nothing there', () => {
         component.content = '';
-        const spy = spyOn(component, 'setEditorContent');
+        const spy = jest.spyOn(component, 'setEditorContent');
 
         component.componentDidLoad();
 
@@ -603,7 +605,7 @@ describe('QuillEditorComponent', () => {
     });
 
     it('emits init', async () => {
-      const spy = spyOn(component.editorInit, 'emit');
+      const spy = jest.spyOn(component.editorInit, 'emit');
       jest.spyOn(global, 'setTimeout').mockImplementationOnce(cb => {
         cb();
         return 0 as any;
@@ -611,7 +613,7 @@ describe('QuillEditorComponent', () => {
 
       component.componentDidLoad();
 
-      expect(spy.calls.argsFor(0)[0].root).toEqual(expect.objectContaining({ dataset: { placeholder: '' } }));
+      expect(spy.mock.calls[0][0].root).toEqual(expect.objectContaining({ dataset: { placeholder: '' } }));
     });
 
     describe('editorChangeEvent', () => {
@@ -626,13 +628,22 @@ describe('QuillEditorComponent', () => {
       });
 
       it('invoke as text-change event', async () => {
-        const emitSpy = spyOn(component.editorChange, 'emit');
-        spyOn(component.quillEditor, 'getText').and.returnValue('test');
-        spyOn(component.quillEditor, 'getContents').and.returnValue([{ insert: 'test' }]);
+        const emitSpy = jest.spyOn(component.editorChange, 'emit');
+        jest.spyOn(component.quillEditor, 'getText').mockReturnValue('test');
+        jest.spyOn(component.quillEditor, 'getContents').mockReturnValue([{ insert: 'test' }]);
 
         component.quillEditor.callbacks[0]('text-change', null, null, 'api');
 
-        const eventObject = emitSpy.calls.argsFor(0)[0];
+        const eventObject = emitSpy.mock.calls[0][0] as {
+          editor: any;
+          event: "text-change";
+          content: any;
+          text: string;
+          html: string;
+          delta: any;
+          oldDelta: any;
+          source: string;
+        };
         expect(eventObject.event).toEqual('text-change');
         expect(eventObject.text).toEqual('test');
         expect(eventObject.html).toEqual('');
@@ -644,23 +655,38 @@ describe('QuillEditorComponent', () => {
       });
 
       it('invoke as text-change event with empty html content', async () => {
-        const emitSpy = spyOn(component.editorChange, 'emit');
-        spyOn(component.quillEditor, 'getText').and.returnValue('test');
-        spyOn(component.quillEditor, 'getContents').and.returnValue([{ insert: 'test' }]);
+        const emitSpy = jest.spyOn(component.editorChange, 'emit');
+        jest.spyOn(component.quillEditor, 'getText').mockReturnValue('test');
+        jest.spyOn(component.quillEditor, 'getContents').mockReturnValue([{ insert: 'test' }]);
         component.editorElement.children[0].innerHTML = '<div><br></div>';
 
         component.quillEditor.callbacks[0]('text-change', null, null, 'api');
 
-        const eventObject = emitSpy.calls.argsFor(0)[0];
+        const eventObject = emitSpy.mock.calls[0][0] as {
+          editor: any;
+          event: "text-change";
+          content: any;
+          text: string;
+          html: string;
+          delta: any;
+          oldDelta: any;
+          source: string;
+        };
         expect(eventObject.html).toEqual(null);
       });
 
       it('invoke as selection-change event', async () => {
-        const emitSpy = spyOn(component.editorChange, 'emit');
+        const emitSpy = jest.spyOn(component.editorChange, 'emit');
 
         component.quillEditor.callbacks[0]('selection-change', null, null, 'api');
 
-        const eventObject = emitSpy.calls.argsFor(0)[0];
+        const eventObject = emitSpy.mock.calls[0][0] as {
+          editor: any;
+          event: "selection-change";
+          range: any;
+          oldRange: any;
+          source: string;
+        };
         expect(eventObject.event).toEqual('selection-change');
         expect(eventObject.oldRange).toBe(null);
         expect(eventObject.range).toBe(null);
@@ -681,13 +707,13 @@ describe('QuillEditorComponent', () => {
       });
 
       it('invoke as text-change event', async () => {
-        const emitSpy = spyOn(component.editorContentChange, 'emit');
-        spyOn(component.quillEditor, 'getText').and.returnValue('test');
-        spyOn(component.quillEditor, 'getContents').and.returnValue([{ insert: 'test' }]);
+        const emitSpy = jest.spyOn(component.editorContentChange, 'emit');
+        jest.spyOn(component.quillEditor, 'getText').mockReturnValue('test');
+        jest.spyOn(component.quillEditor, 'getContents').mockReturnValue([{ insert: 'test' }]);
 
         component.quillEditor.callbacks[2](null, null, 'api');
 
-        const eventObject = emitSpy.calls.argsFor(0)[0];
+        const eventObject = emitSpy.mock.calls[0][0];
         expect(eventObject.text).toEqual('test');
         expect(eventObject.html).toEqual('');
         expect(eventObject.content).toEqual([{ insert: 'test' }]);
@@ -698,14 +724,14 @@ describe('QuillEditorComponent', () => {
       });
 
       it('invoke as text-change event with empty html content', async () => {
-        const emitSpy = spyOn(component.editorContentChange, 'emit');
-        spyOn(component.quillEditor, 'getText').and.returnValue('test');
-        spyOn(component.quillEditor, 'getContents').and.returnValue([{ insert: 'test' }]);
+        const emitSpy = jest.spyOn(component.editorContentChange, 'emit');
+        jest.spyOn(component.quillEditor, 'getText').mockReturnValue('test');
+        jest.spyOn(component.quillEditor, 'getContents').mockReturnValue([{ insert: 'test' }]);
         component.editorElement.children[0].innerHTML = '<div><br></div>';
 
         component.quillEditor.callbacks[2](null, null, 'api');
 
-        const eventObject = emitSpy.calls.argsFor(0)[0];
+        const eventObject = emitSpy.mock.calls[0][0];
         expect(eventObject.html).toEqual(null);
       });
     });
@@ -722,11 +748,11 @@ describe('QuillEditorComponent', () => {
       });
 
       it('invoke as selection-change event', async () => {
-        const emitSpy = spyOn(component.editorSelectionChange, 'emit');
+        const emitSpy = jest.spyOn(component.editorSelectionChange, 'emit');
 
         component.quillEditor.callbacks[1](null, null, 'api');
 
-        const eventObject = emitSpy.calls.argsFor(0)[0];
+        const eventObject = emitSpy.mock.calls[0][0];
 
         expect(eventObject.oldRange).toBe(null);
         expect(eventObject.range).toBe(null);
@@ -735,28 +761,28 @@ describe('QuillEditorComponent', () => {
       });
 
       it('emits focus event when old range null', async () => {
-        const emitSpy = spyOn(component.editorFocus, 'emit');
+        const emitSpy = jest.spyOn(component.editorFocus, 'emit');
 
         component.quillEditor.callbacks[1](2, null, 'api');
 
-        const eventObject = emitSpy.calls.argsFor(0)[0];
+        const eventObject = emitSpy.mock.calls[0][0];
         expect(eventObject.source).toEqual('api');
         expect(eventObject.editor.root).toEqual({ dataset: { placeholder: '' } });
       });
 
       it('emits blur event when new range null', async () => {
-        const emitSpy = spyOn(component.editorBlur, 'emit');
+        const emitSpy = jest.spyOn(component.editorBlur, 'emit');
 
         component.quillEditor.callbacks[1](null, 2, 'api');
 
-        const eventObject = emitSpy.calls.argsFor(0)[0];
+        const eventObject = emitSpy.mock.calls[0][0];
         expect(eventObject.source).toEqual('api');
         expect(eventObject.editor.root).toEqual({ dataset: { placeholder: '' } });
       });
 
       it('emits neither blur nor focus event when new range and old range is defined', async () => {
-        const emitSpy = spyOn(component.editorBlur, 'emit');
-        const emit2Spy = spyOn(component.editorFocus, 'emit');
+        const emitSpy = jest.spyOn(component.editorBlur, 'emit');
+        const emit2Spy = jest.spyOn(component.editorFocus, 'emit');
 
         component.quillEditor.callbacks[1](2, 2, 'api');
 
@@ -768,9 +794,9 @@ describe('QuillEditorComponent', () => {
 
   describe('#disconnectedCallback', () => {
     it('removes event listeners', () => {
-      const spySelection = spyOn(component.selectionChangeEvent, 'removeListener').and.callThrough();
-      const spyText = spyOn(component.textChangeEvent, 'removeListener').and.callThrough();
-      const spyEditor = spyOn(component.editorChangeEvent, 'removeListener').and.callThrough();
+      const spySelection = jest.spyOn(component.selectionChangeEvent, 'removeListener');
+      const spyText = jest.spyOn(component.textChangeEvent, 'removeListener');
+      const spyEditor = jest.spyOn(component.editorChangeEvent, 'removeListener');
 
       component.disconnectedCallback();
 

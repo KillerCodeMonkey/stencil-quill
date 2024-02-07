@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
     <title>Stencil Quill</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js"></script>
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <script src="https://unpkg.com/quill-image-uploader@1.2.1/dist/quill.imageUploader.min.js"></script>
+    <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script type="application/javascript" src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.0/dist/quill.js"></script>
+    <!-- <script src="https://unpkg.com/quill-image-uploader@1.2.1/dist/quill.imageUploader.min.js"></script> -->
     <script>
       //Quill Image handler
-      Quill.register("modules/imageUploader", ImageUploader);
+      // Quill.register("modules/imageUploader", ImageUploader);
       // Quill custom word count component
       Quill.register('modules/counter', function (quill, options) {
         var container = document.querySelector('#counter');
@@ -32,12 +32,12 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css?family=Aref+Ruqaa|Mirza|Roboto" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" />
-    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.bubble.css" />
-    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css" />
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
-    <link href="https://unpkg.com/quill-image-uploader@1.2.1/dist/quill.imageUploader.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai-sublime.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.0/dist/quill.bubble.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.0/dist/quill.snow.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.0/dist/quill.snow.css" />
+    <!-- <link href="https://unpkg.com/quill-image-uploader@1.2.1/dist/quill.imageUploader.min.css" rel="stylesheet" /> -->
 
     <style>
       /* Set default font-family */
@@ -66,9 +66,9 @@
       /* We do not set Aref Ruqaa since it is the default font */
     </style>
     <script type="module" src="/build/quill-components.esm.js"></script>
-    <script nomodule src="/build/quill-components.js"></script>
+    <script type="application/javascript" nomodule src="/build/quill-components.js"></script>
     <script type="module" src="/stencil-quill/esm/quill-components.js"></script>
-    <script nomodule src="/stencil-quill/cjs/quill-components.cjs.js"></script>
+    <script type="application/javascript" nomodule src="/stencil-quill/cjs/quill-components.cjs.js"></script>
   </head>
   <body>
     <h3>Default Editor</h3>

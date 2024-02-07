@@ -43,7 +43,58 @@ export interface QuillEditorCustomEvent<T> extends CustomEvent<T> {
     target: HTMLQuillEditorElement;
 }
 declare global {
+    interface HTMLQuillEditorElementEventMap {
+        "editorInit": any;
+        "editorChange": | {
+        editor: any;
+        event: 'text-change';
+        content: any;
+        text: string;
+        html: string;
+        delta: any;
+        oldDelta: any;
+        source: string;
+      }
+    | {
+        editor: any;
+        event: 'selection-change';
+        range: any;
+        oldRange: any;
+        source: string;
+      };
+        "editorContentChange": {
+    editor: any;
+    content: any;
+    text: string;
+    html: string;
+    delta: any;
+    oldDelta: any;
+    source: string;
+  };
+        "editorSelectionChange": {
+    editor: any;
+    range: any;
+    oldRange: any;
+    source: string;
+  };
+        "editorFocus": {
+    editor: any;
+    source: string;
+  };
+        "editorBlur": {
+    editor: any;
+    source: string;
+  };
+    }
     interface HTMLQuillEditorElement extends Components.QuillEditor, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLQuillEditorElementEventMap>(type: K, listener: (this: HTMLQuillEditorElement, ev: QuillEditorCustomEvent<HTMLQuillEditorElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLQuillEditorElementEventMap>(type: K, listener: (this: HTMLQuillEditorElement, ev: QuillEditorCustomEvent<HTMLQuillEditorElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLQuillEditorElement: {
         prototype: HTMLQuillEditorElement;
