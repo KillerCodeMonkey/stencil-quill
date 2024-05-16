@@ -27,12 +27,10 @@ export class QuillEditorComponent {
         this.modules = undefined;
         this.placeholder = 'Insert text here ...';
         this.readOnly = undefined;
-        this.scrollingContainer = undefined;
-        this.strict = true;
         this.styles = '{}';
         this.theme = 'snow';
         this.customToolbarPosition = 'top';
-        this.preserveWhitespace = false;
+        this.defaultEmptyValue = null;
     }
     setEditorContent(value) {
         if (this.format === 'html') {
@@ -57,9 +55,9 @@ export class QuillEditorComponent {
     getEditorContent() {
         const text = this.quillEditor.getText();
         const content = this.quillEditor.getContents();
-        let html = this.editorElement.children[0].innerHTML;
-        if (html === '<p><br></p>' || html === '<div><br></div>') {
-            html = '';
+        let html = this.quillEditor.getSemanticHTML();
+        if (this.isEmptyValue(html)) {
+            html = this.defaultEmptyValue;
         }
         if (this.format === 'html') {
             return html;
@@ -80,7 +78,7 @@ export class QuillEditorComponent {
         }
     }
     componentDidLoad() {
-        this.editorElement = this.preserveWhitespace ? document.createElement('pre') : document.createElement('div');
+        this.editorElement = document.createElement('div');
         this.editorElement.setAttribute('quill-editor', '');
         let modules = this.modules ? JSON.parse(this.modules) : this.defaultModules;
         const toolbarElem = this.wrapperElement.querySelector('[slot="quill-toolbar"]');
@@ -103,9 +101,7 @@ export class QuillEditorComponent {
             readOnly: this.readOnly || false,
             theme: this.theme || 'snow',
             formats: this.formats,
-            bounds: this.bounds ? (this.bounds === 'self' ? this.editorElement : this.bounds) : document.body,
-            strict: this.strict,
-            scrollingContainer: this.scrollingContainer,
+            bounds: this.bounds ? (this.bounds === 'self' ? this.editorElement : this.bounds) : document.body
         });
         if (this.styles) {
             const styles = JSON.parse(this.styles);
@@ -122,8 +118,8 @@ export class QuillEditorComponent {
             if (event === 'text-change') {
                 const text = this.quillEditor.getText();
                 const content = this.quillEditor.getContents();
-                let html = this.editorElement.querySelector('.ql-editor').innerHTML;
-                if (html === '<p><br></p>' || html === '<div><br></div>') {
+                let html = this.quillEditor.getSemanticHTML();
+                if (this.isEmptyValue(html)) {
                     html = null;
                 }
                 this.editorChange.emit({
@@ -170,8 +166,8 @@ export class QuillEditorComponent {
         this.textChangeEvent = this.quillEditor.on('text-change', (delta, oldDelta, source) => {
             const text = this.quillEditor.getText();
             const content = this.quillEditor.getContents();
-            let html = this.editorElement.querySelector('.ql-editor').innerHTML;
-            if (html === '<p><br></p>' || html === '<div><br></div>') {
+            let html = this.quillEditor.getSemanticHTML();
+            if (this.isEmptyValue(html)) {
                 html = null;
             }
             this.editorContentChange.emit({
@@ -257,6 +253,9 @@ export class QuillEditorComponent {
     }
     render() {
         h(Host, null, h("slot", { name: "quill-toolbar", "quill-toolbar": "" }));
+    }
+    isEmptyValue(html) {
+        return html === '<p></p>' || html === '<div></div>' || html === '<p><br></p>' || html === '<div><br></div>';
     }
     static get is() { return "quill-editor"; }
     static get encapsulation() { return "scoped"; }
@@ -404,46 +403,6 @@ export class QuillEditorComponent {
                 "attribute": "read-only",
                 "reflect": false
             },
-            "scrollingContainer": {
-                "type": "string",
-                "mutable": false,
-                "complexType": {
-                    "original": "HTMLElement | string",
-                    "resolved": "HTMLElement | string",
-                    "references": {
-                        "HTMLElement": {
-                            "location": "global",
-                            "id": "global::HTMLElement"
-                        }
-                    }
-                },
-                "required": false,
-                "optional": false,
-                "docs": {
-                    "tags": [],
-                    "text": ""
-                },
-                "attribute": "scrolling-container",
-                "reflect": false
-            },
-            "strict": {
-                "type": "boolean",
-                "mutable": false,
-                "complexType": {
-                    "original": "boolean",
-                    "resolved": "boolean",
-                    "references": {}
-                },
-                "required": false,
-                "optional": false,
-                "docs": {
-                    "tags": [],
-                    "text": ""
-                },
-                "attribute": "strict",
-                "reflect": false,
-                "defaultValue": "true"
-            },
             "styles": {
                 "type": "string",
                 "mutable": false,
@@ -498,12 +457,12 @@ export class QuillEditorComponent {
                 "reflect": false,
                 "defaultValue": "'top'"
             },
-            "preserveWhitespace": {
-                "type": "boolean",
+            "defaultEmptyValue": {
+                "type": "any",
                 "mutable": false,
                 "complexType": {
-                    "original": "boolean",
-                    "resolved": "boolean",
+                    "original": "any",
+                    "resolved": "any",
                     "references": {}
                 },
                 "required": false,
@@ -512,9 +471,9 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
-                "attribute": "preserve-whitespace",
+                "attribute": "default-empty-value",
                 "reflect": false,
-                "defaultValue": "false"
+                "defaultValue": "null"
             }
         };
     }

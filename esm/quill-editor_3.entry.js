@@ -1,4 +1,4 @@
-import { r as registerInstance, c as createEvent, h, H as Host, g as getElement } from './index-abb158ce.js';
+import { r as registerInstance, c as createEvent, h, H as Host, g as getElement } from './index-8ad68afd.js';
 
 const QuillEditorComponent = class {
     constructor(hostRef) {
@@ -35,12 +35,10 @@ const QuillEditorComponent = class {
         this.modules = undefined;
         this.placeholder = 'Insert text here ...';
         this.readOnly = undefined;
-        this.scrollingContainer = undefined;
-        this.strict = true;
         this.styles = '{}';
         this.theme = 'snow';
         this.customToolbarPosition = 'top';
-        this.preserveWhitespace = false;
+        this.defaultEmptyValue = null;
     }
     setEditorContent(value) {
         if (this.format === 'html') {
@@ -65,9 +63,9 @@ const QuillEditorComponent = class {
     getEditorContent() {
         const text = this.quillEditor.getText();
         const content = this.quillEditor.getContents();
-        let html = this.editorElement.children[0].innerHTML;
-        if (html === '<p><br></p>' || html === '<div><br></div>') {
-            html = '';
+        let html = this.quillEditor.getSemanticHTML();
+        if (this.isEmptyValue(html)) {
+            html = this.defaultEmptyValue;
         }
         if (this.format === 'html') {
             return html;
@@ -88,7 +86,7 @@ const QuillEditorComponent = class {
         }
     }
     componentDidLoad() {
-        this.editorElement = this.preserveWhitespace ? document.createElement('pre') : document.createElement('div');
+        this.editorElement = document.createElement('div');
         this.editorElement.setAttribute('quill-editor', '');
         let modules = this.modules ? JSON.parse(this.modules) : this.defaultModules;
         const toolbarElem = this.wrapperElement.querySelector('[slot="quill-toolbar"]');
@@ -111,9 +109,7 @@ const QuillEditorComponent = class {
             readOnly: this.readOnly || false,
             theme: this.theme || 'snow',
             formats: this.formats,
-            bounds: this.bounds ? (this.bounds === 'self' ? this.editorElement : this.bounds) : document.body,
-            strict: this.strict,
-            scrollingContainer: this.scrollingContainer,
+            bounds: this.bounds ? (this.bounds === 'self' ? this.editorElement : this.bounds) : document.body
         });
         if (this.styles) {
             const styles = JSON.parse(this.styles);
@@ -130,8 +126,8 @@ const QuillEditorComponent = class {
             if (event === 'text-change') {
                 const text = this.quillEditor.getText();
                 const content = this.quillEditor.getContents();
-                let html = this.editorElement.querySelector('.ql-editor').innerHTML;
-                if (html === '<p><br></p>' || html === '<div><br></div>') {
+                let html = this.quillEditor.getSemanticHTML();
+                if (this.isEmptyValue(html)) {
                     html = null;
                 }
                 this.editorChange.emit({
@@ -178,8 +174,8 @@ const QuillEditorComponent = class {
         this.textChangeEvent = this.quillEditor.on('text-change', (delta, oldDelta, source) => {
             const text = this.quillEditor.getText();
             const content = this.quillEditor.getContents();
-            let html = this.editorElement.querySelector('.ql-editor').innerHTML;
-            if (html === '<p><br></p>' || html === '<div><br></div>') {
+            let html = this.quillEditor.getSemanticHTML();
+            if (this.isEmptyValue(html)) {
                 html = null;
             }
             this.editorContentChange.emit({
@@ -266,6 +262,9 @@ const QuillEditorComponent = class {
     render() {
         h(Host, null, h("slot", { name: "quill-toolbar", "quill-toolbar": "" }));
     }
+    isEmptyValue(html) {
+        return html === '<p></p>' || html === '<div></div>' || html === '<p><br></p>' || html === '<div><br></div>';
+    }
     get wrapperElement() { return getElement(this); }
     static get watchers() { return {
         "content": ["updateContent"],
@@ -289,9 +288,12 @@ const QuillViewComponent = class {
         this.strict = true;
         this.styles = '{}';
         this.theme = 'snow';
-        this.preserveWhitespace = false;
+        this.defaultEmptyValue = null;
     }
     setEditorContent(value) {
+        if (!this.quillEditor) {
+            return null;
+        }
         if (this.format === 'html') {
             const contents = this.quillEditor.clipboard.convert(value);
             this.quillEditor.setContents(contents, 'api');
@@ -312,11 +314,14 @@ const QuillViewComponent = class {
         }
     }
     getEditorContent() {
+        if (!this.quillEditor) {
+            return null;
+        }
         const text = this.quillEditor.getText();
         const content = this.quillEditor.getContents();
-        let html = this.editorElement.children[0].innerHTML;
-        if (html === '<p><br></p>' || html === '<div><br></div>') {
-            html = '';
+        let html = this.quillEditor.getSemanticHTML();
+        if (this.isEmptyValue(html)) {
+            html = this.defaultEmptyValue;
         }
         if (this.format === 'html') {
             return html;
@@ -383,6 +388,9 @@ const QuillViewComponent = class {
         }
     }
     updateContent(newValue) {
+        if (!this.quillEditor) {
+            return null;
+        }
         const editorContents = this.getEditorContent();
         if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
             return null;
@@ -402,8 +410,11 @@ const QuillViewComponent = class {
         }
         this.setEditorContent(newValue);
     }
+    isEmptyValue(html) {
+        return html === '<p></p>' || html === '<div></div>' || html === '<p><br></p>' || html === '<div><br></div>';
+    }
     render() {
-        return this.preserveWhitespace ? (h("pre", { "quill-element": true, ref: (el) => (this.editorElement = el) })) : (h("div", { "quill-element": true, ref: (el) => (this.editorElement = el) }));
+        return (h("div", { key: 'b5d966c20180db2d28ee0de2ab8547aa50341bc3', "quill-element": true, ref: (el) => { this.editorElement = el; } }));
     }
     get wrapperElement() { return getElement(this); }
     static get watchers() { return {
@@ -428,7 +439,7 @@ const QuillViewHTMLComponent = class {
     }
     render() {
         const classes = `ql-container ${this.themeClass} quill-view-html`;
-        return (h("div", { key: '91c1b70fd1a72758b8d849e0e53f7e106d688b04', class: classes }, h("div", { key: '6801553e41d3aa0557dc3b5e71583baf046d0980', class: "ql-editor", innerHTML: this.content })));
+        return (h("div", { key: 'a7136b962b0fd69180276ef7add2d89b8389ba3a', class: classes }, h("div", { key: '598a89699ee3255a5406b999b9775f8947a42396', class: "ql-editor", innerHTML: this.content })));
     }
     static get watchers() { return {
         "theme": ["updateTheme"]

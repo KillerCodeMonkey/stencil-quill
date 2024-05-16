@@ -69,6 +69,7 @@
     <script type="application/javascript" nomodule src="/build/quill-components.js"></script>
     <script type="module" src="/stencil-quill/esm/quill-components.js"></script>
     <script type="application/javascript" nomodule src="/stencil-quill/cjs/quill-components.cjs.js"></script>
+    <!-- <script type="application/javascript" src='https://unpkg.com/stencil-quill@10.0.0/dist/quill-components/quill-components.js'></script> -->
   </head>
   <body>
     <h3>Default Editor</h3>
@@ -78,8 +79,8 @@
     <button id="backgroundColor">Toggle BackgroundColor</button>
     <quill-editor id="quill-editor" styles='{"background-color": "red"}' format="json" content=""></quill-editor>
 
-    <h3>Custom HTML Toolbar + PreserveWhitespace</h3>
-    <quill-editor modules='{ "counter": true }' custom-toolbar-position="bottom" preserve-whitespace="true" content="test" format="html">
+    <h3>Custom HTML Toolbar + default value ""</h3>
+    <quill-editor modules='{ "counter": true }' custom-toolbar-position="bottom" default-empty-value="" content="test" format="html">
       <div slot="quill-toolbar">
         <span class="ql-formats">
           <select class="ql-font">
@@ -110,7 +111,7 @@
     <quill-view-html id="htmlView" theme="snow" content="<ul><li>Hallo</li></ul>"> </quill-view-html>
 
     <h3>QuillView - Present json <small>connected to default editor</small></h3>
-    <quill-view id="view" theme="snow" format="json" preserve-whitespaces="true" content=""> </quill-view>
+    <quill-view id="view" theme="snow" format="json" content=""> </quill-view>
     <script>
       const quillEditor = document.getElementById('quill-editor');
       const quillView = document.getElementById('view');

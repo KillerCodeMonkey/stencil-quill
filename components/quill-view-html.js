@@ -16,7 +16,7 @@ const QuillViewHTMLComponent = /*@__PURE__*/ proxyCustomElement(class QuillViewH
     }
     render() {
         const classes = `ql-container ${this.themeClass} quill-view-html`;
-        return (h("div", { key: '91c1b70fd1a72758b8d849e0e53f7e106d688b04', class: classes }, h("div", { key: '6801553e41d3aa0557dc3b5e71583baf046d0980', class: "ql-editor", innerHTML: this.content })));
+        return (h("div", { key: 'a7136b962b0fd69180276ef7add2d89b8389ba3a', class: classes }, h("div", { key: '598a89699ee3255a5406b999b9775f8947a42396', class: "ql-editor", innerHTML: this.content })));
     }
     static get watchers() { return {
         "theme": ["updateTheme"]

@@ -9,9 +9,12 @@ export class QuillViewComponent {
         this.strict = true;
         this.styles = '{}';
         this.theme = 'snow';
-        this.preserveWhitespace = false;
+        this.defaultEmptyValue = null;
     }
     setEditorContent(value) {
+        if (!this.quillEditor) {
+            return null;
+        }
         if (this.format === 'html') {
             const contents = this.quillEditor.clipboard.convert(value);
             this.quillEditor.setContents(contents, 'api');
@@ -32,11 +35,14 @@ export class QuillViewComponent {
         }
     }
     getEditorContent() {
+        if (!this.quillEditor) {
+            return null;
+        }
         const text = this.quillEditor.getText();
         const content = this.quillEditor.getContents();
-        let html = this.editorElement.children[0].innerHTML;
-        if (html === '<p><br></p>' || html === '<div><br></div>') {
-            html = '';
+        let html = this.quillEditor.getSemanticHTML();
+        if (this.isEmptyValue(html)) {
+            html = this.defaultEmptyValue;
         }
         if (this.format === 'html') {
             return html;
@@ -103,6 +109,9 @@ export class QuillViewComponent {
         }
     }
     updateContent(newValue) {
+        if (!this.quillEditor) {
+            return null;
+        }
         const editorContents = this.getEditorContent();
         if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
             return null;
@@ -122,8 +131,11 @@ export class QuillViewComponent {
         }
         this.setEditorContent(newValue);
     }
+    isEmptyValue(html) {
+        return html === '<p></p>' || html === '<div></div>' || html === '<p><br></p>' || html === '<div><br></div>';
+    }
     render() {
-        return this.preserveWhitespace ? (h("pre", { "quill-element": true, ref: (el) => (this.editorElement = el) })) : (h("div", { "quill-element": true, ref: (el) => (this.editorElement = el) }));
+        return (h("div", { key: 'b5d966c20180db2d28ee0de2ab8547aa50341bc3', "quill-element": true, ref: (el) => { this.editorElement = el; } }));
     }
     static get is() { return "quill-view"; }
     static get encapsulation() { return "scoped"; }
@@ -278,12 +290,12 @@ export class QuillViewComponent {
                 "reflect": false,
                 "defaultValue": "'snow'"
             },
-            "preserveWhitespace": {
-                "type": "boolean",
+            "defaultEmptyValue": {
+                "type": "any",
                 "mutable": false,
                 "complexType": {
-                    "original": "boolean",
-                    "resolved": "boolean",
+                    "original": "any",
+                    "resolved": "any",
                     "references": {}
                 },
                 "required": false,
@@ -292,9 +304,9 @@ export class QuillViewComponent {
                     "tags": [],
                     "text": ""
                 },
-                "attribute": "preserve-whitespace",
+                "attribute": "default-empty-value",
                 "reflect": false,
-                "defaultValue": "false"
+                "defaultValue": "null"
             }
         };
     }

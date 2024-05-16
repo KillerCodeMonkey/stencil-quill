@@ -36,12 +36,10 @@ const QuillEditorComponent = /*@__PURE__*/ proxyCustomElement(class QuillEditorC
         this.modules = undefined;
         this.placeholder = 'Insert text here ...';
         this.readOnly = undefined;
-        this.scrollingContainer = undefined;
-        this.strict = true;
         this.styles = '{}';
         this.theme = 'snow';
         this.customToolbarPosition = 'top';
-        this.preserveWhitespace = false;
+        this.defaultEmptyValue = null;
     }
     setEditorContent(value) {
         if (this.format === 'html') {
@@ -66,9 +64,9 @@ const QuillEditorComponent = /*@__PURE__*/ proxyCustomElement(class QuillEditorC
     getEditorContent() {
         const text = this.quillEditor.getText();
         const content = this.quillEditor.getContents();
-        let html = this.editorElement.children[0].innerHTML;
-        if (html === '<p><br></p>' || html === '<div><br></div>') {
-            html = '';
+        let html = this.quillEditor.getSemanticHTML();
+        if (this.isEmptyValue(html)) {
+            html = this.defaultEmptyValue;
         }
         if (this.format === 'html') {
             return html;
@@ -89,7 +87,7 @@ const QuillEditorComponent = /*@__PURE__*/ proxyCustomElement(class QuillEditorC
         }
     }
     componentDidLoad() {
-        this.editorElement = this.preserveWhitespace ? document.createElement('pre') : document.createElement('div');
+        this.editorElement = document.createElement('div');
         this.editorElement.setAttribute('quill-editor', '');
         let modules = this.modules ? JSON.parse(this.modules) : this.defaultModules;
         const toolbarElem = this.wrapperElement.querySelector('[slot="quill-toolbar"]');
@@ -112,9 +110,7 @@ const QuillEditorComponent = /*@__PURE__*/ proxyCustomElement(class QuillEditorC
             readOnly: this.readOnly || false,
             theme: this.theme || 'snow',
             formats: this.formats,
-            bounds: this.bounds ? (this.bounds === 'self' ? this.editorElement : this.bounds) : document.body,
-            strict: this.strict,
-            scrollingContainer: this.scrollingContainer,
+            bounds: this.bounds ? (this.bounds === 'self' ? this.editorElement : this.bounds) : document.body
         });
         if (this.styles) {
             const styles = JSON.parse(this.styles);
@@ -131,8 +127,8 @@ const QuillEditorComponent = /*@__PURE__*/ proxyCustomElement(class QuillEditorC
             if (event === 'text-change') {
                 const text = this.quillEditor.getText();
                 const content = this.quillEditor.getContents();
-                let html = this.editorElement.querySelector('.ql-editor').innerHTML;
-                if (html === '<p><br></p>' || html === '<div><br></div>') {
+                let html = this.quillEditor.getSemanticHTML();
+                if (this.isEmptyValue(html)) {
                     html = null;
                 }
                 this.editorChange.emit({
@@ -179,8 +175,8 @@ const QuillEditorComponent = /*@__PURE__*/ proxyCustomElement(class QuillEditorC
         this.textChangeEvent = this.quillEditor.on('text-change', (delta, oldDelta, source) => {
             const text = this.quillEditor.getText();
             const content = this.quillEditor.getContents();
-            let html = this.editorElement.querySelector('.ql-editor').innerHTML;
-            if (html === '<p><br></p>' || html === '<div><br></div>') {
+            let html = this.quillEditor.getSemanticHTML();
+            if (this.isEmptyValue(html)) {
                 html = null;
             }
             this.editorContentChange.emit({
@@ -267,6 +263,9 @@ const QuillEditorComponent = /*@__PURE__*/ proxyCustomElement(class QuillEditorC
     render() {
         h(Host, null, h("slot", { name: "quill-toolbar", "quill-toolbar": "" }));
     }
+    isEmptyValue(html) {
+        return html === '<p></p>' || html === '<div></div>' || html === '<p><br></p>' || html === '<div><br></div>';
+    }
     get wrapperElement() { return this; }
     static get watchers() { return {
         "content": ["updateContent"],
@@ -283,12 +282,10 @@ const QuillEditorComponent = /*@__PURE__*/ proxyCustomElement(class QuillEditorC
         "modules": [1],
         "placeholder": [1],
         "readOnly": [4, "read-only"],
-        "scrollingContainer": [1, "scrolling-container"],
-        "strict": [4],
         "styles": [1],
         "theme": [1],
         "customToolbarPosition": [1, "custom-toolbar-position"],
-        "preserveWhitespace": [4, "preserve-whitespace"]
+        "defaultEmptyValue": [8, "default-empty-value"]
     }, undefined, {
         "content": ["updateContent"],
         "readOnly": ["updateReadOnly"],

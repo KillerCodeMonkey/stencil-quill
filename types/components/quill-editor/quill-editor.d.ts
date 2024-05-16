@@ -49,12 +49,10 @@ export declare class QuillEditorComponent implements ComponentDidLoad {
     modules?: string;
     placeholder: string;
     readOnly: boolean;
-    scrollingContainer: HTMLElement | string;
-    strict: boolean;
     styles: string;
     theme: string;
     customToolbarPosition: 'top' | 'bottom';
-    preserveWhitespace: boolean;
+    defaultEmptyValue: any;
     quillEditor: any;
     editorElement: HTMLDivElement | HTMLPreElement;
     private defaultModules;
@@ -70,4 +68,5 @@ export declare class QuillEditorComponent implements ComponentDidLoad {
     updatePlaceholder(newValue: string, oldValue: string): void;
     updateStyle(newValue: string, oldValue: string): void;
     render(): void;
+    private isEmptyValue;
 }

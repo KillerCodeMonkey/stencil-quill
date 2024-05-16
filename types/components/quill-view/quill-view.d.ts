@@ -9,13 +9,14 @@ export declare class QuillViewComponent implements ComponentDidLoad {
     strict: boolean;
     styles: string;
     theme: string;
-    preserveWhitespace: boolean;
+    defaultEmptyValue: any;
     quillEditor: any;
-    editorElement: HTMLDivElement | HTMLPreElement;
-    setEditorContent(value: any): void;
+    editorElement: HTMLDivElement;
+    setEditorContent(value: any): any;
     getEditorContent(): any;
     componentDidLoad(): void;
     updateStyle(newValue: string, oldValue: string): void;
     updateContent(newValue: any): void;
+    private isEmptyValue;
     render(): any;
 }

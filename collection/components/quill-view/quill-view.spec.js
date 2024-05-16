@@ -13,6 +13,7 @@ class Quill {
         this.options = options;
         this.editorElement = el;
     }
+    getSemanticHTML() { }
     setContents() { }
     setText() { }
     getContents() { }
@@ -44,18 +45,9 @@ describe('QuillViewComponent', () => {
         expect(component.debug).toEqual('warn');
         expect(component.styles).toEqual('{"height": "200px"}');
         expect(component.strict).toBe(true);
-        expect(component.preserveWhitespace).toBe(false);
+        expect(component.defaultEmptyValue).toBe(null);
         expect(component.modules).toEqual('{"toolbar":true}');
         expect(component.quillEditor.options).toEqual({ debug: 'warn', formats: undefined, modules: { toolbar: false }, readOnly: true, strict: true, theme: 'snow' });
-    });
-    it('renders pre tag if preserve whitespace', async () => {
-        component.preserveWhitespace = true;
-        await page.waitForChanges();
-        expect(page.root).toEqualHtml(`
-      <quill-view content="<p>Test</p>" modules="{&quot;toolbar&quot;:true}" styles="{&quot;height&quot;: &quot;200px&quot;}">
-        <pre quill-element=""></pre>
-      </quill-view>
-    `);
     });
     it('renders styles changes', async () => {
         component.styles = '{"height": "300px"}';
@@ -190,14 +182,14 @@ describe('QuillViewComponent', () => {
     describe('#getEditorContent', () => {
         describe('format: html', () => {
             it('p with br or div with br returns empty string', () => {
-                component.quillEditor.editorElement.children[0].innerHTML = '<div><br/></div>';
+                jest.spyOn(component.quillEditor, 'getSemanticHTML').mockReturnValue('<div><br></div>');
                 component.format = 'html';
-                expect(component.getEditorContent()).toEqual('');
+                expect(component.getEditorContent()).toEqual(null);
             });
             it('returns html', () => {
-                component.quillEditor.editorElement.children[0].innerHTML = '<div><p>asdf</p><br/></div>';
+                jest.spyOn(component.quillEditor, 'getSemanticHTML').mockReturnValue('<div><p>asdf</p><br/></div>');
                 component.format = 'html';
-                expect(component.getEditorContent()).toEqual('<div><p>asdf</p><br></div>');
+                expect(component.getEditorContent()).toEqual('<div><p>asdf</p><br/></div>');
             });
         });
         describe('format: text', () => {
