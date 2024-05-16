@@ -1,4 +1,5 @@
-import { h, Component, ComponentDidLoad, Element, Prop, Watch } from '@stencil/core';
+import { ComponentDidLoad } from '@stencil/core';
+import { h, Component, Element, Prop, Watch } from '@stencil/core';
 
 declare const Quill: any;
 
@@ -19,12 +20,15 @@ export class QuillViewComponent implements ComponentDidLoad {
   @Prop() strict: boolean = true;
   @Prop() styles: string = '{}';
   @Prop() theme: string = 'snow';
-  @Prop() preserveWhitespace: boolean = false;
+  @Prop() defaultEmptyValue: any = null
 
   quillEditor: any;
-  editorElement: HTMLDivElement | HTMLPreElement;
+  editorElement: HTMLDivElement;
 
   setEditorContent(value: any) {
+    if (!this.quillEditor) {
+      return null
+    }
     if (this.format === 'html') {
       const contents = this.quillEditor.clipboard.convert(value);
       this.quillEditor.setContents(contents, 'api');
@@ -42,12 +46,15 @@ export class QuillViewComponent implements ComponentDidLoad {
   }
 
   getEditorContent() {
+    if (!this.quillEditor) {
+      return null
+    }
     const text = this.quillEditor.getText();
     const content = this.quillEditor.getContents();
 
-    let html: string | null = this.editorElement.children[0].innerHTML;
-    if (html === '<p><br></p>' || html === '<div><br></div>') {
-      html = '';
+    let html: string | null = this.quillEditor.getSemanticHTML()
+    if (this.isEmptyValue(html)) {
+      html = this.defaultEmptyValue;
     }
 
     if (this.format === 'html') {
@@ -123,6 +130,9 @@ export class QuillViewComponent implements ComponentDidLoad {
 
   @Watch('content')
   updateContent(newValue: any): void {
+    if (!this.quillEditor) {
+      return null
+    }
     const editorContents = this.getEditorContent();
 
     if (['text', 'html', 'json'].indexOf(this.format) > -1 && newValue === editorContents) {
@@ -143,12 +153,12 @@ export class QuillViewComponent implements ComponentDidLoad {
 
     this.setEditorContent(newValue);
   }
+  
+  private isEmptyValue(html: string | null) {
+    return html === '<p></p>' || html === '<div></div>' || html === '<p><br></p>' || html === '<div><br></div>'
+  }
 
   render() {
-    return this.preserveWhitespace ? (
-      <pre quill-element ref={(el: HTMLPreElement) => (this.editorElement = el)}></pre>
-    ) : (
-      <div quill-element ref={(el: HTMLDivElement) => (this.editorElement = el)}></div>
-    );
+    return (<div quill-element ref={(el: HTMLDivElement) => {this.editorElement = el;}}></div>)
   }
 }

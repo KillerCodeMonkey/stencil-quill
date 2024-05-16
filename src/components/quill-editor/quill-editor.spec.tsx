@@ -26,6 +26,9 @@ class Quill {
   };
   enable() {}
   setContents() {}
+  getSemanticHTML() {
+    return  ''
+  }
   setText() {}
   getContents() {}
   getText() {}
@@ -70,7 +73,7 @@ describe('QuillEditorComponent', () => {
     expect(component.format).toEqual('html');
     expect(component.debug).toEqual('warn');
     expect(component.styles).toEqual('{"height": "200px"}');
-    expect(component.preserveWhitespace).toBe(false);
+    expect(component.defaultEmptyValue).toBe(null);
     expect(component.modules).toEqual('{"toolbar":true}');
 
     expect(component.quillEditor.options.modules).toEqual({ toolbar: true });
@@ -310,17 +313,18 @@ describe('QuillEditorComponent', () => {
   describe('#getEditorContent', () => {
     describe('format: html', () => {
       it('p with br or div with br returns empty string', () => {
-        component.quillEditor.editorElement.children[0].innerHTML = '<div><br/></div>';
+        jest.spyOn(component.quillEditor, 'getSemanticHTML').mockReturnValue('<div><br></div>');
+
         component.format = 'html';
 
-        expect(component.getEditorContent()).toEqual('');
+        expect(component.getEditorContent()).toEqual(null);
       });
 
       it('returns html', () => {
-        component.quillEditor.editorElement.children[0].innerHTML = '<div><p>asdf</p><br/></div>';
+        jest.spyOn(component.quillEditor, 'getSemanticHTML').mockReturnValue('<div><p>asdf</p><br/></div>');
         component.format = 'html';
 
-        expect(component.getEditorContent()).toEqual('<div><p>asdf</p><br></div>');
+        expect(component.getEditorContent()).toEqual('<div><p>asdf</p><br/></div>');
       });
     });
 
@@ -410,23 +414,6 @@ describe('QuillEditorComponent', () => {
           test: {},
           toolbar: true,
         });
-      });
-    });
-
-    describe('preserve whitespaces', () => {
-      it('renders pre tag instead of div', async () => {
-        component.preserveWhitespace = true;
-
-        component.componentDidLoad();
-
-        expect(page.root).toEqualHtml(`
-          <quill-editor content="<p>Test</p>" modules="{&quot;toolbar&quot;:true}" styles="{&quot;height&quot;: &quot;200px&quot;}">
-            <div quill-editor="" style="height: 200px;">
-              <div></div>
-            </div>
-            <pre quill-editor="" style="height: 200px;"><div></div></pre>
-          </div>
-        `);
       });
     });
 
@@ -656,7 +643,7 @@ describe('QuillEditorComponent', () => {
         const emitSpy = jest.spyOn(component.editorChange, 'emit');
         jest.spyOn(component.quillEditor, 'getText').mockReturnValue('test');
         jest.spyOn(component.quillEditor, 'getContents').mockReturnValue([{ insert: 'test' }]);
-        component.editorElement.children[0].innerHTML = '<div><br></div>';
+        jest.spyOn(component.quillEditor, 'getSemanticHTML').mockReturnValue('<div><br></div>');
 
         component.quillEditor.callbacks[0]('text-change', null, null, 'api');
 
@@ -725,7 +712,7 @@ describe('QuillEditorComponent', () => {
         const emitSpy = jest.spyOn(component.editorContentChange, 'emit');
         jest.spyOn(component.quillEditor, 'getText').mockReturnValue('test');
         jest.spyOn(component.quillEditor, 'getContents').mockReturnValue([{ insert: 'test' }]);
-        component.editorElement.children[0].innerHTML = '<div><br></div>';
+        jest.spyOn(component.quillEditor, 'getSemanticHTML').mockReturnValue('<div><br></div>');
 
         component.quillEditor.callbacks[2](null, null, 'api');
 

@@ -11,11 +11,11 @@ export namespace Components {
         "content": string;
         "customToolbarPosition": 'top' | 'bottom';
         "debug": string;
+        "defaultEmptyValue": any;
         "format": 'html' | 'text' | 'json';
         "formats": string[];
         "modules"?: string;
         "placeholder": string;
-        "preserveWhitespace": boolean;
         "readOnly": boolean;
         "styles": string;
         "theme": string;
@@ -23,10 +23,10 @@ export namespace Components {
     interface QuillView {
         "content": string;
         "debug": string;
+        "defaultEmptyValue": any;
         "format": 'html' | 'text' | 'json';
         "formats": string[];
         "modules"?: string;
-        "preserveWhitespace": boolean;
         "strict": boolean;
         "styles": string;
         "theme": string;
@@ -122,6 +122,7 @@ declare namespace LocalJSX {
         "content"?: string;
         "customToolbarPosition"?: 'top' | 'bottom';
         "debug"?: string;
+        "defaultEmptyValue"?: any;
         "format"?: 'html' | 'text' | 'json';
         "formats"?: string[];
         "modules"?: string;
@@ -167,7 +168,6 @@ declare namespace LocalJSX {
     source: string;
   }>) => void;
         "placeholder"?: string;
-        "preserveWhitespace"?: boolean;
         "readOnly"?: boolean;
         "styles"?: string;
         "theme"?: string;
@@ -175,10 +175,10 @@ declare namespace LocalJSX {
     interface QuillView {
         "content"?: string;
         "debug"?: string;
+        "defaultEmptyValue"?: any;
         "format"?: 'html' | 'text' | 'json';
         "formats"?: string[];
         "modules"?: string;
-        "preserveWhitespace"?: boolean;
         "strict"?: boolean;
         "styles"?: string;
         "theme"?: string;

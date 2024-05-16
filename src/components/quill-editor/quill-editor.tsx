@@ -65,7 +65,7 @@ export class QuillEditorComponent implements ComponentDidLoad {
   @Prop() styles: string = '{}';
   @Prop() theme: string = 'snow';
   @Prop() customToolbarPosition: 'top' | 'bottom' = 'top';
-  @Prop() preserveWhitespace: boolean = false;
+  @Prop() defaultEmptyValue: any = null
 
   quillEditor: any;
   editorElement: HTMLDivElement | HTMLPreElement;
@@ -118,9 +118,9 @@ export class QuillEditorComponent implements ComponentDidLoad {
     const text = this.quillEditor.getText();
     const content = this.quillEditor.getContents();
 
-    let html: string | null = this.editorElement.children[0].innerHTML;
-    if (html === '<p><br></p>' || html === '<div><br></div>') {
-      html = '';
+    let html: string | null = this.quillEditor.getSemanticHTML();
+    if (this.isEmptyValue(html)) {
+      html = this.defaultEmptyValue;
     }
 
     if (this.format === 'html') {
@@ -139,7 +139,7 @@ export class QuillEditorComponent implements ComponentDidLoad {
   }
 
   componentDidLoad() {
-    this.editorElement = this.preserveWhitespace ? document.createElement('pre') : document.createElement('div');
+    this.editorElement = document.createElement('div');
     this.editorElement.setAttribute('quill-editor', '');
 
     let modules: any = this.modules ? JSON.parse(this.modules) : this.defaultModules;
@@ -188,8 +188,8 @@ export class QuillEditorComponent implements ComponentDidLoad {
           const text = this.quillEditor.getText();
           const content = this.quillEditor.getContents();
 
-          let html: string | null = this.editorElement.querySelector('.ql-editor')!.innerHTML;
-          if (html === '<p><br></p>' || html === '<div><br></div>') {
+          let html: string | null = this.quillEditor.getSemanticHTML();
+          if (this.isEmptyValue(html)) {
             html = null;
           }
 
@@ -240,8 +240,8 @@ export class QuillEditorComponent implements ComponentDidLoad {
       const text = this.quillEditor.getText();
       const content = this.quillEditor.getContents();
 
-      let html: string | null = this.editorElement.querySelector('.ql-editor').innerHTML;
-      if (html === '<p><br></p>' || html === '<div><br></div>') {
+      let html: string | null = this.quillEditor.getSemanticHTML();
+      if (this.isEmptyValue(html)) {
         html = null;
       }
 
@@ -343,5 +343,9 @@ export class QuillEditorComponent implements ComponentDidLoad {
     <Host>
       <slot name="quill-toolbar" quill-toolbar="" />
     </Host>;
+  }
+
+  private isEmptyValue(html: string | null) {
+    return html === '<p></p>' || html === '<div></div>' || html === '<p><br></p>' || html === '<div><br></div>'
   }
 }

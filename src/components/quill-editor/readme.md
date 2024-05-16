@@ -11,11 +11,11 @@
 | `content`               | `content`                 |             | `string`                     | `undefined`              |
 | `customToolbarPosition` | `custom-toolbar-position` |             | `"bottom" \| "top"`          | `'top'`                  |
 | `debug`                 | `debug`                   |             | `string`                     | `'warn'`                 |
+| `defaultEmptyValue`     | `default-empty-value`     |             | `any`                        | `null`                   |
 | `format`                | `format`                  |             | `"html" \| "json" \| "text"` | `'html'`                 |
 | `formats`               | --                        |             | `string[]`                   | `undefined`              |
 | `modules`               | `modules`                 |             | `string`                     | `undefined`              |
 | `placeholder`           | `placeholder`             |             | `string`                     | `'Insert text here ...'` |
-| `preserveWhitespace`    | `preserve-whitespace`     |             | `boolean`                    | `false`                  |
 | `readOnly`              | `read-only`               |             | `boolean`                    | `undefined`              |
 | `styles`                | `styles`                  |             | `string`                     | `'{}'`                   |
 | `theme`                 | `theme`                   |             | `string`                     | `'snow'`                 |

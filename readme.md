@@ -102,7 +102,7 @@ PayPal: [PayPal.Me/bengtler](https://paypal.me/bengtler)
 
 - customToolbarPosition - if you are working with a custom toolbar you can switch the position :). - default: `top`, possible values `top`, `bottom`
 - debug - set log level `warn`, `error`, `log` or `false` to deactivate logging, default: `warn`
-- preserveWhitespace - default: false - possbility to use a pre-tag instead of a div-tag for the contenteditable area to preserve duplicated whitespaces | caution if used with syntax plugin [Related issue](https://github.com/quilljs/quill/issues/1751)
+- defaultEmptValue - set the default empty value, e.g. empty string, default `null`
 
 [Full Quill Toolbar HTML](https://github.com/quilljs/quill/blob/f75ff2973f068c3db44f949915eb8a74faf162a8/docs/_includes/full-toolbar.html)
 
@@ -204,7 +204,7 @@ It renders a readOnly quilljs editor without a border and toolbar. Does not prov
 - theme - bubble/snow, default is `snow`
 - styles - set a styles object, e.g. `styles="{height: '250px'}"`
 - debug - set log level `warn`, `error`, `log` or `false` to deactivate logging, default: `warn`
-- preserveWhitespace - default: false - possbility to use a pre-tag instead of a div-tag for the contenteditable area to preserve duplicated whitespaces | caution if used with syntax plugin [Related issue](https://github.com/quilljs/quill/issues/1751)
+- defaultEmptValue - set the default empty value, e.g. empty string, default `null`
 
 ## QuillViewHTML component
 
