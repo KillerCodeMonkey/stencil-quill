@@ -40,7 +40,7 @@
     "quill": "^2.0.0"
   },
   "devDependencies": {
-    "@stencil/core": "^4.18.3",
+    "@stencil/core": "^4.19.1",
     "@types/jest": "^29.5.12",
     "canvas": "^2.11.2",
     "gh-pages": "^6.1.1",
