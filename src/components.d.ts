@@ -10,13 +10,25 @@ export namespace Components {
         "bounds": HTMLElement | string;
         "content": string;
         "customToolbarPosition": 'top' | 'bottom';
+        /**
+         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+         */
+        "custom-toolbar-position"?: 'top' | 'bottom';
         "debug": string;
         "defaultEmptyValue": any;
+        /**
+         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+         */
+        "default-empty-value"?: any;
         "format": 'html' | 'text' | 'json';
         "formats": string[];
         "modules"?: string;
         "placeholder": string;
         "readOnly": boolean;
+        /**
+         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+         */
+        "read-only"?: boolean;
         "styles": string;
         "theme": string;
     }
@@ -24,6 +36,10 @@ export namespace Components {
         "content": string;
         "debug": string;
         "defaultEmptyValue": any;
+        /**
+         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+         */
+        "default-empty-value"?: any;
         "format": 'html' | 'text' | 'json';
         "formats": string[];
         "modules"?: string;
@@ -121,8 +137,16 @@ declare namespace LocalJSX {
         "bounds"?: HTMLElement | string;
         "content"?: string;
         "customToolbarPosition"?: 'top' | 'bottom';
+        /**
+         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+         */
+        "custom-toolbar-position"?: 'top' | 'bottom';
         "debug"?: string;
         "defaultEmptyValue"?: any;
+        /**
+         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+         */
+        "default-empty-value"?: any;
         "format"?: 'html' | 'text' | 'json';
         "formats"?: string[];
         "modules"?: string;
@@ -169,6 +193,10 @@ declare namespace LocalJSX {
   }>) => void;
         "placeholder"?: string;
         "readOnly"?: boolean;
+        /**
+         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+         */
+        "read-only"?: boolean;
         "styles"?: string;
         "theme"?: string;
     }
@@ -176,6 +204,10 @@ declare namespace LocalJSX {
         "content"?: string;
         "debug"?: string;
         "defaultEmptyValue"?: any;
+        /**
+         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+         */
+        "default-empty-value"?: any;
         "format"?: 'html' | 'text' | 'json';
         "formats"?: string[];
         "modules"?: string;
