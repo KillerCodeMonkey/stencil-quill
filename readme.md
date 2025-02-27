@@ -241,3 +241,4 @@ It renders an quilljs html string as you would expect it without createing a qui
 - Run `npm install stencil-quill --save`
 - Add an import to the npm packages `import quill-components;`
 - Then you can use the element anywhere in your template, JSX, html etc
+- [Minimal example](https://github.com/KillerCodeMonkey/stencil-quill-example)
