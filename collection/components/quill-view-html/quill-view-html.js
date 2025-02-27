@@ -1,9 +1,8 @@
 import { h } from "@stencil/core";
 export class QuillViewHTMLComponent {
     constructor() {
-        this.themeClass = 'ql-snow';
-        this.content = undefined;
         this.theme = 'snow';
+        this.themeClass = 'ql-snow';
     }
     updateTheme(newValue) {
         this.themeClass = `ql-${newValue || 'snow'}`;
@@ -40,6 +39,8 @@ export class QuillViewHTMLComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "content",
                 "reflect": false
             },
@@ -57,6 +58,8 @@ export class QuillViewHTMLComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "theme",
                 "reflect": false,
                 "defaultValue": "'snow'"

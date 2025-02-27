@@ -1,9 +1,9 @@
-import { p as promiseResolve, b as bootstrapLazy } from './index-8ad68afd.js';
-export { s as setNonce } from './index-8ad68afd.js';
+import { p as promiseResolve, b as bootstrapLazy } from './index-c6a20355.js';
+export { s as setNonce } from './index-c6a20355.js';
 import { g as globalScripts } from './app-globals-0f993ce5.js';
 
 /*
- Stencil Client Patch Browser v4.18.1 | MIT Licensed | https://stenciljs.com
+ Stencil Client Patch Browser v4.27.1 | MIT Licensed | https://stenciljs.com
  */
 var patchBrowser = () => {
   const importMeta = import.meta.url;

@@ -8,10 +8,7 @@ const QuillViewComponent = /*@__PURE__*/ proxyCustomElement(class QuillViewCompo
         super();
         this.__registerHost();
         this.format = 'html';
-        this.content = undefined;
         this.debug = 'warn';
-        this.formats = undefined;
-        this.modules = undefined;
         this.strict = true;
         this.styles = '{}';
         this.theme = 'snow';

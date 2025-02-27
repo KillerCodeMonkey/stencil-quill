@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-const index = require('./index-2a5dfedd.js');
+const index = require('./index-ab2fcd0f.js');
 
 const QuillEditorComponent = class {
     constructor(hostRef) {
@@ -13,6 +13,13 @@ const QuillEditorComponent = class {
         this.editorSelectionChange = index.createEvent(this, "editorSelectionChange", 7);
         this.editorFocus = index.createEvent(this, "editorFocus", 7);
         this.editorBlur = index.createEvent(this, "editorBlur", 7);
+        this.format = 'html';
+        this.debug = 'warn';
+        this.placeholder = 'Insert text here ...';
+        this.styles = '{}';
+        this.theme = 'snow';
+        this.customToolbarPosition = 'top';
+        this.defaultEmptyValue = null;
         this.defaultModules = {
             toolbar: [
                 ['bold', 'italic', 'underline', 'strike'], // toggled buttons
@@ -31,18 +38,6 @@ const QuillEditorComponent = class {
                 ['link', 'image', 'video'], // link and image, video
             ],
         };
-        this.format = 'html';
-        this.bounds = undefined;
-        this.content = undefined;
-        this.debug = 'warn';
-        this.formats = undefined;
-        this.modules = undefined;
-        this.placeholder = 'Insert text here ...';
-        this.readOnly = undefined;
-        this.styles = '{}';
-        this.theme = 'snow';
-        this.customToolbarPosition = 'top';
-        this.defaultEmptyValue = null;
     }
     setEditorContent(value) {
         if (this.format === 'html') {
@@ -285,10 +280,7 @@ const QuillViewComponent = class {
     constructor(hostRef) {
         index.registerInstance(this, hostRef);
         this.format = 'html';
-        this.content = undefined;
         this.debug = 'warn';
-        this.formats = undefined;
-        this.modules = undefined;
         this.strict = true;
         this.styles = '{}';
         this.theme = 'snow';
@@ -434,9 +426,8 @@ const QuillViewHtmlStyle0 = quillViewHtmlCss;
 const QuillViewHTMLComponent = class {
     constructor(hostRef) {
         index.registerInstance(this, hostRef);
-        this.themeClass = 'ql-snow';
-        this.content = undefined;
         this.theme = 'snow';
+        this.themeClass = 'ql-snow';
     }
     updateTheme(newValue) {
         this.themeClass = `ql-${newValue || 'snow'}`;

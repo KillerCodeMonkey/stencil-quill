@@ -7,9 +7,8 @@ const QuillViewHTMLComponent = /*@__PURE__*/ proxyCustomElement(class QuillViewH
     constructor() {
         super();
         this.__registerHost();
-        this.themeClass = 'ql-snow';
-        this.content = undefined;
         this.theme = 'snow';
+        this.themeClass = 'ql-snow';
     }
     updateTheme(newValue) {
         this.themeClass = `ql-${newValue || 'snow'}`;

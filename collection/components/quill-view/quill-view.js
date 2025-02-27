@@ -2,10 +2,7 @@ import { h } from "@stencil/core";
 export class QuillViewComponent {
     constructor() {
         this.format = 'html';
-        this.content = undefined;
         this.debug = 'warn';
-        this.formats = undefined;
-        this.modules = undefined;
         this.strict = true;
         this.styles = '{}';
         this.theme = 'snow';
@@ -165,6 +162,8 @@ export class QuillViewComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "format",
                 "reflect": false,
                 "defaultValue": "'html'"
@@ -183,6 +182,8 @@ export class QuillViewComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "content",
                 "reflect": false
             },
@@ -200,6 +201,8 @@ export class QuillViewComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "debug",
                 "reflect": false,
                 "defaultValue": "'warn'"
@@ -217,7 +220,9 @@ export class QuillViewComponent {
                 "docs": {
                     "tags": [],
                     "text": ""
-                }
+                },
+                "getter": false,
+                "setter": false
             },
             "modules": {
                 "type": "string",
@@ -233,6 +238,8 @@ export class QuillViewComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "modules",
                 "reflect": false
             },
@@ -250,6 +257,8 @@ export class QuillViewComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "strict",
                 "reflect": false,
                 "defaultValue": "true"
@@ -268,6 +277,8 @@ export class QuillViewComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "styles",
                 "reflect": false,
                 "defaultValue": "'{}'"
@@ -286,6 +297,8 @@ export class QuillViewComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "theme",
                 "reflect": false,
                 "defaultValue": "'snow'"
@@ -304,6 +317,8 @@ export class QuillViewComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "default-empty-value",
                 "reflect": false,
                 "defaultValue": "null"

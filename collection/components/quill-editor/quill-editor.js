@@ -1,6 +1,13 @@
 import { h, Host } from "@stencil/core";
 export class QuillEditorComponent {
     constructor() {
+        this.format = 'html';
+        this.debug = 'warn';
+        this.placeholder = 'Insert text here ...';
+        this.styles = '{}';
+        this.theme = 'snow';
+        this.customToolbarPosition = 'top';
+        this.defaultEmptyValue = null;
         this.defaultModules = {
             toolbar: [
                 ['bold', 'italic', 'underline', 'strike'], // toggled buttons
@@ -19,18 +26,6 @@ export class QuillEditorComponent {
                 ['link', 'image', 'video'], // link and image, video
             ],
         };
-        this.format = 'html';
-        this.bounds = undefined;
-        this.content = undefined;
-        this.debug = 'warn';
-        this.formats = undefined;
-        this.modules = undefined;
-        this.placeholder = 'Insert text here ...';
-        this.readOnly = undefined;
-        this.styles = '{}';
-        this.theme = 'snow';
-        this.customToolbarPosition = 'top';
-        this.defaultEmptyValue = null;
     }
     setEditorContent(value) {
         if (this.format === 'html') {
@@ -275,6 +270,8 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "format",
                 "reflect": false,
                 "defaultValue": "'html'"
@@ -298,6 +295,8 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "bounds",
                 "reflect": false
             },
@@ -315,6 +314,8 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "content",
                 "reflect": false
             },
@@ -332,6 +333,8 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "debug",
                 "reflect": false,
                 "defaultValue": "'warn'"
@@ -349,7 +352,9 @@ export class QuillEditorComponent {
                 "docs": {
                     "tags": [],
                     "text": ""
-                }
+                },
+                "getter": false,
+                "setter": false
             },
             "modules": {
                 "type": "string",
@@ -365,6 +370,8 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "modules",
                 "reflect": false
             },
@@ -382,6 +389,8 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "placeholder",
                 "reflect": false,
                 "defaultValue": "'Insert text here ...'"
@@ -400,6 +409,8 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "read-only",
                 "reflect": false
             },
@@ -417,6 +428,8 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "styles",
                 "reflect": false,
                 "defaultValue": "'{}'"
@@ -435,6 +448,8 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "theme",
                 "reflect": false,
                 "defaultValue": "'snow'"
@@ -453,6 +468,8 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "custom-toolbar-position",
                 "reflect": false,
                 "defaultValue": "'top'"
@@ -471,6 +488,8 @@ export class QuillEditorComponent {
                     "tags": [],
                     "text": ""
                 },
+                "getter": false,
+                "setter": false,
                 "attribute": "default-empty-value",
                 "reflect": false,
                 "defaultValue": "null"
