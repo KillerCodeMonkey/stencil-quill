@@ -40,15 +40,15 @@
     "quill": "^2.0.0"
   },
   "devDependencies": {
-    "@stencil/core": "^4.27.2",
+    "@stencil/core": "^4.31.0",
     "@types/jest": "^29.5.14",
     "canvas": "^3.1.0",
     "gh-pages": "^6.3.0",
     "jest": "^29.7.0",
     "jest-cli": "^29.7.0",
-    "jsdom": "^26.0.0",
+    "jsdom": "^26.1.0",
     "prettier": "^3.5.3",
-    "puppeteer": "^24.3.1",
+    "puppeteer": "^24.9.0",
     "quill": "^2.0.3"
   },
   "repository": {
@@ -62,6 +62,6 @@
   },
   "homepage": "https://github.com/KillerCodeMonkey/stencil-quill",
   "volta": {
-    "node": "22.13.1"
+    "node": "22.15.1"
   }
 }
