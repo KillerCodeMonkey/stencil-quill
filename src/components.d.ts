@@ -271,19 +271,48 @@ declare namespace LocalJSX {
          */
         "theme"?: string;
     }
+
+    interface QuillEditorAttributes {
+        "format": 'html' | 'text' | 'json';
+        "bounds": HTMLElement | string;
+        "content": string;
+        "debug": string;
+        "modules": string;
+        "placeholder": string;
+        "readOnly": boolean;
+        "styles": string;
+        "theme": string;
+        "customToolbarPosition": 'top' | 'bottom';
+        "defaultEmptyValue": string;
+    }
+    interface QuillViewAttributes {
+        "format": 'html' | 'text' | 'json';
+        "content": string;
+        "debug": string;
+        "modules": string;
+        "strict": boolean;
+        "styles": string;
+        "theme": string;
+        "defaultEmptyValue": string;
+    }
+    interface QuillViewHtmlAttributes {
+        "content": string;
+        "theme": string;
+    }
+
     interface IntrinsicElements {
-        "quill-editor": QuillEditor;
-        "quill-view": QuillView;
-        "quill-view-html": QuillViewHtml;
+        "quill-editor": Omit<QuillEditor, keyof QuillEditorAttributes> & { [K in keyof QuillEditor & keyof QuillEditorAttributes]?: QuillEditor[K] } & { [K in keyof QuillEditor & keyof QuillEditorAttributes as `attr:${K}`]?: QuillEditorAttributes[K] } & { [K in keyof QuillEditor & keyof QuillEditorAttributes as `prop:${K}`]?: QuillEditor[K] };
+        "quill-view": Omit<QuillView, keyof QuillViewAttributes> & { [K in keyof QuillView & keyof QuillViewAttributes]?: QuillView[K] } & { [K in keyof QuillView & keyof QuillViewAttributes as `attr:${K}`]?: QuillViewAttributes[K] } & { [K in keyof QuillView & keyof QuillViewAttributes as `prop:${K}`]?: QuillView[K] };
+        "quill-view-html": Omit<QuillViewHtml, keyof QuillViewHtmlAttributes> & { [K in keyof QuillViewHtml & keyof QuillViewHtmlAttributes]?: QuillViewHtml[K] } & { [K in keyof QuillViewHtml & keyof QuillViewHtmlAttributes as `attr:${K}`]?: QuillViewHtmlAttributes[K] } & { [K in keyof QuillViewHtml & keyof QuillViewHtmlAttributes as `prop:${K}`]?: QuillViewHtml[K] };
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "quill-editor": LocalJSX.QuillEditor & JSXBase.HTMLAttributes<HTMLQuillEditorElement>;
-            "quill-view": LocalJSX.QuillView & JSXBase.HTMLAttributes<HTMLQuillViewElement>;
-            "quill-view-html": LocalJSX.QuillViewHtml & JSXBase.HTMLAttributes<HTMLQuillViewHtmlElement>;
+            "quill-editor": LocalJSX.IntrinsicElements["quill-editor"] & JSXBase.HTMLAttributes<HTMLQuillEditorElement>;
+            "quill-view": LocalJSX.IntrinsicElements["quill-view"] & JSXBase.HTMLAttributes<HTMLQuillViewElement>;
+            "quill-view-html": LocalJSX.IntrinsicElements["quill-view-html"] & JSXBase.HTMLAttributes<HTMLQuillViewHtmlElement>;
         }
     }
 }
