@@ -9,46 +9,72 @@ export namespace Components {
     interface QuillEditor {
         "bounds": HTMLElement | string;
         "content": string;
+        /**
+          * @default 'top'
+         */
         "customToolbarPosition": 'top' | 'bottom';
         /**
-         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+          * @default 'warn'
          */
-        "custom-toolbar-position"?: 'top' | 'bottom';
         "debug": string;
+        /**
+          * @default null
+         */
         "defaultEmptyValue": any;
         /**
-         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+          * @default 'html'
          */
-        "default-empty-value"?: any;
         "format": 'html' | 'text' | 'json';
         "formats": string[];
         "modules"?: string;
+        /**
+          * @default 'Insert text here ...'
+         */
         "placeholder": string;
         "readOnly": boolean;
         /**
-         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+          * @default '{}'
          */
-        "read-only"?: boolean;
         "styles": string;
+        /**
+          * @default 'snow'
+         */
         "theme": string;
     }
     interface QuillView {
         "content": string;
+        /**
+          * @default 'warn'
+         */
         "debug": string;
+        /**
+          * @default null
+         */
         "defaultEmptyValue": any;
         /**
-         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+          * @default 'html'
          */
-        "default-empty-value"?: any;
         "format": 'html' | 'text' | 'json';
         "formats": string[];
         "modules"?: string;
+        /**
+          * @default true
+         */
         "strict": boolean;
+        /**
+          * @default '{}'
+         */
         "styles": string;
+        /**
+          * @default 'snow'
+         */
         "theme": string;
     }
     interface QuillViewHtml {
         "content": string;
+        /**
+          * @default 'snow'
+         */
         "theme": string;
     }
 }
@@ -136,17 +162,21 @@ declare namespace LocalJSX {
     interface QuillEditor {
         "bounds"?: HTMLElement | string;
         "content"?: string;
+        /**
+          * @default 'top'
+         */
         "customToolbarPosition"?: 'top' | 'bottom';
         /**
-         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+          * @default 'warn'
          */
-        "custom-toolbar-position"?: 'top' | 'bottom';
         "debug"?: string;
+        /**
+          * @default null
+         */
         "defaultEmptyValue"?: any;
         /**
-         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+          * @default 'html'
          */
-        "default-empty-value"?: any;
         "format"?: 'html' | 'text' | 'json';
         "formats"?: string[];
         "modules"?: string;
@@ -191,32 +221,54 @@ declare namespace LocalJSX {
     oldRange: any;
     source: string;
   }>) => void;
+        /**
+          * @default 'Insert text here ...'
+         */
         "placeholder"?: string;
         "readOnly"?: boolean;
         /**
-         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+          * @default '{}'
          */
-        "read-only"?: boolean;
         "styles"?: string;
+        /**
+          * @default 'snow'
+         */
         "theme"?: string;
     }
     interface QuillView {
         "content"?: string;
+        /**
+          * @default 'warn'
+         */
         "debug"?: string;
+        /**
+          * @default null
+         */
         "defaultEmptyValue"?: any;
         /**
-         * @deprecated use camelCase instead. Support for dash-casing will be removed in Stencil v5.
+          * @default 'html'
          */
-        "default-empty-value"?: any;
         "format"?: 'html' | 'text' | 'json';
         "formats"?: string[];
         "modules"?: string;
+        /**
+          * @default true
+         */
         "strict"?: boolean;
+        /**
+          * @default '{}'
+         */
         "styles"?: string;
+        /**
+          * @default 'snow'
+         */
         "theme"?: string;
     }
     interface QuillViewHtml {
         "content"?: string;
+        /**
+          * @default 'snow'
+         */
         "theme"?: string;
     }
     interface IntrinsicElements {
